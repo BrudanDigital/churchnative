@@ -9,7 +9,7 @@ package com.example.trial_map;
 
 public final class Manifest {
     public static final class permission {
-        /**   Add Google Map Library 
+        /**  Add Google Map Library 
          */
         public static final String MAPS_RECEIVE="com.example.permission.MAPS_RECEIVE";
     }

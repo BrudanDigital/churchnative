@@ -1,6 +1,7 @@
 package com.example.trial_map;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -8,7 +9,10 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -22,12 +26,16 @@ public class MainActivity extends FragmentActivity implements LocationListener
 
 	private GoogleMap	googleMap;
 	private Location	location;
+	private int			defaultZoomLevel		= 16;
+	private int			homeScreen				= R.layout.activity_main;
+	private int			getEventDetailsScreen	= R.layout.get_event;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		setContentView(homeScreen);
+
 		// Getting Google Play availability status
 		int status = GooglePlayServicesUtil
 				.isGooglePlayServicesAvailable(getBaseContext());
@@ -87,25 +95,25 @@ public class MainActivity extends FragmentActivity implements LocationListener
 	{
 		// TODO Auto-generated method stub
 		TextView tvLocation = (TextView) findViewById(R.id.tv_location);
-		 
-        // Getting latitude of the current location
-        double latitude = location.getLatitude();
- 
-        // Getting longitude of the current location
-        double longitude = location.getLongitude();
- 
-        // Creating a LatLng object for the current location
-        LatLng latLng = new LatLng(latitude, longitude);
- 
-        // Showing the current location in Google Map
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
- 
-        // Zoom in the Google Map
-        googleMap.animateCamera(CameraUpdateFactory.zoomTo(15));
- 
-        // Setting latitude and longitude in the TextView tv_location
-        tvLocation.setText("Latitude:" +  latitude  + ", Longitude:"+ longitude );
- 
+
+		// Getting latitude of the current location
+		double latitude = location.getLatitude();
+
+		// Getting longitude of the current location
+		double longitude = location.getLongitude();
+
+		// Creating a LatLng object for the current location
+		LatLng latLng = new LatLng(latitude, longitude);
+
+		// Showing the current location in Google Map
+		googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+
+		// Zoom in the Google Map
+		googleMap.animateCamera(CameraUpdateFactory.zoomTo(defaultZoomLevel));
+
+		// Setting latitude and longitude in the TextView tv_location
+		tvLocation.setText("Latitude:" + latitude + ", Longitude:" + longitude);
+
 	}
 
 	@Override
@@ -128,12 +136,40 @@ public class MainActivity extends FragmentActivity implements LocationListener
 		// TODO Auto-generated method stub
 
 	}
-	
+
 	@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        //getMenuInflater().inflate(R.menu.activity_main, menu);
-        return true;
-    }
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		// add menu options to the UI
+		MenuInflater menuInflater=getMenuInflater();
+		menuInflater.inflate(R.layout.menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem menu_item)
+	{
+		
+		switch (menu_item.getItemId())
+		{
+			case R.id.menu_addEvent:
+				Toast.makeText(MainActivity.this, "add event is selected", Toast.LENGTH_SHORT).show();	
+				goToNewEventScreen();
+				return true;
+			case  R.id.menu_settings:
+				Toast.makeText(MainActivity.this, "settings selected", Toast.LENGTH_SHORT).show();
+				return true;
+
+		}
+		return super.onOptionsItemSelected(menu_item);
+
+	}
+
+	private void goToNewEventScreen()
+	{
+		// TODO Auto-generated method stub
+		Intent newEventScreen=new Intent(getApplicationContext(),NewEvent.class);
+		startActivity(newEventScreen);
+	}
 
 }
