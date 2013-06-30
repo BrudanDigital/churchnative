@@ -4,6 +4,7 @@
     <string name="app_name">trial_map</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="str_atv_places">Enter Place Here</string>
     <string name="get_event_details_screen">R.layout.get_event</string>
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>

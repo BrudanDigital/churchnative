@@ -28,7 +28,7 @@ public class MainActivity extends FragmentActivity implements LocationListener
 	private Location	location;
 	private int			defaultZoomLevel		= 16;
 	private int			homeScreen				= R.layout.activity_main;
-	private int			getEventDetailsScreen	= R.layout.get_event;
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
