@@ -168,7 +168,7 @@ public class MainActivity extends FragmentActivity implements LocationListener
 	private void goToNewEventScreen()
 	{
 		// TODO Auto-generated method stub
-		Intent newEventScreen=new Intent(getApplicationContext(),NewEvent.class);
+		Intent newEventScreen=new Intent(getApplicationContext(),NewEventActivity.class);
 		startActivity(newEventScreen);
 	}
 

@@ -80,7 +80,7 @@
             android:background="#000000" >
 
             <Button
-                android:id="@+id/widget61"
+                android:id="@+id/button_cancel"
                 android:layout_width="160dp"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
