@@ -11,15 +11,14 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.R.integer;
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
@@ -37,27 +36,25 @@ import android.widget.Toast;
 //this is the screen shown to user when he clicks add event
 public class NewEventActivity extends Activity
 {
-	private static final String		COUNTRY										= "UG";
-	private static final String		PLACES_API_BASE		= "https://maps.googleapis.com/maps/api/place";
-	private static final String		OUT_JSON									= "/json";
-
-	private static final String		API_KEY										= "AIzaSyCN1vdOEKhXyHSM0IvanKE6FYFoUaWjAPA";
+	private static final String		COUNTRY						= "ug";
+	private static final String		PLACES_API_BASE		= "https://maps.googleapis.com/maps/api/place/autocomplete/";
+	private static final String		API_KEY						= "AIzaSyCN1vdOEKhXyHSM0IvanKE6FYFoUaWjAPA";
 
 	// JSON Node names
-	private static final String		TAG_SUCCESS						= "success";
+	private static final String		TAG_SUCCESS				= "success";
 
 	// url to create new product
-	private static String								url_create_event	= "http://10.0.2.2/android_connect/create_event.php";
-	private int																		newEventXmlFile		= R.layout.new_event;
-	private PlacesTask											placesTask;
-	private ParserTask											parserTask;
+	private static String					url_create_event	= "http://192.168.43.5/android_connect/create_event.php";
+	private int										newEventXmlFile		= R.layout.new_event;
+	private PlacesTask						placesTask;
+	private ParserTask						parserTask;
 	private AutoCompleteTextView	location_auto_complete;
-	private EditText													description;
-	private TimePicker											timePicker;
-	private DatePicker											datePicker;
-	private JSONParser											jsonParser							= new JSONParser();
+	private EditText							description;
+	private TimePicker						timePicker;
+	private DatePicker						datePicker;
+	private JSONParser						jsonParser				= new JSONParser();
 	// Progress Dialog
-	private ProgressDialog							pDialog;
+	private ProgressDialog				pDialog;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -76,24 +73,24 @@ public class NewEventActivity extends Activity
 		// make auto_complete work after user types at least 1 word
 		location_auto_complete.setThreshold(1);
 
-		
 		// add listeners to widgets
 		button_addEvent.setOnClickListener(new View.OnClickListener()
 		{
 			@Override
 			public void onClick(View view)
 			{
-				// creating new product in background thread
-				new CreateNewEvent().execute();
+				
+				// saving event in background thread
+				SaveEvent() ;
 			}
 		});
-		
+
 		button_cancel.setOnClickListener(new View.OnClickListener()
 		{
 			@Override
 			public void onClick(View view)
 			{
-				//close activity
+				// close activity
 				finish();
 			}
 		});
@@ -109,7 +106,8 @@ public class NewEventActivity extends Activity
 			}
 
 			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count, int after)
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after)
 			{
 				// TODO Auto-generated method stub
 			}
@@ -180,7 +178,7 @@ public class NewEventActivity extends Activity
 			String data = "";
 
 			// Obtain browser key from https://code.google.com/apis/console
-			String key = "key=AIzaSyCN1vdOEKhXyHSM0IvanKE6FYFoUaWjAPA";
+			String key = "key=" + API_KEY;
 
 			String input = "";
 
@@ -193,7 +191,7 @@ public class NewEventActivity extends Activity
 				e1.printStackTrace();
 			}
 
-			String country = "components=country:ug";
+			String country = "components=country:" + COUNTRY;
 			// Sensor enabled
 			String sensor = "sensor=true";
 
@@ -204,8 +202,7 @@ public class NewEventActivity extends Activity
 			String output = "json";
 
 			// Building the url to the web service
-			String url = "https://maps.googleapis.com/maps/api/place/autocomplete/"
-					+ output + "?" + parameters;
+			String url = PLACES_API_BASE + output + "?" + parameters;
 
 			try
 			{
@@ -278,95 +275,37 @@ public class NewEventActivity extends Activity
 		}
 	}
 
-	/**
-	 * Background Async Task to Create new product
-	 * */
-	class CreateNewEvent extends AsyncTask<String, String, String>
+	// add event button click hanlder
+	private void SaveEvent()
 	{
+		pDialog=new ProgressDialog(NewEventActivity.this);
+		pDialog.setMessage("Saving Event. Please wait...");
+		pDialog.setIndeterminate(false);
+		pDialog.setCancelable(false);
+		pDialog.show();
+		// get location entered
+		String location = location_auto_complete.getText().toString();
+		// get date
+		int day = datePicker.getDayOfMonth();
+		int month = datePicker.getMonth() + 1;
+		int year = datePicker.getYear();
+		String date = day + "/" + month + "/" + year;
 
-		/**
-		 * Before starting background thread Show Progress Dialog
-		 * */
-		@Override
-		protected void onPreExecute()
-		{
-			super.onPreExecute();
-			pDialog = new ProgressDialog(NewEventActivity.this);
-			pDialog.setMessage("Creating Event..");
-			pDialog.setIndeterminate(false);
-			pDialog.setCancelable(true);
-			pDialog.show();
-		}
+		// get time
+		int hour = timePicker.getCurrentHour();
+		int min = timePicker.getCurrentMinute();
+		String time = hour + ":" + min;
 
-		/**
-		 * Creating event
-		 * */
-		protected String doInBackground(String... args)
-		{
-			// get location entered
-			String location = location_auto_complete.getText().toString();
-			// get date
-			int day = datePicker.getDayOfMonth();
-			int month = datePicker.getMonth() + 1;
-			int year = datePicker.getYear();
-			String date = day + "/" + month + "/" + year;
-
-			// get time
-			int hour = timePicker.getCurrentHour();
-			int min = timePicker.getCurrentMinute();
-			String time = hour + ":" + min;
-
-			// get Description
-			String desc = description.getText().toString();
-
-			// Building Parameters
-			List<NameValuePair> params = new ArrayList<NameValuePair>();
-			params.add(new BasicNameValuePair("location", location));
-			params.add(new BasicNameValuePair("time", time));
-			params.add(new BasicNameValuePair("date", date));
-			params.add(new BasicNameValuePair("description", desc));
-
-			// getting JSON Object
-			// Note that create product url accepts POST method
-			JSONObject json = jsonParser.makeHttpRequest(url_create_event, "POST",
-					params);
-
-			// check log cat fro response
-			Log.d("Create Response", json.toString());
-
-			// check for success tag
-			try
-			{
-				int success = json.getInt(TAG_SUCCESS);
-
-				if (success == 1)
-				{
-					// successfully created product
-					Toast.makeText(getApplicationContext(), "Event Sucessfully Created", Toast.LENGTH_SHORT).show();
-					// closing this screen
-					finish();
-				}
-				else
-				{
-					// failed to create product
-				}
-			}
-			catch (JSONException e)
-			{
-				e.printStackTrace();
-			}
-
-			return null;
-		}
-
-		/**
-		 * After completing background task Dismiss the progress dialog
-		 * **/
-		protected void onPostExecute(String file_url)
-		{
-			// dismiss the dialog once done
-			pDialog.dismiss();
-		}
-
+		// get Description
+		String desc = description.getText().toString();
+		
+		Event anEvent=new Event(location,time,date,desc);
+		String result=EventsFactory.SaveEvent(NewEventActivity.this, anEvent);
+		pDialog.dismiss();
+		Toast.makeText(NewEventActivity.this, "result="+result, Toast.LENGTH_SHORT).show();
+		
+		
+		
 	}
+
 }

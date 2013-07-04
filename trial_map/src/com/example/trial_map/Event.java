@@ -2,26 +2,25 @@ package com.example.trial_map;
 
 
 import java.util.Date;
-import com.google.android.gms.maps.model.LatLng;
 
 
 //java bean class for an Event
 public class Event
 {
-	private LatLng location_of_eventLatLng;
+	private String location_of_event;
 	private String time;
-	private Date date;
+	private String date;
 	private String description_of_event;
 	private EventOwner event_owner;
 	
-	public LatLng getLocation_of_eventLatLng()
+	public String getLocation_of_event()
 	{
-		return location_of_eventLatLng;
+		return location_of_event;
 	}
 	
-	public void setLocation_of_eventLatLng(LatLng location_of_eventLatLng)
+	public void setLocation_of_event(String location_of_event)
 	{
-		this.location_of_eventLatLng = location_of_eventLatLng;
+		this.location_of_event = location_of_event;
 	}
 	
 	public String getTime()
@@ -34,12 +33,22 @@ public class Event
 		this.time = time;
 	}
 	
-	public Date getDate()
+	public Event(String location_of_event, String time, String date,String description_of_event)
+	{
+		super();
+		this.location_of_event = location_of_event;
+		this.time = time;
+		this.date = date;
+		this.description_of_event = description_of_event;
+		
+	}
+
+	public String getDate()
 	{
 		return date;
 	}
 	
-	public void setDate(Date date)
+	public void setDate(String date)
 	{
 		this.date = date;
 	}
