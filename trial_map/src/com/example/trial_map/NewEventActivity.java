@@ -8,23 +8,25 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.google.android.gms.maps.model.LatLng;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -36,39 +38,38 @@ import android.widget.Toast;
 //this is the screen shown to user when he clicks add event
 public class NewEventActivity extends Activity
 {
-	private static final String		COUNTRY						= "ug";
-	private static final String		PLACES_API_BASE		= "https://maps.googleapis.com/maps/api/place/autocomplete/";
-	private static final String		API_KEY						= "AIzaSyCN1vdOEKhXyHSM0IvanKE6FYFoUaWjAPA";
+	private static final String		COUNTRY								= "ug";
+	private static final String		PLACES_API_BASE				= "https://maps.googleapis.com/maps/api/place/autocomplete/";
+	private static final String		GOOGLE_PLACES_API_KEY	= "AIzaSyCN1vdOEKhXyHSM0IvanKE6FYFoUaWjAPA";
+	private static final int			NEW_EVENT_XML					= R.layout.new_event;
 
-	// JSON Node names
-	private static final String		TAG_SUCCESS				= "success";
-
-	// url to create new product
-	private static String					url_create_event	= "http://192.168.43.5/android_connect/create_event.php";
-	private int										newEventXmlFile		= R.layout.new_event;
 	private PlacesTask						placesTask;
 	private ParserTask						parserTask;
+	// widgets
 	private AutoCompleteTextView	location_auto_complete;
 	private EditText							description;
 	private TimePicker						timePicker;
 	private DatePicker						datePicker;
-	private JSONParser						jsonParser				= new JSONParser();
-	// Progress Dialog
 	private ProgressDialog				pDialog;
+	private Button								button_addEvent;
+	private Button								button_cancel;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		setContentView(newEventXmlFile);
+		setContentView(NEW_EVENT_XML);
 
 		// get handles to user input fields
 		location_auto_complete = (AutoCompleteTextView) findViewById(R.id.autoComplete_location);
 		timePicker = (TimePicker) findViewById(R.id.timePicker);
 		datePicker = (DatePicker) findViewById(R.id.datePicker);
 		description = (EditText) findViewById(R.id.textbox_description);
-		Button button_addEvent = (Button) findViewById(R.id.button_addEvent);
-		Button button_cancel = (Button) findViewById(R.id.button_cancel);
+		button_addEvent = (Button) findViewById(R.id.button_addEvent);
+		button_cancel = (Button) findViewById(R.id.button_cancel);
+
+		// disable screen gui till user picks location from auto_complete text box
+		EnableWidgets(false);
 
 		// make auto_complete work after user types at least 1 word
 		location_auto_complete.setThreshold(1);
@@ -79,9 +80,8 @@ public class NewEventActivity extends Activity
 			@Override
 			public void onClick(View view)
 			{
-				
-				// saving event in background thread
-				SaveEvent() ;
+				// saving event in background
+				SaveEvent();
 			}
 		});
 
@@ -117,11 +117,22 @@ public class NewEventActivity extends Activity
 			{
 				// TODO Auto-generated method stub
 			}
+		});
 
+		location_auto_complete.setOnItemClickListener(new OnItemClickListener()
+		{
+
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+					long arg3)
+			{
+				// TODO Auto-generated method stub
+				EnableWidgets(true);
+			}
 		});
 	}
 
-	/** A method to download json data from url */
+	// A method to download json data from url
 	private String downloadUrl(String strUrl) throws IOException
 	{
 		String data = "";
@@ -178,7 +189,7 @@ public class NewEventActivity extends Activity
 			String data = "";
 
 			// Obtain browser key from https://code.google.com/apis/console
-			String key = "key=" + API_KEY;
+			String key = "key=" + GOOGLE_PLACES_API_KEY;
 
 			String input = "";
 
@@ -229,7 +240,7 @@ public class NewEventActivity extends Activity
 		}
 	}
 
-	/** A class to parse the Google Places in JSON format */
+	// A class to parse the Google Places in JSON format
 	private class ParserTask extends
 			AsyncTask<String, Integer, List<HashMap<String, String>>>
 	{
@@ -275,16 +286,23 @@ public class NewEventActivity extends Activity
 		}
 	}
 
-	// add event button click hanlder
+	// saves user event
 	private void SaveEvent()
 	{
-		pDialog=new ProgressDialog(NewEventActivity.this);
+		// create progress dialog and display it to user
+		pDialog = new ProgressDialog(NewEventActivity.this);
 		pDialog.setMessage("Saving Event. Please wait...");
 		pDialog.setIndeterminate(false);
 		pDialog.setCancelable(false);
 		pDialog.show();
-		// get location entered
-		String location = location_auto_complete.getText().toString();
+
+		// get user input
+		String location_in_words = location_auto_complete.getText().toString();
+		LatLng location = getLatLngOfLocationInputByUser(location_in_words);
+		if(location==null)
+		{
+			Log.e("geocoder begin", "location is null");
+		}
 		// get date
 		int day = datePicker.getDayOfMonth();
 		int month = datePicker.getMonth() + 1;
@@ -298,14 +316,64 @@ public class NewEventActivity extends Activity
 
 		// get Description
 		String desc = description.getText().toString();
-		
-		Event anEvent=new Event(location,time,date,desc);
-		String result=EventsFactory.SaveEvent(NewEventActivity.this, anEvent);
+
+		// store all info in an event object
+		Event anEvent = new Event(location, time, date, desc);
+
+		// save the event
+		String result = EventsFactory.SaveEvent(NewEventActivity.this, anEvent);
+
+		// dismiss the progress dialog
 		pDialog.dismiss();
-		Toast.makeText(NewEventActivity.this, "result="+result, Toast.LENGTH_SHORT).show();
-		
-		
-		
+
+		// tell user event is saved
+		Toast.makeText(NewEventActivity.this, "result=" + result,
+
+		Toast.LENGTH_SHORT).show();
+
 	}
 
+	//returns the latitude and longitude of location chosen by user
+	private LatLng getLatLngOfLocationInputByUser(String location_in_words)
+	{
+		Geocoder geocoder = new Geocoder(NewEventActivity.this);
+		List<Address> addresses;
+		try
+		{
+			//get the address of the location
+			int max_results=1;
+			Log.e("geocoder begin", "getting address...");
+			addresses = geocoder.getFromLocationName(location_in_words,max_results);
+
+			
+			if (addresses.size() > 0)
+			{
+				Log.e("geocoder sucess", "address gotten");
+				//if array is not empty then get the latitude and longitude of returned results
+				double latitude = addresses.get(0).getLatitude();
+				double longitude = addresses.get(0).getLongitude();
+				Log.e("geocoder latitude", ""+latitude);
+				Log.e("geocoder longitude", ""+longitude);
+				LatLng latLng = new LatLng(latitude, longitude);
+				return latLng;
+			}
+		}
+		catch (IOException e)
+		{
+			Log.e("geocoder error", ""+e.getMessage());
+		}
+
+		return new LatLng(0, 0);
+	}
+
+	// enables or disables gui widgets
+	
+	//set the on screen widgets enabled or disabled
+	private void EnableWidgets(boolean bool)
+	{
+		button_addEvent.setEnabled(bool);
+		timePicker.setEnabled(bool);
+		datePicker.setEnabled(bool);
+		description.setEnabled(bool);
+	}
 }

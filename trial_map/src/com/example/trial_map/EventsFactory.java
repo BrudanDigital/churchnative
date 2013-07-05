@@ -10,6 +10,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import android.app.ProgressDialog;
 import android.content.Context;
 
@@ -43,18 +45,21 @@ public class EventsFactory
 
 	public static String SaveEvent(Context aContext, Event anEvent)
 	{
-		String location = anEvent.getLocation_of_event();
+		//get parameters
+		String latitude=""+anEvent.getLatitude();
+		String longitude=""+anEvent.getLongitude();
 		String time = anEvent.getTime();
 		String date = anEvent.getDate();
 		String description = anEvent.getDescription_of_event();
 		// Building Parameters
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
-		params.add(new BasicNameValuePair("location", location));
+		params.add(new BasicNameValuePair("latitude", latitude));
+		params.add(new BasicNameValuePair("longitude", longitude));
 		params.add(new BasicNameValuePair("time", time));
 		params.add(new BasicNameValuePair("date", date));
 		params.add(new BasicNameValuePair("description", description));
 
-		// getting JSON string from URL
+		// storing events
 		JSONObject json = jParser.makeHttpRequest(CREATE_EVENT_URL, "POST", params);
 
 		try
