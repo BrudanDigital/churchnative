@@ -44,7 +44,11 @@
         </activity>
 
         <!-- Add new Activity class name here -->
+<<<<<<< HEAD
         <activity android:name=".NewEvent" >
+=======
+        <activity android:name=".NewEventActivity" >
+>>>>>>> trial
         </activity>
 
         <uses-library android:name="com.google.android.maps" />
