@@ -188,6 +188,7 @@ containing a value of this type.
     }
     public static final class id {
 <<<<<<< HEAD
+<<<<<<< HEAD
         public static final int action_settings=0x7f050016;
         public static final int autoComplete_location=0x7f05000a;
         public static final int button_addEvent=0x7f050013;
@@ -210,6 +211,8 @@ containing a value of this type.
         public static final int textbox_description=0x7f050010;
         public static final int timePicker=0x7f05000c;
 =======
+=======
+>>>>>>> trial
         public static final int action_settings=0x7f05001a;
         public static final int autoComplete_location=0x7f05000c;
         public static final int button_addEvent=0x7f050019;
@@ -236,6 +239,9 @@ containing a value of this type.
         public static final int textView_time=0x7f05000f;
         public static final int textbox_description=0x7f050016;
         public static final int timePicker=0x7f050010;
+<<<<<<< HEAD
+>>>>>>> trial
+=======
 >>>>>>> trial
         public static final int tv_location=0x7f050005;
         public static final int widget61=0x7f050012;
@@ -243,14 +249,20 @@ containing a value of this type.
     public static final class layout {
         public static final int activity_main=0x7f030000;
 <<<<<<< HEAD
+<<<<<<< HEAD
         public static final int get_event=0x7f030001;
         public static final int main=0x7f030002;
         public static final int menu=0x7f030003;
 =======
+=======
+>>>>>>> trial
         public static final int list_item=0x7f030001;
         public static final int main=0x7f030002;
         public static final int menu=0x7f030003;
         public static final int new_event=0x7f030004;
+<<<<<<< HEAD
+>>>>>>> trial
+=======
 >>>>>>> trial
     }
     public static final class menu {
@@ -324,7 +336,13 @@ containing a value of this type.
          */
         public static final int common_signin_button_text_long=0x7f06000e;
 <<<<<<< HEAD
+<<<<<<< HEAD
         public static final int get_event_details_screen=0x7f060018;
+=======
+        public static final int duration_prompt=0x7f06001a;
+        public static final int end_year=0x7f06001c;
+        public static final int get_event_details_screen=0x7f060019;
+>>>>>>> trial
 =======
         public static final int duration_prompt=0x7f06001a;
         public static final int end_year=0x7f06001c;

@@ -45,7 +45,11 @@
 
         <!-- Add new Activity class name here -->
 <<<<<<< HEAD
+<<<<<<< HEAD
         <activity android:name=".NewEvent" >
+=======
+        <activity android:name=".NewEventActivity" >
+>>>>>>> trial
 =======
         <activity android:name=".NewEventActivity" >
 >>>>>>> trial

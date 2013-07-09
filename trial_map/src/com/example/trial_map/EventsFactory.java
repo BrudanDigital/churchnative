@@ -1,6 +1,7 @@
 package com.example.trial_map;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 //factory class for Events
 public class EventsFactory
 {
@@ -14,6 +15,8 @@ public class EventsFactory
 			return null;
 		}
 =======
+=======
+>>>>>>> trial
 import java.util.ArrayList;
 import java.util.List;
 
@@ -156,5 +159,8 @@ public class EventsFactory
 		return null;
 	}
 
+<<<<<<< HEAD
+>>>>>>> trial
+=======
 >>>>>>> trial
 }

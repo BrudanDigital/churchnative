@@ -31,7 +31,11 @@ public class MainActivity extends FragmentActivity implements LocationListener
 	private GoogleMap	googleMap;
 	private Location	location;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	private int			defaultZoomLevel		= 16;
+=======
+	private int			defaultZoomLevel		= 13;
+>>>>>>> trial
 =======
 	private int			defaultZoomLevel		= 13;
 >>>>>>> trial
@@ -113,11 +117,17 @@ public class MainActivity extends FragmentActivity implements LocationListener
 		// Creating a LatLng object for the current location
 		LatLng latLng = new LatLng(latitude, longitude);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> trial
 		
 		
 		
 		//googleMap.addMarker(new MarkerOptions().position(latLng).title(title));
+<<<<<<< HEAD
+>>>>>>> trial
+=======
 >>>>>>> trial
 
 		// Showing the current location in Google Map
@@ -127,6 +137,12 @@ public class MainActivity extends FragmentActivity implements LocationListener
 		googleMap.animateCamera(CameraUpdateFactory.zoomTo(defaultZoomLevel));
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+		//display events
+		displayEventsIn10kmRadius();
+		
+>>>>>>> trial
 =======
 		//display events
 		displayEventsIn10kmRadius();
@@ -184,6 +200,7 @@ public class MainActivity extends FragmentActivity implements LocationListener
 		}
 		return super.onOptionsItemSelected(menu_item);
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 	}
 
@@ -196,6 +213,9 @@ public class MainActivity extends FragmentActivity implements LocationListener
 =======
 >>>>>>> trial
 
+=======
+
+>>>>>>> trial
 	}
 
 	private void goToNewEventScreen()
