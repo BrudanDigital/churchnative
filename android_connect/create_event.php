@@ -9,12 +9,15 @@
 $response = array();
  
 // check for required fields
-if (isset($_POST['location']) && isset($_POST['time'])&& isset($_POST['date']) && isset($_POST['description'])) {
+if (isset($_POST['latitude'])&& isset($_POST['longitude']) && isset($_POST['time'])&& isset($_POST['date']) && isset($_POST['description'])) {
  
-    $location = $_POST['location'];
+    $latitude = $_POST['latitude'];
+    $longitude = $_POST['longitude'];
     $time = $_POST['time'];
     $date = $_POST['date'];
     $description = $_POST['description'];
+    $name=$_POST['name'];
+    $duration=$_POST['duration'];
  
      // include db connect class
     require_once 'db_connect.php';
@@ -23,7 +26,7 @@ if (isset($_POST['location']) && isset($_POST['time'])&& isset($_POST['date']) &
     $db = new DB_CONNECT();
  
     // mysql inserting a new row
-    $result = mysql_query("INSERT INTO events_test(location, time, date,description) VALUES('$location', '$time','$date', '$description')");
+    $result = mysql_query("INSERT INTO events_test(latitude,longitude, time, date,description,name,duration) VALUES('$latitude','$longitude', '$time','$date', '$description','$name','$duration')");
  
     // check if row inserted or not
     if ($result) {

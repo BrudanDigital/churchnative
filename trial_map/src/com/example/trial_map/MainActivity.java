@@ -1,5 +1,8 @@
 package com.example.trial_map;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import android.app.Dialog;
 import android.content.Intent;
 import android.location.Criteria;
@@ -20,13 +23,14 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MainActivity extends FragmentActivity implements LocationListener
 {
 
 	private GoogleMap	googleMap;
 	private Location	location;
-	private int			defaultZoomLevel		= 16;
+	private int			defaultZoomLevel		= 13;
 	private int			homeScreen				= R.layout.activity_main;
 	
 
@@ -104,6 +108,10 @@ public class MainActivity extends FragmentActivity implements LocationListener
 
 		// Creating a LatLng object for the current location
 		LatLng latLng = new LatLng(latitude, longitude);
+		
+		
+		
+		//googleMap.addMarker(new MarkerOptions().position(latLng).title(title));
 
 		// Showing the current location in Google Map
 		googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
@@ -111,6 +119,9 @@ public class MainActivity extends FragmentActivity implements LocationListener
 		// Zoom in the Google Map
 		googleMap.animateCamera(CameraUpdateFactory.zoomTo(defaultZoomLevel));
 
+		//display events
+		displayEventsIn10kmRadius();
+		
 		// Setting latitude and longitude in the TextView tv_location
 		tvLocation.setText("Latitude:" + latitude + ", Longitude:" + longitude);
 
@@ -168,8 +179,31 @@ public class MainActivity extends FragmentActivity implements LocationListener
 	private void goToNewEventScreen()
 	{
 		// TODO Auto-generated method stub
-		Intent newEventScreen=new Intent(getApplicationContext(),NewEventActivity.class);
-		startActivity(newEventScreen);
+		Intent newEventScreen=new Intent(MainActivity.this,NewEventActivity.class);
+		startActivityForResult(newEventScreen,100);
 	}
 
+	private void displayEventsIn10kmRadius()
+	{
+		try
+		{//try to get events 
+		ArrayList<Event> eventsArrayList=new ArrayList<Event>();
+		eventsArrayList=EventsFactory.getEventsIn10KmRadius();
+		//if u fail to query database for events then return
+		Iterator<Event> iterator=eventsArrayList.iterator();
+		while(iterator.hasNext())
+		{
+			Event anEvent=iterator.next();
+			LatLng location=anEvent.getLocation_of_event();
+			String title=""+anEvent.getDescription_of_event()+":on "+anEvent.getDate();
+			String snippet="start time:"+anEvent.getTime();
+			googleMap.addMarker(new MarkerOptions().position(location).title(title).snippet(snippet));
+		}
+		}
+		catch(Exception e)
+		{
+			String text="Failed To Retrieve Any Events";
+			Toast.makeText(MainActivity.this,text , Toast.LENGTH_LONG).show();
+		}
+	}
 }

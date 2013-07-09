@@ -1,53 +1,57 @@
 package com.example.trial_map;
 
 
-import java.util.Date;
-
 import com.google.android.gms.maps.model.LatLng;
 
 
 //java bean class for an Event
 public class Event
 {
-	private LatLng location_of_event;
+	private LatLng event_location;
+	private String event_name;
 	private double latitude;
 	private double longitude;
-	private String time;
+	private String start_time;
 	private String date;
-	private String description_of_event;
+	private String event_description;
+	private String event_duration;
 	private EventOwner event_owner;
+	
+	public Event(LatLng location_of_event, String time, String date,String description_of_event,String name_of_event,String duration_of_event)
+	{
+		super();
+		this.event_location = location_of_event;
+		this.start_time = time;
+		this.date = date;
+		this.setLatitude(location_of_event.latitude);
+		this.setLongitude(location_of_event.longitude);
+		this.event_description = description_of_event;
+		this.event_name=name_of_event;
+		this.event_duration=duration_of_event;
+		
+	}
 	
 	public LatLng getLocation_of_event()
 	{
-		return location_of_event;
+		return event_location;
 	}
 	
 	public void setLocation_of_event(LatLng location_of_event)
 	{
-		this.location_of_event = location_of_event;
+		this.event_location = location_of_event;
 	}
 	
 	public String getTime()
 	{
-		return time;
+		return start_time;
 	}
 	
 	public void setTime(String time)
 	{
-		this.time = time;
+		this.start_time = time;
 	}
 	
-	public Event(LatLng location_of_event, String time, String date,String description_of_event)
-	{
-		super();
-		this.location_of_event = location_of_event;
-		this.time = time;
-		this.date = date;
-		this.setLatitude(location_of_event.latitude);
-		this.setLongitude(location_of_event.longitude);
-		this.description_of_event = description_of_event;
-		
-	}
+	
 
 	public String getDate()
 	{
@@ -61,12 +65,12 @@ public class Event
 	
 	public String getDescription_of_event()
 	{
-		return description_of_event;
+		return event_description;
 	}
 	
 	public void setDescription_of_event(String description_of_event)
 	{
-		this.description_of_event = description_of_event;
+		this.event_description = description_of_event;
 	}
 	
 	public EventOwner getEvent_owner()
@@ -97,5 +101,25 @@ public class Event
 	public void setLongitude(double longitude)
 	{
 		this.longitude = longitude;
+	}
+
+	public String getDuration()
+	{
+		return event_duration;
+	}
+
+	public void setDuration(String duration)
+	{
+		this.event_duration = duration;
+	}
+
+	public String getName_of_event()
+	{
+		return event_name;
+	}
+
+	public void setName_of_event(String name_of_event)
+	{
+		this.event_name = name_of_event;
 	}
 }
