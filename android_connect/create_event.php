@@ -18,7 +18,7 @@ if (isset($_POST['latitude'])&& isset($_POST['longitude']) && isset($_POST['time
     $description = $_POST['description'];
     $name=$_POST['name'];
     $duration=$_POST['duration'];
- 
+    $location=$_POST['location'];
      // include db connect class
     require_once 'db_connect.php';
  
@@ -26,7 +26,7 @@ if (isset($_POST['latitude'])&& isset($_POST['longitude']) && isset($_POST['time
     $db = new DB_CONNECT();
  
     // mysql inserting a new row
-    $result = mysql_query("INSERT INTO events_test(latitude,longitude, time, date,description,name,duration) VALUES('$latitude','$longitude', '$time','$date', '$description','$name','$duration')");
+    $result = mysql_query("INSERT INTO events_test(location,latitude,longitude, time, date,description,name,duration) VALUES('$location','$latitude','$longitude', '$time','$date', '$description','$name','$duration')");
  
     // check if row inserted or not
     if ($result) {

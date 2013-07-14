@@ -1,38 +1,18 @@
 package com.example.trial_map;
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-import java.util.Date;
-=======
->>>>>>> trial
-=======
->>>>>>> trial
+import java.io.Serializable;
+
 import com.google.android.gms.maps.model.LatLng;
 
 
 //java bean class for an Event
-public class Event
+public class Event implements Serializable
 {
-<<<<<<< HEAD
-<<<<<<< HEAD
-	private LatLng location_of_eventLatLng;
-	private String time;
-	private Date date;
-	private String description_of_event;
-	private EventOwner event_owner;
 	
-	public LatLng getLocation_of_eventLatLng()
-	{
-		return location_of_eventLatLng;
-	}
 	
-	public void setLocation_of_eventLatLng(LatLng location_of_eventLatLng)
-	{
-		this.location_of_eventLatLng = location_of_eventLatLng;
-=======
-=======
->>>>>>> trial
+	private static final long	serialVersionUID	= -3770730160649638144L;
+	private String event_location_in_words;
 	private LatLng event_location;
 	private String event_name;
 	private double latitude;
@@ -43,19 +23,23 @@ public class Event
 	private String event_duration;
 	private EventOwner event_owner;
 	
-	public Event(LatLng location_of_event, String time, String date,String description_of_event,String name_of_event,String duration_of_event)
+	public Event(Double latitude,Double longitude, String time, String date,String description_of_event,String name_of_event,String duration_of_event,String event_location_in_words)
 	{
 		super();
-		this.event_location = location_of_event;
-		this.start_time = time;
+		
+	this.start_time = time;
 		this.date = date;
-		this.setLatitude(location_of_event.latitude);
-		this.setLongitude(location_of_event.longitude);
+		this.latitude=latitude;
+		this.longitude=longitude;
 		this.event_description = description_of_event;
 		this.event_name=name_of_event;
 		this.event_duration=duration_of_event;
+		this.event_location_in_words=event_location_in_words;
+		this.event_location = new LatLng(latitude, longitude);
 		
 	}
+	
+	
 	
 	public LatLng getLocation_of_event()
 	{
@@ -65,87 +49,38 @@ public class Event
 	public void setLocation_of_event(LatLng location_of_event)
 	{
 		this.event_location = location_of_event;
-<<<<<<< HEAD
->>>>>>> trial
-=======
->>>>>>> trial
 	}
 	
 	public String getTime()
 	{
-<<<<<<< HEAD
-<<<<<<< HEAD
-		return time;
-=======
 		return start_time;
->>>>>>> trial
-=======
-		return start_time;
->>>>>>> trial
 	}
 	
 	public void setTime(String time)
 	{
-<<<<<<< HEAD
-<<<<<<< HEAD
-		this.time = time;
-	}
-	
-	public Date getDate()
-=======
-=======
->>>>>>> trial
 		this.start_time = time;
 	}
 	
 	
 
 	public String getDate()
-<<<<<<< HEAD
->>>>>>> trial
-=======
->>>>>>> trial
 	{
 		return date;
 	}
 	
-<<<<<<< HEAD
-<<<<<<< HEAD
-	public void setDate(Date date)
-=======
 	public void setDate(String date)
->>>>>>> trial
-=======
-	public void setDate(String date)
->>>>>>> trial
 	{
 		this.date = date;
 	}
 	
 	public String getDescription_of_event()
 	{
-<<<<<<< HEAD
-<<<<<<< HEAD
-		return description_of_event;
-=======
 		return event_description;
->>>>>>> trial
-=======
-		return event_description;
->>>>>>> trial
 	}
 	
 	public void setDescription_of_event(String description_of_event)
 	{
-<<<<<<< HEAD
-<<<<<<< HEAD
-		this.description_of_event = description_of_event;
-=======
 		this.event_description = description_of_event;
->>>>>>> trial
-=======
-		this.event_description = description_of_event;
->>>>>>> trial
 	}
 	
 	public EventOwner getEvent_owner()
@@ -157,11 +92,6 @@ public class Event
 	{
 		this.event_owner = event_owner;
 	}
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> trial
 
 	public double getLatitude()
 	{
@@ -202,8 +132,16 @@ public class Event
 	{
 		this.event_name = name_of_event;
 	}
-<<<<<<< HEAD
->>>>>>> trial
-=======
->>>>>>> trial
+
+	public String getEvent_location_in_words()
+	{
+		return event_location_in_words;
+	}
+
+	public void setEvent_location_in_words(String event_location_in_words)
+	{
+		this.event_location_in_words = event_location_in_words;
+	}
+
+	
 }

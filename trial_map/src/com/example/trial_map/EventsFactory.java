@@ -1,23 +1,7 @@
 package com.example.trial_map;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-//factory class for Events
-public class EventsFactory
-{
-	public boolean saveNewEvent(Event anEvent)
-	{
-		return false;
-	}
-	
-		public Event[] getEventsIn10KmRadius()
-		{
-			return null;
-		}
-=======
-=======
->>>>>>> trial
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.http.NameValuePair;
@@ -28,8 +12,6 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.util.Log;
-
-import com.google.android.gms.maps.model.LatLng;
 
 //factory class for Events
 
@@ -51,16 +33,22 @@ public class EventsFactory
 	private static final String	TAG_DATE						= "date";
 	private static final String	TAG_NAME						= "name";
 	private static final String	TAG_DURATION				= "duration";
-	//url to php script at website
+	private static final String	TAG_LOCATION				= "location";
+	// url to php script at website
 	private static final String	PHP_SCRIPT_ADDRESS	= "http://192.168.43.169/android_connect/";
 	private static final String	CREATE_EVENT_URL		= PHP_SCRIPT_ADDRESS
 																											+ "create_event.php";
 	private static final String	GET_EVENTS_URL			= PHP_SCRIPT_ADDRESS
 																											+ "get_events.php";
 
-	public static String SaveEvent(Context aContext, Event anEvent)
+	public static final int	SUCCESS	= 1;
+	public static final int	FAILURE	= 0;
+	public static final int	NO_CONNECTION	= 2;
+
+	public static Integer SaveEvent(Context aContext, Event anEvent)
 	{
 		// get parameters
+		String location=anEvent.getEvent_location_in_words();
 		String latitude = "" + anEvent.getLatitude();
 		String longitude = "" + anEvent.getLongitude();
 		String time = anEvent.getTime();
@@ -70,6 +58,7 @@ public class EventsFactory
 		String description = anEvent.getDescription_of_event();
 		// Building Parameters
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
+		params.add(new BasicNameValuePair("location", location));
 		params.add(new BasicNameValuePair("latitude", latitude));
 		params.add(new BasicNameValuePair("longitude", longitude));
 		params.add(new BasicNameValuePair("time", time));
@@ -80,7 +69,7 @@ public class EventsFactory
 
 		// storing events
 		JSONObject json = jParser.makeHttpRequest(CREATE_EVENT_URL, "POST", params);
-
+		Log.e("SAVE EVENT", ""+json.toString());
 		if (json != null)
 		{
 
@@ -91,20 +80,18 @@ public class EventsFactory
 
 				if (success == 1)
 				{
-					return "Event created successfully";
+					return SUCCESS;
 				}
-				else
-				{
-					return "failed to create event";
-
+				else {
+					return FAILURE;
 				}
 			}
 			catch (JSONException e)
 			{
-				e.printStackTrace();
+				Log.e("SAVE EVENT", ""+e.getMessage());
 			}
 		}
-		return "no connection to server";
+		return NO_CONNECTION;
 
 	}
 
@@ -139,10 +126,13 @@ public class EventsFactory
 					String description = events.getString(TAG_DESCRIPTION);
 					Log.e("description", "" + description);
 					String name = events.getString(TAG_NAME);
+					Log.e("name", "" + name);
 					String duration = events.getString(TAG_DURATION);
-					LatLng location = new LatLng(latitude, longitude);
-					Event anEvent = new Event(location, time, date, description, name,
-							duration);
+					Log.e("duration", "" + duration);
+					String event_location_in_words = events.getString(TAG_LOCATION);
+					Log.e("location", "" + event_location_in_words);
+					Event anEvent = new Event(latitude,longitude, time, date, description, name,
+							duration, event_location_in_words);
 					all_events_10km_radius.add(anEvent);
 				}
 			}
@@ -159,8 +149,24 @@ public class EventsFactory
 		return null;
 	}
 
-<<<<<<< HEAD
->>>>>>> trial
-=======
->>>>>>> trial
+	public static ArrayList<String> getEventsAsStringArray()
+	{
+		ArrayList<Event> arrayList =getEventsIn10KmRadius();
+		if (arrayList==null)
+		{
+			return null;
+		}
+		Iterator<Event> iterator=arrayList.iterator();
+		ArrayList<String> eventStrings=new ArrayList<String>();
+		while (iterator.hasNext())
+		{
+			Log.e("GET EVENTS", "events gotten");
+			Event event = (Event) iterator.next();
+			eventStrings.add(event.getName_of_event());
+		}
+		return eventStrings;
+		
+		
+	}
+
 }

@@ -42,17 +42,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!-- Add new Activity class name here -->
-<<<<<<< HEAD
-<<<<<<< HEAD
-        <activity android:name=".NewEvent" >
-=======
-        <activity android:name=".NewEventActivity" >
->>>>>>> trial
-=======
-        <activity android:name=".NewEventActivity" >
->>>>>>> trial
+        <activity
+            android:name=".NewEventActivity"
+            android:label="Create A New Event" >
+        </activity>
+        <activity
+            android:name=".EventDetailsActivity"
+            android:label="Details Of Selected Event" >
+        </activity>
+        <activity
+            android:name=".ListEventsActivity"
+            android:label="View All Events" >
         </activity>
 
         <uses-library android:name="com.google.android.maps" />

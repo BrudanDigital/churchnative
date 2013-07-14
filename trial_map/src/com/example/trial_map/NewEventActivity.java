@@ -41,6 +41,7 @@ public class NewEventActivity extends Activity
 	private static final String		PLACES_API_BASE				= "https://maps.googleapis.com/maps/api/place/autocomplete/";
 	private static final String		GOOGLE_PLACES_API_KEY	= "AIzaSyCN1vdOEKhXyHSM0IvanKE6FYFoUaWjAPA";
 	private static final int			NEW_EVENT_XML					= R.layout.new_event;
+	private static final int			NO_LOCATION_FOUND			= 3;
 	private static final String		GEOCODE_ADDRESS				= "https://maps.googleapis.com/maps/api/geocode/json";
 	private static final String		TAG_RESULTS						= "results";
 	private static final String		TAG_STATUS						= "status";
@@ -49,41 +50,43 @@ public class NewEventActivity extends Activity
 	private ParserTask						parserTask;
 	// widgets
 	private AutoCompleteTextView	location_auto_complete;
-
 	private EditText							description;
 	private TimePicker						timePicker;
 	private DatePicker						datePicker;
-	private Button								button_addEvent;
-	private Button								button_cancel;
+	private Button								button_saveEvent;
+	private Button								button_close;
 	private EditText							name_of_event;
 	private Spinner								duration_of_event;
 
+	// FIXME saving of an event
+	// FIXME finishing the sub activity
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(NEW_EVENT_XML);
 
-		// get handles to user input fields
+		// get objects of widgets
 		location_auto_complete = (AutoCompleteTextView) findViewById(R.id.autoComplete_location);
 		timePicker = (TimePicker) findViewById(R.id.timePicker);
+		timePicker.setIs24HourView(true);
 		datePicker = (DatePicker) findViewById(R.id.datePicker);
-		description = (EditText) findViewById(R.id.textbox_description);
-		button_addEvent = (Button) findViewById(R.id.button_addEvent);
-		button_cancel = (Button) findViewById(R.id.button_cancel);
+		description = (EditText) findViewById(R.id.editText_description);
+		button_saveEvent = (Button) findViewById(R.id.button_addEvent);
+		button_close = (Button) findViewById(R.id.button_cancel);
 		name_of_event = (EditText) findViewById(R.id.editText_name);
 		duration_of_event = (Spinner) findViewById(R.id.spinner);
-
+		// change the text on the buttons
+		button_saveEvent.setText("SAVE");
+		button_close.setText("CLOSE");
 		// disable screen gui till user picks location from auto_complete text box
 		EnableWidgets(false);
 
 		// make auto_complete work after user types at least 1 word
 		location_auto_complete.setThreshold(1);
-		
 
 		// add listeners to widgets
-
-		button_addEvent.setOnClickListener(new View.OnClickListener()
+		button_saveEvent.setOnClickListener(new View.OnClickListener()
 		{
 			@Override
 			public void onClick(View view)
@@ -92,8 +95,6 @@ public class NewEventActivity extends Activity
 				{
 					// saving event in background thread
 					new SaverTask().execute();
-					// close activity
-					finishActivity(100);
 				}
 
 			}
@@ -106,11 +107,13 @@ public class NewEventActivity extends Activity
 			}
 		});
 
-		button_cancel.setOnClickListener(new View.OnClickListener()
+		button_close.setOnClickListener(new View.OnClickListener()
 		{
 			@Override
 			public void onClick(View view)
 			{
+				//set result 
+				setResult(RESULT_CANCELED);
 				// close activity
 				finish();
 			}
@@ -255,10 +258,9 @@ public class NewEventActivity extends Activity
 	}
 
 	// saves new event in background thread using network to send data
-	class SaverTask extends AsyncTask<String, String, String>
+	class SaverTask extends AsyncTask<String, String, Integer>
 	{
-
-		private String					result	= null;
+		private Integer					result;
 		private ProgressDialog	pDialog;
 
 		@Override
@@ -273,15 +275,16 @@ public class NewEventActivity extends Activity
 		}
 
 		@Override
-		protected String doInBackground(String... params)
+		protected Integer doInBackground(String... params)
 		{
-			// get user input
+			// get location of event
 			String location_in_words = location_auto_complete.getText().toString();
+			// get latitude and longitude of event
 			LatLng location = getLatLngOfLocationInputByUser(location_in_words);
+			// if no latitude and longitude can be found for given location
 			if (location == null)
 			{
-				String text="Failed to find location Of Event From Google";		
-				return text;
+				return NO_LOCATION_FOUND;
 			}
 			// get date
 			int day = datePicker.getDayOfMonth();
@@ -304,8 +307,8 @@ public class NewEventActivity extends Activity
 			String event_duration = duration_of_event.getSelectedItem().toString();
 
 			// store all info in an event object
-			Event anEvent = new Event(location, time, date, desc, event_name,
-					event_duration);
+			Event anEvent = new Event(location.latitude, location.longitude, time,
+					date, desc, event_name, event_duration, location_in_words);
 
 			// save the event
 			result = EventsFactory.SaveEvent(NewEventActivity.this, anEvent);
@@ -313,13 +316,40 @@ public class NewEventActivity extends Activity
 		}
 
 		@Override
-		protected void onPostExecute(String string)
+		protected void onPostExecute(Integer integer)
 		{
+
 			// dismiss the progress dialog
 			pDialog.dismiss();
-			// tell user event is saved or failed to save
-			Toast.makeText(NewEventActivity.this, "" + string, Toast.LENGTH_LONG)
-					.show();
+
+			String text;
+			int duration = Toast.LENGTH_LONG;
+
+			switch (integer)
+			{
+				// if event was saved
+				case EventsFactory.SUCCESS:
+					// set result
+					setResult(RESULT_OK);
+					// close activity
+					finish();
+					break;
+				// if we failed to save event coz of server side error
+				case EventsFactory.FAILURE:
+					text = "Failed To Save Event";
+					Toast.makeText(NewEventActivity.this, text, duration).show();
+					break;
+				// if there is no internet connection to server
+				case EventsFactory.NO_CONNECTION:
+					text = "Sorry but there is no connection to the server";
+					Toast.makeText(NewEventActivity.this, text, duration).show();
+					break;
+				// if user entered a location whose cordinates cant be found
+				case NO_LOCATION_FOUND:
+					text = "Failed To Find Location Of Event.Event Was Not Created";
+					Toast.makeText(NewEventActivity.this, text, duration).show();
+					break;
+			}
 
 		}
 	}
@@ -419,7 +449,7 @@ public class NewEventActivity extends Activity
 				return new LatLng(latitude, longitude);
 			}
 			else
-			{//there are no results from google places
+			{// there are no results from google places
 				return null;
 			}
 
@@ -434,7 +464,7 @@ public class NewEventActivity extends Activity
 	// enables or disables gui widgets
 	private void EnableWidgets(boolean bool)
 	{
-		button_addEvent.setEnabled(bool);
+		button_saveEvent.setEnabled(bool);
 		timePicker.setEnabled(bool);
 		datePicker.setEnabled(bool);
 		description.setEnabled(bool);

@@ -33,6 +33,7 @@ if (mysql_num_rows($result) > 0) {
         $events["description"] = $row["description"];
         $events["name"] = $row["name"];
         $events["duration"] = $row["duration"];
+        $events["location"] = $row["location"];
         // push single product into final response array
         array_push($response["events"], $events);
     }
