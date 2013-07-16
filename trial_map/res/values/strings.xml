@@ -8,6 +8,7 @@
     <string name="get_event_details_screen">R.layout.get_event</string>
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
+    <color name="orange">#ff5500</color>
     <string name="duration_prompt">Choose A Duration</string>
     <string-array name="duration_array">
         <item >1 hour</item>

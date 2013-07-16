@@ -1,12 +1,18 @@
-package com.example.trial_map;
+package com.example.trial_map.beans;
 
+
+import java.io.Serializable;
 
 import com.google.android.gms.maps.model.LatLng;
 
 
 //java bean class for an Event
-public class Event
+public class Event implements Serializable
 {
+	
+	
+	private static final long	serialVersionUID	= -3770730160649638144L;
+	private String event_location_in_words;
 	private LatLng event_location;
 	private String event_name;
 	private double latitude;
@@ -17,19 +23,23 @@ public class Event
 	private String event_duration;
 	private EventOwner event_owner;
 	
-	public Event(LatLng location_of_event, String time, String date,String description_of_event,String name_of_event,String duration_of_event)
+	public Event(Double latitude,Double longitude, String time, String date,String description_of_event,String name_of_event,String duration_of_event,String event_location_in_words)
 	{
 		super();
-		this.event_location = location_of_event;
-		this.start_time = time;
+		
+	this.start_time = time;
 		this.date = date;
-		this.setLatitude(location_of_event.latitude);
-		this.setLongitude(location_of_event.longitude);
+		this.latitude=latitude;
+		this.longitude=longitude;
 		this.event_description = description_of_event;
 		this.event_name=name_of_event;
 		this.event_duration=duration_of_event;
+		this.event_location_in_words=event_location_in_words;
+		this.event_location = new LatLng(latitude, longitude);
 		
 	}
+	
+	
 	
 	public LatLng getLocation_of_event()
 	{
@@ -122,4 +132,16 @@ public class Event
 	{
 		this.event_name = name_of_event;
 	}
+
+	public String getEvent_location_in_words()
+	{
+		return event_location_in_words;
+	}
+
+	public void setEvent_location_in_words(String event_location_in_words)
+	{
+		this.event_location_in_words = event_location_in_words;
+	}
+
+	
 }
