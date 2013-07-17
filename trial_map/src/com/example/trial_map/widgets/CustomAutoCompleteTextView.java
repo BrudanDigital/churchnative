@@ -1,4 +1,4 @@
-package com.example.trial_map;
+package com.example.trial_map.widgets;
 
 import java.util.HashMap;
 

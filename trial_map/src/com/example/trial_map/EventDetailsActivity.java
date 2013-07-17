@@ -14,9 +14,14 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 
+import com.example.trial_map.beans.Event;
+import com.example.trial_map.widgets.CustomAutoCompleteTextView;
+
 public class EventDetailsActivity extends Activity
 {
 	private static final int						eventDetailsScreen	= R.layout.new_event;
+	private static final String					DATE_DELIMETER			= "/";
+	private static final String					TIME_DELIMETER			= ":";
 	// widgets
 	private CustomAutoCompleteTextView	location_autoComplete;
 	private EditText										name_editText;
@@ -49,19 +54,19 @@ public class EventDetailsActivity extends Activity
 		// change the text on the buttons
 		button_saveEvent.setText("SAVE");
 		button_close.setText("CLOSE");
-		//add listeners to buttons
+		// add listeners to buttons
 		button_close.setOnClickListener(new View.OnClickListener()
 		{
-			
+
 			@Override
 			public void onClick(View v)
-			{	
+			{
 				setResult(RESULT_OK);
 				finish();
 			}
 		});
 		// get event picked by user
-		Event anEvent = getEvent(getIntent());		
+		Event anEvent = getEvent(getIntent());
 		if (anEvent != null)
 		{
 			Log.e("event gotten", "" + anEvent.getDescription_of_event());
@@ -75,7 +80,7 @@ public class EventDetailsActivity extends Activity
 			showEventDetails(anEvent);
 			// disable widgets so user cant change details
 			EnableWidgets(false);
-			
+
 		}
 		else
 		{
@@ -98,8 +103,10 @@ public class EventDetailsActivity extends Activity
 			String name = aBundle.getString("name");
 			String duration = aBundle.getString("duration");
 			String location_in_words = aBundle.getString("location_in_words");
-			return new Event(latitude, longitude, time, date, description, name,
-					duration, location_in_words);
+			int user_id=aBundle.getInt("user_id");
+			int event_id=aBundle.getInt("event_id");
+			String type=aBundle.getString("type");
+			return new Event(latitude, longitude, time, date, description, name, duration, location_in_words,user_id,event_id,type);
 		}
 		return null;
 	}
@@ -133,7 +140,7 @@ public class EventDetailsActivity extends Activity
 	private void setDate(DatePicker datePicker, String date)
 	{
 		// break up the date string into sub tokens
-		StringTokenizer stringTokenizer = new StringTokenizer(date, "/");
+		StringTokenizer stringTokenizer = new StringTokenizer(date, DATE_DELIMETER);
 		// retrieve and convert the day,month and year
 		int day = Integer.parseInt(stringTokenizer.nextToken());
 		int month = Integer.parseInt(stringTokenizer.nextToken());
@@ -165,7 +172,7 @@ public class EventDetailsActivity extends Activity
 	private void setTime(TimePicker time_picker, String time)
 	{
 		// break up the time string into tokens
-		StringTokenizer stringTokenizer = new StringTokenizer(time, ":");
+		StringTokenizer stringTokenizer = new StringTokenizer(time, TIME_DELIMETER);
 		// change the hour and minute tokens into integers
 		int hour = Integer.parseInt(stringTokenizer.nextToken());
 		int min = Integer.parseInt(stringTokenizer.nextToken());

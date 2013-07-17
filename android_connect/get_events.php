@@ -25,15 +25,17 @@ if (mysql_num_rows($result) > 0) {
     while ($row = mysql_fetch_array($result)) {
         // temp user array
         $events = array();
-        $events["owner_id"] = $row["owner_id"];
+        $events["event_id"] = $row["id"];
         $events["latitude"] = $row["latitude"];
         $events["longitude"] = $row["longitude"];
-        $events["time"] = $row["time"];
+        $events["time"] = $row["start_time"];
         $events["date"] = $row["date"];
         $events["description"] = $row["description"];
         $events["name"] = $row["name"];
         $events["duration"] = $row["duration"];
         $events["location"] = $row["location"];
+        $events["user_id"] = $row["owner_id"];
+        $events["type"] = $row["type_of_event"];
         // push single product into final response array
         array_push($response["events"], $events);
     }

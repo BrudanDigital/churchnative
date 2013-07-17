@@ -6,9 +6,13 @@
     <item
         android:id="@+id/menu_listEvents"
         android:title="List Events"/>
-
+	
+    
+    <item
+        android:id="@+id/menu_login"
+        android:title="Login"/>
     <item
         android:id="@+id/menu_addEvent"
-        android:title="Add An Event"/>
+        android:title="Add Event"/>
 
 </menu>

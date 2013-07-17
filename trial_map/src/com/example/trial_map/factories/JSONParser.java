@@ -1,4 +1,4 @@
-package com.example.trial_map;
+package com.example.trial_map.factories;
 
 import java.io.BufferedReader;
 import java.io.IOException;

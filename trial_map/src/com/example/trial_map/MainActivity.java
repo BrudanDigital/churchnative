@@ -19,6 +19,9 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.trial_map.beans.Event;
+import com.example.trial_map.beans.EventOwner;
+import com.example.trial_map.factories.EventsFactory;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -32,16 +35,29 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MainActivity extends FragmentActivity implements LocationListener
 {
 	// constants
-	private static final int				NEW_EVENT_ACTIVITY_RESULT_CODE		= 100;
-	private static final int				LIST_EVENTS_ACTIVITY_RESULT_CODE	= 300;
-	private static final int				DETAILS_ACTIVITY_RESULT_CODE			= 200;
-	private static final int				DEFAULT_ZOOM_LEVEL								= 13;
-	private static final int				HOME_SCREEN												= R.layout.activity_main;
-
-	private ArrayList<Event>				eventsArrayList										= null;
-	private HashMap<String, Event>	eventMarkerMap										= new HashMap<String, Event>();
-	private GoogleMap								googleMap;
-	private Location								location;
+	private static final int					NEW_EVENT_ACTIVITY_RESULT_CODE		= 100;
+	private static final int					DETAILS_ACTIVITY_RESULT_CODE			= 200;
+	private static final int					LIST_EVENTS_ACTIVITY_RESULT_CODE	= 300;
+	private static final int					LOGIN_ACTIVITY_RESULT_CODE				= 400;
+	private static final int					GOOGLE_MAP_DEFAULT_ZOOM_LEVEL			= 13;
+	private static final int					HOME_SCREEN												= R.layout.activity_main;
+	private static final int					SHORT_DURATION										= Toast.LENGTH_SHORT;
+	private static final int					LONG_DURATION											= Toast.LENGTH_LONG;
+	private static final String				LOGIN_BUTTON_TEXT									= "Login";
+	private static final String				LOGGED_OUT_BUTTON_TEXT						= "Log Out";
+	private static final String				LOG_OUT_SUCCESS_TEXT							= "You Have Been Logged Out";
+	private static final String				LOG_IN_SUCCESS_TEXT								= "Logged In as:";
+	private static final String				EVENT_CREATED_TEXT								= "Event Created Successfully";
+	private static final String				ILLEGAL_PARAMETER_TEXT						= "Parameters cannot be null";
+	private static final CharSequence	FAILED_TO_GET_EVENTS_TEXT					= "Failed To Retrieve Any Events";
+	private static final String				GOOGLE_MARKER_SNIPPET_TEXT				= "On:";
+	// variables
+	private ArrayList<Event>					eventsArrayList										= null;
+	private HashMap<String, Event>		eventMarkerMap										= new HashMap<String, Event>();
+	private GoogleMap									googleMap;
+	private Location									location;
+	private EventOwner								anEventOwner											= null;
+	private Menu											menu															= null;
 
 	// FIXME app should check for net b4 starting
 	@Override
@@ -51,16 +67,14 @@ public class MainActivity extends FragmentActivity implements LocationListener
 		setContentView(HOME_SCREEN);
 
 		// Getting Google Play availability status
-		int status = GooglePlayServicesUtil
-				.isGooglePlayServicesAvailable(getBaseContext());
+		int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getBaseContext());
 
 		// Showing status
 		if (status != ConnectionResult.SUCCESS)
 		{ // Google Play Services are not available
 
 			int requestCode = 10;
-			Dialog dialog = GooglePlayServicesUtil.getErrorDialog(status, this,
-					requestCode);
+			Dialog dialog = GooglePlayServicesUtil.getErrorDialog(status, this, requestCode);
 			dialog.show();
 
 		}
@@ -68,8 +82,7 @@ public class MainActivity extends FragmentActivity implements LocationListener
 		{ // Google Play Services are available
 
 			// Getting reference to the SupportMapFragment of activity_main.xml
-			SupportMapFragment fm = (SupportMapFragment) getSupportFragmentManager()
-					.findFragmentById(R.id.map);
+			SupportMapFragment fm = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 
 			// Getting GoogleMap object from the fragment
 			googleMap = fm.getMap();
@@ -95,6 +108,7 @@ public class MainActivity extends FragmentActivity implements LocationListener
 				onLocationChanged(location);
 
 			}
+
 			locationManager.requestLocationUpdates(provider, 20000, 0, this);
 		}
 
@@ -129,7 +143,7 @@ public class MainActivity extends FragmentActivity implements LocationListener
 			googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
 			// Zoom in the Google Map
-			googleMap.animateCamera(CameraUpdateFactory.zoomTo(DEFAULT_ZOOM_LEVEL));
+			googleMap.animateCamera(CameraUpdateFactory.zoomTo(GOOGLE_MAP_DEFAULT_ZOOM_LEVEL));
 
 			// display events using markers
 			displayEventsIn10kmRadius();
@@ -154,9 +168,8 @@ public class MainActivity extends FragmentActivity implements LocationListener
 							return;
 						}
 						// create a new sub activity
-						Intent intent = new Intent(MainActivity.this,
-								EventDetailsActivity.class);
-						// use helper class to send object to next activity
+						Intent intent = new Intent(MainActivity.this, EventDetailsActivity.class);
+						// use helper method to send object to next activity
 						sendEvent(intent, anEvent);
 						// start new sub activity
 						startActivityForResult(intent, DETAILS_ACTIVITY_RESULT_CODE);
@@ -181,6 +194,9 @@ public class MainActivity extends FragmentActivity implements LocationListener
 					Log.e("sendEvent", "" + name);
 					String duration = anEvent.getDuration();
 					String location_in_words = anEvent.getEvent_location_in_words();
+					int user_id=anEvent.getUser_id();
+					int event_id=anEvent.getEvent_id();
+					String type=anEvent.getType_of_event();
 					Bundle extras = new Bundle();
 					extras.putDouble("latitude", latitude);
 					extras.putDouble("longitude", longitude);
@@ -190,6 +206,9 @@ public class MainActivity extends FragmentActivity implements LocationListener
 					extras.putString("name", name);
 					extras.putString("duration", duration);
 					extras.putString("location_in_words", location_in_words);
+					extras.putInt("user_id", user_id);
+					extras.putInt("event_id", event_id);
+					extras.putString("type", type);
 					intent.putExtras(extras);
 				}
 
@@ -224,48 +243,69 @@ public class MainActivity extends FragmentActivity implements LocationListener
 	@Override
 	public void onProviderDisabled(String arg0)
 	{
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void onProviderEnabled(String arg0)
 	{
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void onStatusChanged(String arg0, int arg1, Bundle arg2)
 	{
-		// TODO Auto-generated method stub
 
 	}
 
+	// method called to create menu and its items
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
 		// add menu options to the UI
 		MenuInflater menuInflater = getMenuInflater();
 		menuInflater.inflate(R.layout.menu, menu);
+		// disable add event menu item
+		MenuItem item = menu.findItem(R.id.menu_addEvent);
+		item.setEnabled(false);
+		// make menu global
+		this.menu = menu;
 		return true;
 	}
 
+	// handler for click on menu item
 	@Override
 	public boolean onOptionsItemSelected(MenuItem menu_item)
 	{
+		final int login = R.id.menu_login;
+		final int list_events = R.id.menu_listEvents;
+		final int add_an_event = R.id.menu_addEvent;
 
 		switch (menu_item.getItemId())
 		{
-			case R.id.menu_addEvent:
-				Toast.makeText(MainActivity.this, "add event is selected",
-						Toast.LENGTH_SHORT).show();
-				goToNewEventScreen();
+			case login:
+				String title = menu_item.getTitle().toString();
+				if (title.equalsIgnoreCase(LOGIN_BUTTON_TEXT) && anEventOwner == null)
+				{//user wants to login
+					goToLoginScreen();
+				}
+				else
+				{// user wants to logout
+					anEventOwner = null;
+					//make button say 'Login'
+					menu_item.setTitle(LOGIN_BUTTON_TEXT);
+					//display message
+					Toast.makeText(MainActivity.this, LOG_OUT_SUCCESS_TEXT, SHORT_DURATION).show();
+					//disable add event menu item
+					MenuItem addEvent=menu.findItem(add_an_event);
+					addEvent.setEnabled(false);
+				}
 				return true;
-			case R.id.menu_listEvents:
-				Toast.makeText(MainActivity.this, "list events selected",
-						Toast.LENGTH_SHORT).show();
+			case list_events:
 				goToListEventsScreen();
+				return true;
+			case add_an_event:
+				goToNewEventScreen();
 				return true;
 
 		}
@@ -273,22 +313,51 @@ public class MainActivity extends FragmentActivity implements LocationListener
 
 	}
 
+	// creates new subactivity for logging in
+	// start new event sub activity in order to for user to login
+	private void goToLoginScreen()
+	{
+
+		Intent loginScreen = new Intent(MainActivity.this, LoginActivity.class);
+		startActivityForResult(loginScreen, LOGIN_ACTIVITY_RESULT_CODE);
+	}
+
+	// creates new subactivity to list Events
+	// start new event sub activity in order to list all events in 10km
 	private void goToListEventsScreen()
 	{
-		Intent listEventsScreen = new Intent(MainActivity.this,
-				ListEventsActivity.class);
-		startActivityForResult(listEventsScreen,LIST_EVENTS_ACTIVITY_RESULT_CODE);
+		// first check if there are any events
+		if (EventsFactory.getEventsIn10KmRadius() != null)
+		{
+			// start subactivity to list events
+			Intent listEventsScreen = new Intent(MainActivity.this, ListEventsActivity.class);
+			startActivityForResult(listEventsScreen, LIST_EVENTS_ACTIVITY_RESULT_CODE);
+		}
+		else
+		{// if none then inform user
+			Toast.makeText(this, FAILED_TO_GET_EVENTS_TEXT, Toast.LENGTH_LONG).show();
+		}
 
 	}
 
+	// creates new subactivity to create new event
 	// start new event sub activity in order to create new event
 	private void goToNewEventScreen()
 	{
-		Intent newEventScreen = new Intent(MainActivity.this,
-				NewEventActivity.class);
+		
+		if (anEventOwner==null)
+		{//if he is not logged in [probably will never reach here but just to be safe]
+			return;
+		}
+		Intent newEventScreen = new Intent(MainActivity.this, NewEventActivity.class);
+		Bundle aBundle=new Bundle();
+		aBundle.putInt("user_id", anEventOwner.getUser_id());
+		newEventScreen.putExtras(aBundle);
 		startActivityForResult(newEventScreen, NEW_EVENT_ACTIVITY_RESULT_CODE);
 	}
 
+	// FIXME make this method actually return events in 10km
+	// gets and displays markers of events in 10km
 	// gets and displays events within a 10km radius from were user is
 	private void displayEventsIn10kmRadius()
 	{
@@ -306,10 +375,9 @@ public class MainActivity extends FragmentActivity implements LocationListener
 			{
 				Event anEvent = iterator.next();
 				LatLng location = anEvent.getLocation_of_event();
-				String title = "" + anEvent.getDescription_of_event().toUpperCase();
-				String snippet = "On:" + anEvent.getDate();
-				Marker aMarker = googleMap.addMarker(new MarkerOptions()
-						.position(location).title(title).snippet(snippet));
+				String title = anEvent.getDescription_of_event().toUpperCase();
+				String snippet = GOOGLE_MARKER_SNIPPET_TEXT + anEvent.getDate();
+				Marker aMarker = googleMap.addMarker(new MarkerOptions().position(location).title(title).snippet(snippet));
 				// only store event if its not already stored
 				String marker_id = aMarker.getId();
 				if (!eventMarkerMap.containsKey(marker_id))
@@ -330,23 +398,67 @@ public class MainActivity extends FragmentActivity implements LocationListener
 		}
 	}
 
+	// FIXME add variable type_of_event to even
+	// FIXME validation of data before submitting it in all activities
 	// handle results returned by sub activities
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == NEW_EVENT_ACTIVITY_RESULT_CODE)
+		switch (requestCode)
 		{
-			if (resultCode == RESULT_OK)
-			{
-				Toast.makeText(this, "Event Created Successfully", Toast.LENGTH_LONG)
-						.show();
-			}
+		// return form NewEventActivity
+			case NEW_EVENT_ACTIVITY_RESULT_CODE:
+				if (resultCode == RESULT_OK)
+				{
+					Toast.makeText(this, EVENT_CREATED_TEXT, LONG_DURATION).show();
+				}
+				break;
+			// return from EventDetailsActivity
+			case DETAILS_ACTIVITY_RESULT_CODE:
+				break;
+			// return from ListEventsActivity
+			case LIST_EVENTS_ACTIVITY_RESULT_CODE:
+				break;
+			// return from loginActivity
+			case LOGIN_ACTIVITY_RESULT_CODE:
+				if (resultCode == RESULT_OK)
+				{//user has successfully logged in
+					// get returned eventOwner Object
+					getEventOwner(data);
+					// enable add event menu item
+					MenuItem add_event = menu.findItem(R.id.menu_addEvent);
+					add_event.setEnabled(true);
+					// change title of login button
+					MenuItem login = menu.findItem(R.id.menu_login);
+					//make the button say 'Log Out'
+					login.setTitle(LOGGED_OUT_BUTTON_TEXT);
+					// inform user
+					Toast.makeText(MainActivity.this, LOG_IN_SUCCESS_TEXT + anEventOwner.getEmail(), Toast.LENGTH_LONG).show();
+				}
+			default:
+				break;
 		}
-		else if (requestCode == DETAILS_ACTIVITY_RESULT_CODE)
-		{
-			Toast.makeText(this, "returning", Toast.LENGTH_SHORT).show();
-		}
+
 		displayEventsIn10kmRadius();
+	}
+
+	// retrieves an event owner object
+	private void getEventOwner(Intent data)
+	{
+		if (data == null)
+		{
+			throw new IllegalArgumentException(ILLEGAL_PARAMETER_TEXT);
+		}
+		Bundle aBundle = data.getExtras();
+		int user_id = aBundle.getInt("user_id");
+		String email = aBundle.getString("email");
+		String password = aBundle.getString("password");
+		String name = aBundle.getString("company_name");
+		String description = aBundle.getString("description");
+		String location = aBundle.getString("location");
+		anEventOwner = new EventOwner(user_id, email, password, name, location, description);
+		Log.e("BUNDLE", "eventOwner recieved");
+
 	}
 }

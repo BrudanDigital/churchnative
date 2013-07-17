@@ -31,32 +31,38 @@ import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
-
+import com.example.trial_map.beans.Event;
+import com.example.trial_map.factories.EventsFactory;
+import com.example.trial_map.factories.JSONParser;
 import com.google.android.gms.maps.model.LatLng;
 
 //this is the screen shown to user when he clicks add event
 public class NewEventActivity extends Activity
 {
-	private static final String		COUNTRY								= "ug";
-	private static final String		PLACES_API_BASE				= "https://maps.googleapis.com/maps/api/place/autocomplete/";
-	private static final String		GOOGLE_PLACES_API_KEY	= "AIzaSyCN1vdOEKhXyHSM0IvanKE6FYFoUaWjAPA";
-	private static final int			NEW_EVENT_XML					= R.layout.new_event;
-	private static final int			NO_LOCATION_FOUND			= 3;
-	private static final String		GEOCODE_ADDRESS				= "https://maps.googleapis.com/maps/api/geocode/json";
-	private static final String		TAG_RESULTS						= "results";
-	private static final String		TAG_STATUS						= "status";
+	private static final String				COUNTRY								= "ug";
+	private static final String				PLACES_API_BASE				= "https://maps.googleapis.com/maps/api/place/autocomplete/";
+	private static final String				GOOGLE_PLACES_API_KEY	= "AIzaSyCN1vdOEKhXyHSM0IvanKE6FYFoUaWjAPA";
+	private static final int					NEW_EVENT_XML					= R.layout.new_event;
+	private static final int					NO_LOCATION_FOUND			= 3;
+	private static final String				GEOCODE_ADDRESS				= "https://maps.googleapis.com/maps/api/geocode/json";
+	private static final String				TAG_RESULTS						= "results";
+	private static final String				TAG_STATUS						= "status";
+	private static final CharSequence	SAVE_BUTTON_TEXT			= "SAVE";
+	private static final CharSequence	CLOSE_BUTTON_TEXT			= "CLOSE";
 
-	private PlacesTask						placesTask;
-	private ParserTask						parserTask;
+	// background threads
+	private PlacesTask								placesTask;
+	private ParserTask								parserTask;
 	// widgets
-	private AutoCompleteTextView	location_auto_complete;
-	private EditText							description;
-	private TimePicker						timePicker;
-	private DatePicker						datePicker;
-	private Button								button_saveEvent;
-	private Button								button_close;
-	private EditText							name_of_event;
-	private Spinner								duration_of_event;
+	private AutoCompleteTextView			location_auto_complete;
+	private EditText									description;
+	private TimePicker								timePicker;
+	private DatePicker								datePicker;
+	private Button										button_saveEvent;
+	private Button										button_close;
+	private EditText									name_of_event;
+	private Spinner										duration_of_event;
+	private int												user_id;
 
 	// FIXME saving of an event
 	// FIXME finishing the sub activity
@@ -77,10 +83,16 @@ public class NewEventActivity extends Activity
 		name_of_event = (EditText) findViewById(R.id.editText_name);
 		duration_of_event = (Spinner) findViewById(R.id.spinner);
 		// change the text on the buttons
-		button_saveEvent.setText("SAVE");
-		button_close.setText("CLOSE");
+		button_saveEvent.setText(SAVE_BUTTON_TEXT);
+		button_close.setText(CLOSE_BUTTON_TEXT);
 		// disable screen gui till user picks location from auto_complete text box
 		EnableWidgets(false);
+		// get user id from previous activity
+		Bundle extras = getIntent().getExtras();
+		if (extras != null)
+		{
+			user_id = extras.getInt("user_id");
+		}
 
 		// make auto_complete work after user types at least 1 word
 		location_auto_complete.setThreshold(1);
@@ -112,7 +124,7 @@ public class NewEventActivity extends Activity
 			@Override
 			public void onClick(View view)
 			{
-				//set result 
+				// set result
 				setResult(RESULT_CANCELED);
 				// close activity
 				finish();
@@ -130,8 +142,7 @@ public class NewEventActivity extends Activity
 			}
 
 			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after)
+			public void beforeTextChanged(CharSequence s, int start, int count, int after)
 			{
 				// TODO Auto-generated method stub
 			}
@@ -147,8 +158,7 @@ public class NewEventActivity extends Activity
 		{
 
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-					long arg3)
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3)
 			{
 				// if user picks location from drop down list
 				EnableWidgets(true);
@@ -212,8 +222,7 @@ public class NewEventActivity extends Activity
 	}
 
 	// A class to parse the Google Places in JSON format
-	class ParserTask extends
-			AsyncTask<String, Integer, List<HashMap<String, String>>>
+	class ParserTask extends AsyncTask<String, Integer, List<HashMap<String, String>>>
 	{
 
 		JSONObject	jObject;
@@ -249,8 +258,7 @@ public class NewEventActivity extends Activity
 			int[] to = new int[] { android.R.id.text1 };
 
 			// Creating a SimpleAdapter for the AutoCompleteTextView
-			SimpleAdapter adapter = new SimpleAdapter(getBaseContext(), result,
-					android.R.layout.simple_list_item_1, from, to);
+			SimpleAdapter adapter = new SimpleAdapter(getBaseContext(), result, android.R.layout.simple_list_item_1, from, to);
 
 			// Setting the adapter
 			location_auto_complete.setAdapter(adapter);
@@ -260,15 +268,16 @@ public class NewEventActivity extends Activity
 	// saves new event in background thread using network to send data
 	class SaverTask extends AsyncTask<String, String, Integer>
 	{
-		private Integer					result;
-		private ProgressDialog	pDialog;
+		private final CharSequence	PROGRESS_DIALOG_TEXT	= "Saving Event. Please wait...";
+		private Integer							result;
+		private ProgressDialog			pDialog;
 
 		@Override
 		protected void onPreExecute()
 		{
 			// create progress dialog and display it to user
 			pDialog = new ProgressDialog(NewEventActivity.this);
-			pDialog.setMessage("Saving Event. Please wait...");
+			pDialog.setMessage(PROGRESS_DIALOG_TEXT);
 			pDialog.setIndeterminate(false);
 			pDialog.setCancelable(false);
 			pDialog.show();
@@ -305,10 +314,13 @@ public class NewEventActivity extends Activity
 
 			// get duration of event
 			String event_duration = duration_of_event.getSelectedItem().toString();
+			
+			//get type of event
+			String type="meeting";
 
 			// store all info in an event object
 			Event anEvent = new Event(location.latitude, location.longitude, time,
-					date, desc, event_name, event_duration, location_in_words);
+					date, desc, event_name, event_duration, location_in_words,user_id,-1,type);
 
 			// save the event
 			result = EventsFactory.SaveEvent(NewEventActivity.this, anEvent);
@@ -327,7 +339,7 @@ public class NewEventActivity extends Activity
 
 			switch (integer)
 			{
-				// if event was saved
+			// if event was saved
 				case EventsFactory.SUCCESS:
 					// set result
 					setResult(RESULT_OK);

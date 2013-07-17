@@ -34,7 +34,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.example.trial_map.MainActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -49,6 +49,10 @@
         <activity
             android:name=".EventDetailsActivity"
             android:label="Details Of Selected Event" >
+        </activity>
+        <activity
+            android:name=".LoginActivity"
+               android:label="Login" >
         </activity>
         <activity
             android:name=".ListEventsActivity"

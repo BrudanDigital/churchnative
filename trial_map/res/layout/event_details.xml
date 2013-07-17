@@ -27,7 +27,7 @@
             android:text="Location"
             android:textColor="@color/white" />
 
-         <com.example.trial_map.CustomAutoCompleteTextView
+         <com.example.trial_map.widgets.CustomAutoCompleteTextView
             android:id="@+id/location_autoComplete"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

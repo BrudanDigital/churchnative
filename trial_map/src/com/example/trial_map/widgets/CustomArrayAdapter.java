@@ -1,4 +1,4 @@
-package com.example.trial_map;
+package com.example.trial_map.widgets;
 
 import java.util.ArrayList;
 
@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.example.trial_map.R;
 
 public class CustomArrayAdapter extends ArrayAdapter<String>
 {

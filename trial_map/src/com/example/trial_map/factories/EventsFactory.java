@@ -1,7 +1,6 @@
-package com.example.trial_map;
+package com.example.trial_map.factories;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.http.NameValuePair;
@@ -12,6 +11,8 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.util.Log;
+
+import com.example.trial_map.beans.Event;
 
 //factory class for Events
 
@@ -40,15 +41,15 @@ public class EventsFactory
 																											+ "create_event.php";
 	private static final String	GET_EVENTS_URL			= PHP_SCRIPT_ADDRESS
 																											+ "get_events.php";
-
-	public static final int	SUCCESS	= 1;
-	public static final int	FAILURE	= 0;
-	public static final int	NO_CONNECTION	= 2;
+	// int FLAGS
+	public static final int			SUCCESS							= 1;
+	public static final int			FAILURE							= 0;
+	public static final int			NO_CONNECTION				= 2;
 
 	public static Integer SaveEvent(Context aContext, Event anEvent)
 	{
 		// get parameters
-		String location=anEvent.getEvent_location_in_words();
+		String location = anEvent.getEvent_location_in_words();
 		String latitude = "" + anEvent.getLatitude();
 		String longitude = "" + anEvent.getLongitude();
 		String time = anEvent.getTime();
@@ -56,6 +57,8 @@ public class EventsFactory
 		String name = anEvent.getName_of_event();
 		String duration = anEvent.getDuration();
 		String description = anEvent.getDescription_of_event();
+		String user_id=""+anEvent.getUser_id();
+		String type_of_event=anEvent.getType_of_event();
 		// Building Parameters
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
 		params.add(new BasicNameValuePair("location", location));
@@ -66,10 +69,11 @@ public class EventsFactory
 		params.add(new BasicNameValuePair("description", description));
 		params.add(new BasicNameValuePair("name", name));
 		params.add(new BasicNameValuePair("duration", duration));
-
+		params.add(new BasicNameValuePair("user_id", user_id));
+		params.add(new BasicNameValuePair("type", type_of_event));
 		// storing events
 		JSONObject json = jParser.makeHttpRequest(CREATE_EVENT_URL, "POST", params);
-		Log.e("SAVE EVENT", ""+json.toString());
+		Log.e("SAVE EVENT", "" + json.toString());
 		if (json != null)
 		{
 
@@ -82,13 +86,14 @@ public class EventsFactory
 				{
 					return SUCCESS;
 				}
-				else {
+				else
+				{
 					return FAILURE;
 				}
 			}
 			catch (JSONException e)
 			{
-				Log.e("SAVE EVENT", ""+e.getMessage());
+				Log.e("SAVE EVENT", "" + e.getMessage());
 			}
 		}
 		return NO_CONNECTION;
@@ -98,10 +103,11 @@ public class EventsFactory
 	public static ArrayList<Event> getEventsIn10KmRadius()
 	{
 		ArrayList<Event> all_events_10km_radius = new ArrayList<Event>();
-		JSONParser jsonParser = new JSONParser();
-		JSONObject jsonObject = jsonParser.makeHttpGetRequest(GET_EVENTS_URL);
 		try
 		{
+			JSONParser jsonParser = new JSONParser();
+			JSONObject jsonObject = jsonParser.makeHttpGetRequest(GET_EVENTS_URL);
+
 			// Checking for SUCCESS TAG
 			int success = jsonObject.getInt(TAG_SUCCESS);
 
@@ -110,7 +116,7 @@ public class EventsFactory
 				// Getting Array of events
 				JSONArray events_array = jsonObject.getJSONArray(TAG_EVENTS);
 
-				// looping through All Contacts
+				// looping through All Events returned and storing each separately
 				for (int i = 0; i < events_array.length(); i++)
 				{
 					JSONObject events = events_array.getJSONObject(i);
@@ -131,42 +137,26 @@ public class EventsFactory
 					Log.e("duration", "" + duration);
 					String event_location_in_words = events.getString(TAG_LOCATION);
 					Log.e("location", "" + event_location_in_words);
-					Event anEvent = new Event(latitude,longitude, time, date, description, name,
-							duration, event_location_in_words);
+					int user_id=events.getInt("user_id");
+					int event_id=events.getInt("event_id");
+					String type_of_event=events.getString("type");
+					Event anEvent = new Event(latitude, longitude, time, date,
+							description, name, duration, event_location_in_words,user_id,event_id,type_of_event);
 					all_events_10km_radius.add(anEvent);
 				}
 			}
 			else
 			{// success is 0 and no results
+				Log.e("SUCCESS", "is 0");
 				return null;
 			}
 			return all_events_10km_radius;
 		}
-		catch (JSONException e)
+		catch (Exception e)
 		{
 			Log.e("JSON error", "" + e.getMessage());
 		}
 		return null;
-	}
-
-	public static ArrayList<String> getEventsAsStringArray()
-	{
-		ArrayList<Event> arrayList =getEventsIn10KmRadius();
-		if (arrayList==null)
-		{
-			return null;
-		}
-		Iterator<Event> iterator=arrayList.iterator();
-		ArrayList<String> eventStrings=new ArrayList<String>();
-		while (iterator.hasNext())
-		{
-			Log.e("GET EVENTS", "events gotten");
-			Event event = (Event) iterator.next();
-			eventStrings.add(event.getName_of_event());
-		}
-		return eventStrings;
-		
-		
 	}
 
 }
