@@ -2,7 +2,6 @@ package com.example.trial_map;
 
 import java.util.StringTokenizer;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -14,14 +13,19 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.example.trial_map.beans.Event;
 import com.example.trial_map.widgets.CustomAutoCompleteTextView;
 
-public class EventDetailsActivity extends Activity
+public class EventDetailsActivity extends SherlockActivity
 {
 	private static final int						eventDetailsScreen	= R.layout.new_event;
 	private static final String					DATE_DELIMETER			= "/";
 	private static final String					TIME_DELIMETER			= ":";
+	private static final int						BACK								= R.id.menu_back;
 	// widgets
 	private CustomAutoCompleteTextView	location_autoComplete;
 	private EditText										name_editText;
@@ -103,10 +107,10 @@ public class EventDetailsActivity extends Activity
 			String name = aBundle.getString("name");
 			String duration = aBundle.getString("duration");
 			String location_in_words = aBundle.getString("location_in_words");
-			int user_id=aBundle.getInt("user_id");
-			int event_id=aBundle.getInt("event_id");
-			String type=aBundle.getString("type");
-			return new Event(latitude, longitude, time, date, description, name, duration, location_in_words,user_id,event_id,type);
+			int user_id = aBundle.getInt("user_id");
+			int event_id = aBundle.getInt("event_id");
+			String type = aBundle.getString("type");
+			return new Event(latitude, longitude, time, date, description, name, duration, location_in_words, user_id, event_id, type);
 		}
 		return null;
 	}
@@ -181,6 +185,34 @@ public class EventDetailsActivity extends Activity
 		// set the time of the time picker
 		time_picker.setCurrentHour(hour);
 		time_picker.setCurrentMinute(min);
+
+	}
+
+	// method called to create menu and its items
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		// show action bar
+		getSupportActionBar().setDisplayShowHomeEnabled(false);
+		// add menu options to the UI
+		MenuInflater menuInflater = getSupportMenuInflater();
+		menuInflater.inflate(R.layout.menu_custom, menu);
+		return true;
+	}
+
+	// handler for click on menu item
+	@Override
+	public boolean onOptionsItemSelected(MenuItem menu_item)
+	{
+
+		switch (menu_item.getItemId())
+		{
+			case BACK:
+				setResult(RESULT_CANCELED);
+				finish();
+				return true;
+		}
+		return super.onOptionsItemSelected(menu_item);
 
 	}
 }

@@ -22,7 +22,6 @@ public class LoginActivity extends Activity
 	private EditText					email_editText;
 	private EditText					password_editText;
 	private Button						login_button;
-	
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -56,6 +55,7 @@ public class LoginActivity extends Activity
 		});
 	}
 
+
 	private class LoginTask extends AsyncTask<String, Void, Integer>
 	{
 		private static final String	ILLEGAL_PARAMETER_TEXT		= "Neither Intent Nor EventOwner Can Be Null";
@@ -78,7 +78,7 @@ public class LoginActivity extends Activity
 		@Override
 		protected Integer doInBackground(String... params)
 		{
-			anEventOwner = EventOwnerFactory.getEventOwner(params[0],params[1]);
+			anEventOwner = EventOwnerFactory.getEventOwner(params[0], params[1]);
 			if (anEventOwner == null)
 			{
 				return FAILURE;

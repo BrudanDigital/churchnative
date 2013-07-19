@@ -15,7 +15,7 @@
         <TextView
             android:id="@+id/textView_location"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:text="Location Of Event"
             android:textColor="@color/white" />
 
@@ -32,19 +32,19 @@
             android:id="@+id/textView_name"
             android:layout_width="fill_parent"
             android:textColor="@color/white"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:text="Name Of Event" />
 
         <EditText
             android:id="@+id/editText_name"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:textSize="18sp" />
         
          <TextView
             android:id="@+id/textView_description"
             android:layout_width="fill_parent"
-            android:layout_height="0dp"
+            android:layout_height="48dp"
             android:layout_weight="1"
             android:text="Description Of Event"
             android:textColor="@color/white" />
@@ -52,14 +52,27 @@
         <EditText
             android:id="@+id/editText_description"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_weight="1"
             android:textSize="18sp" />
+        <TextView
+            android:id="@+id/textView_eventType"
+            android:layout_width="fill_parent"
+            android:layout_height="48dp"
+            android:textColor="@color/white"
+            android:text="Type Of Event" />
+
+        <Spinner
+            android:id="@+id/eventType_spinner"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/type_array"
+            android:prompt="@string/event_type_prompt" />
 
         <TextView
             android:id="@+id/textView_time"
             android:layout_width="fill_parent"
-            android:layout_height="0dp"
+            android:layout_height="48dp"
             android:layout_weight="1"
             android:text="Start Time"
             android:textColor="@color/white" />
@@ -73,7 +86,7 @@
         <TextView
             android:id="@+id/textView_duration"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:textColor="@color/white"
             android:text="Duration" />
 
@@ -87,7 +100,7 @@
         <TextView
             android:id="@+id/textView_date"
             android:layout_width="fill_parent"
-            android:layout_height="0dp"
+            android:layout_height="48dp"
             android:layout_weight="1"
             android:text="Date"
             android:textColor="@color/white" />
@@ -112,7 +125,7 @@
             <Button
                 android:id="@+id/button_cancel"
                 android:layout_width="160dp"
-                android:layout_height="wrap_content"
+                android:layout_height="60dp"
                 android:layout_alignParentTop="true"
                 android:layout_toRightOf="@+id/button_addEvent"
                 android:text="Cancel" />
@@ -120,7 +133,7 @@
             <Button
                 android:id="@+id/button_addEvent"
                 android:layout_width="160dp"
-                android:layout_height="wrap_content"
+                android:layout_height="60dp"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
                 android:text="Add Event" />

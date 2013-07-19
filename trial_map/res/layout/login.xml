@@ -1,43 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/login_tablelayout"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@color/black"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/login_textView"
-        android:layout_width="wrap_content"
-        android:layout_height="22dp"
-        android:gravity="center"
-        android:text="LOGIN HERE "
-        android:textColor="@color/white" />
 
     <TextView
         android:id="@+id/email_textView"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:text="Email"
         android:textColor="@color/white" />
 
     <EditText
         android:id="@+id/email_editText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_height="48dp"
         android:textSize="18sp" />
 
     <TextView
         android:id="@+id/password_textView"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:text="Password"
         android:textColor="@color/white" />
 
     <EditText
         android:id="@+id/password_editText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_height="48dp"
         android:ems="10"
         android:inputType="textPassword"
         android:textSize="18sp" />
@@ -56,4 +49,4 @@
             android:text="LOGIN" />
     </RelativeLayout>
 
-</TableLayout>
+</LinearLayout>

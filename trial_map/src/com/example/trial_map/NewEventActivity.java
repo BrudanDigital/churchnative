@@ -13,7 +13,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -31,13 +30,18 @@ import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.example.trial_map.beans.Event;
 import com.example.trial_map.factories.EventsFactory;
 import com.example.trial_map.factories.JSONParser;
 import com.google.android.gms.maps.model.LatLng;
 
 //this is the screen shown to user when he clicks add event
-public class NewEventActivity extends Activity
+public class NewEventActivity extends SherlockActivity
 {
 	private static final String				COUNTRY								= "ug";
 	private static final String				PLACES_API_BASE				= "https://maps.googleapis.com/maps/api/place/autocomplete/";
@@ -49,6 +53,7 @@ public class NewEventActivity extends Activity
 	private static final String				TAG_STATUS						= "status";
 	private static final CharSequence	SAVE_BUTTON_TEXT			= "SAVE";
 	private static final CharSequence	CLOSE_BUTTON_TEXT			= "CLOSE";
+	private static final int	BACK	= R.id.menu_back;
 
 	// background threads
 	private PlacesTask								placesTask;
@@ -62,6 +67,7 @@ public class NewEventActivity extends Activity
 	private Button										button_close;
 	private EditText									name_of_event;
 	private Spinner										duration_of_event;
+	private Spinner										type_of_event;
 	private int												user_id;
 
 	// FIXME saving of an event
@@ -82,6 +88,7 @@ public class NewEventActivity extends Activity
 		button_close = (Button) findViewById(R.id.button_cancel);
 		name_of_event = (EditText) findViewById(R.id.editText_name);
 		duration_of_event = (Spinner) findViewById(R.id.spinner);
+		type_of_event=(Spinner)findViewById(R.id.eventType_spinner);
 		// change the text on the buttons
 		button_saveEvent.setText(SAVE_BUTTON_TEXT);
 		button_close.setText(CLOSE_BUTTON_TEXT);
@@ -316,7 +323,7 @@ public class NewEventActivity extends Activity
 			String event_duration = duration_of_event.getSelectedItem().toString();
 			
 			//get type of event
-			String type="meeting";
+			String type=type_of_event.getSelectedItem().toString();
 
 			// store all info in an event object
 			Event anEvent = new Event(location.latitude, location.longitude, time,
@@ -483,4 +490,33 @@ public class NewEventActivity extends Activity
 		name_of_event.setEnabled(bool);
 		duration_of_event.setEnabled(bool);
 	}
+
+//method called to create menu and its items
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		// show action bar
+		getSupportActionBar().setDisplayShowHomeEnabled(false);
+		// add menu options to the UI
+		MenuInflater menuInflater = getSupportMenuInflater();
+		menuInflater.inflate(R.layout.menu_custom, menu);
+		return true;
+	}
+
+	// handler for click on menu item
+	@Override
+	public boolean onOptionsItemSelected(MenuItem menu_item)
+	{
+
+		switch (menu_item.getItemId())
+		{
+			case BACK:
+				setResult(RESULT_CANCELED);
+				finish();
+				return true;
+		}
+		return super.onOptionsItemSelected(menu_item);
+
+	}
+
 }

@@ -5,14 +5,18 @@
 
     <item
         android:id="@+id/menu_listEvents"
-        android:title="List Events"/>
+        android:title="List Events"
+        android:showAsAction="always"
+        />
 	
     
     <item
         android:id="@+id/menu_login"
+        android:showAsAction="always"
         android:title="Login"/>
     <item
         android:id="@+id/menu_addEvent"
+        android:showAsAction="always"
         android:title="Add Event"/>
 
 </menu>

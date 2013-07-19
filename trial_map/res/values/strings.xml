@@ -9,7 +9,9 @@
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
     <color name="orange">#ff5500</color>
+    <string name="contentdesc4pic1">Content</string>
     <string name="duration_prompt">Choose A Duration</string>
+    <string name="event_type_prompt">Choose A Type Of Event</string>
     <string-array name="duration_array">
         <item >1 hour</item>
         <item >2 hour</item> 
@@ -19,6 +21,17 @@
         <item >till evening</item>
         <item >till late</item>
         <item >all night</item>
+    </string-array>
+    <string-array name="type_array">
+        <item >meeting</item>
+        <item >party</item> 
+        <item >social</item>
+        <item >religious</item>
+        <item >programming</item>
+        <item >cinema</item>
+        <item >drink up</item>
+        <item >music festival</item>
+        <item >strike</item>
     </string-array>
 	<string name="start_year">2013</string>
 	<string name="end_year">2014</string>
