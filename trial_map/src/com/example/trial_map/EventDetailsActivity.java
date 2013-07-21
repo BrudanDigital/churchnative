@@ -1,90 +1,49 @@
 package com.example.trial_map;
 
-import java.util.StringTokenizer;
-
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.TimePicker;
+import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.example.trial_map.beans.Event;
-import com.example.trial_map.widgets.CustomAutoCompleteTextView;
 
 public class EventDetailsActivity extends SherlockActivity
 {
-	private static final int						eventDetailsScreen	= R.layout.new_event;
-	private static final String					DATE_DELIMETER			= "/";
-	private static final String					TIME_DELIMETER			= ":";
-	private static final int						BACK								= R.id.menu_back;
+	private static final int	eventDetailsScreen	= R.layout.event_details;
+	private static final int	BACK								= R.id.menu_back;
 	// widgets
-	private CustomAutoCompleteTextView	location_autoComplete;
-	private EditText										name_editText;
-	private TimePicker									time_picker;
-	private Spinner											duration_spinner;
-	private DatePicker									date_picker;
-	private EditText										description_editText;
-	private Resources										res;
-	private String[]										duration_array;
-	private Button											button_saveEvent;
-	private Button											button_close;
+	private TextView					location_TextView;
+	private TextView					name_TextView;
+	private TextView					time_TextView;
+	private TextView					duration_TextView;
+	private TextView					date_TextView;
+	private TextView					description_TextView;
+	private TextView					type_TextView;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(eventDetailsScreen);
-		res = getResources();
-		duration_array = res.getStringArray(R.array.duration_array);
 
 		// get objects of the widgets
-		location_autoComplete = (CustomAutoCompleteTextView) findViewById(R.id.autoComplete_location);
-		name_editText = (EditText) findViewById(R.id.editText_name);
-		time_picker = (TimePicker) findViewById(R.id.timePicker);
-		duration_spinner = (Spinner) findViewById(R.id.spinner);
-		date_picker = (DatePicker) findViewById(R.id.datePicker);
-		description_editText = (EditText) findViewById(R.id.editText_description);
-		button_saveEvent = (Button) findViewById(R.id.button_addEvent);
-		button_close = (Button) findViewById(R.id.button_cancel);
-		// change the text on the buttons
-		button_saveEvent.setText("SAVE");
-		button_close.setText("CLOSE");
-		// add listeners to buttons
-		button_close.setOnClickListener(new View.OnClickListener()
-		{
+		location_TextView = (TextView) findViewById(R.id.details_locationValue);
+		name_TextView = (TextView) findViewById(R.id.details_title);
+		type_TextView = (TextView) findViewById(R.id.details_typeValue);
+		time_TextView = (TextView) findViewById(R.id.details_timeValue);
+		duration_TextView = (TextView) findViewById(R.id.details_durationValue);
+		date_TextView = (TextView) findViewById(R.id.details_dateValue);
+		description_TextView = (TextView) findViewById(R.id.details_descriptionValue);
 
-			@Override
-			public void onClick(View v)
-			{
-				setResult(RESULT_OK);
-				finish();
-			}
-		});
 		// get event picked by user
 		Event anEvent = getEvent(getIntent());
 		if (anEvent != null)
 		{
-			Log.e("event gotten", "" + anEvent.getDescription_of_event());
-			Log.e("event gotten", "" + anEvent.getDate());
-			Log.e("event gotten", "" + anEvent.getName_of_event());
-			Log.e("event gotten", "" + anEvent.getTime());
-			Log.e("event gotten", "" + anEvent.getDuration());
-			Log.e("event gotten", "" + anEvent.getLatitude());
-			Log.e("event gotten", "" + anEvent.getLongitude());
-			Log.e("event gotten", "" + anEvent.getEvent_location_in_words());
 			showEventDetails(anEvent);
-			// disable widgets so user cant change details
-			EnableWidgets(false);
-
 		}
 		else
 		{
@@ -93,6 +52,7 @@ public class EventDetailsActivity extends SherlockActivity
 
 	}
 
+	// gets event passed as parameters from previous activity
 	private Event getEvent(Intent intent)
 	{
 
@@ -115,76 +75,16 @@ public class EventDetailsActivity extends SherlockActivity
 		return null;
 	}
 
-	// enable or disable all activity widgets
-	private void EnableWidgets(boolean b)
-	{
-		location_autoComplete.setEnabled(b);
-		name_editText.setEnabled(b);
-		time_picker.setEnabled(b);
-		duration_spinner.setEnabled(b);
-		date_picker.setEnabled(b);
-		description_editText.setEnabled(b);
-		button_saveEvent.setEnabled(b);
-
-	}
-
 	// fills widgets with event details
 	private void showEventDetails(Event anEvent)
 	{
-		location_autoComplete.setText(anEvent.getEvent_location_in_words().toUpperCase());
-		name_editText.setText(anEvent.getName_of_event().toUpperCase());
-		setTime(time_picker, anEvent.getTime().toUpperCase());
-		setduration(duration_spinner, anEvent.getDuration().toUpperCase());
-		setDate(date_picker, anEvent.getDate().toUpperCase());
-		description_editText.setText(anEvent.getDescription_of_event().toUpperCase());
-
-	}
-
-	// sets date to the event date
-	private void setDate(DatePicker datePicker, String date)
-	{
-		// break up the date string into sub tokens
-		StringTokenizer stringTokenizer = new StringTokenizer(date, DATE_DELIMETER);
-		// retrieve and convert the day,month and year
-		int day = Integer.parseInt(stringTokenizer.nextToken());
-		int month = Integer.parseInt(stringTokenizer.nextToken());
-		int year = Integer.parseInt(stringTokenizer.nextToken());
-		// update the date picker to display the current date
-		datePicker.updateDate(year, month - 1, day);
-
-	}
-
-	// sets the duration to event duration
-	private void setduration(Spinner spinner, String duration)
-	{
-		int position = 0;
-		// loop thru the durations array to find position of item that was selected
-		// by user
-		for (int i = 0; i < duration_array.length; i++)
-		{
-			if (duration_array[i].equalsIgnoreCase(duration))
-			{
-				position = i;
-				break;
-			}
-		}
-		// make the spinner display that selection
-		spinner.setSelection(position);
-	}
-
-	// sets the time to event time
-	private void setTime(TimePicker time_picker, String time)
-	{
-		// break up the time string into tokens
-		StringTokenizer stringTokenizer = new StringTokenizer(time, TIME_DELIMETER);
-		// change the hour and minute tokens into integers
-		int hour = Integer.parseInt(stringTokenizer.nextToken());
-		int min = Integer.parseInt(stringTokenizer.nextToken());
-		// make time picker a 24 hour clock
-		time_picker.setIs24HourView(true);
-		// set the time of the time picker
-		time_picker.setCurrentHour(hour);
-		time_picker.setCurrentMinute(min);
+		location_TextView.setText(anEvent.getEvent_location_in_words());
+		name_TextView.setText(anEvent.getName_of_event().toUpperCase());
+		type_TextView.setText(anEvent.getType_of_event());
+		time_TextView.setText(anEvent.getTime());
+		duration_TextView.setText(anEvent.getDuration());
+		date_TextView.setText(anEvent.getDate());
+		description_TextView.setText(anEvent.getDescription_of_event());
 
 	}
 

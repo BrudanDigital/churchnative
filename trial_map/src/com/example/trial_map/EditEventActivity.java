@@ -8,12 +8,14 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.ProgressDialog;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
@@ -36,12 +38,12 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.example.trial_map.beans.Event;
+import com.example.trial_map.beans.EventOwner;
 import com.example.trial_map.factories.EventsFactory;
 import com.example.trial_map.factories.JSONParser;
 import com.google.android.gms.maps.model.LatLng;
 
-//this is the screen shown to user when he clicks add event
-public class NewEventActivity extends SherlockActivity
+public class EditEventActivity extends SherlockActivity
 {
 	private static final String				COUNTRY								= "ug";
 	private static final String				PLACES_API_BASE				= "https://maps.googleapis.com/maps/api/place/autocomplete/";
@@ -53,6 +55,9 @@ public class NewEventActivity extends SherlockActivity
 	private static final String				TAG_STATUS						= "status";
 	private static final CharSequence	SAVE_BUTTON_TEXT			= "SAVE";
 	private static final int					BACK									= R.id.menu_back;
+	private static final String				TIME_DELIMETER				= ":";
+	private static final String				DATE_DELIMETER				= "/";
+
 	// background threads
 	private PlacesTask								placesTask;
 	private ParserTask								parserTask;
@@ -67,7 +72,13 @@ public class NewEventActivity extends SherlockActivity
 	private Spinner										duration_of_event;
 	private Spinner										type_of_event;
 	private int												user_id;
+	private Resources									res;
+	private String[]									duration_array;
+	private String[]									type_array;
 
+	private EventOwner								anEventOwner					= MainActivity.anEventOwner;
+	private int												event_id;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -93,7 +104,9 @@ public class NewEventActivity extends SherlockActivity
 		Bundle extras = getIntent().getExtras();
 		if (extras != null)
 		{
-			user_id = extras.getInt("user_id");
+
+			Event anEvent = getEvent();
+			fillWidgetsWithEventData(anEvent);
 		}
 
 		// make auto_complete work after user types at least 1 word
@@ -156,7 +169,118 @@ public class NewEventActivity extends SherlockActivity
 		});
 	}
 
-	
+	private void fillWidgetsWithEventData(Event anEvent)
+	{
+		res = getResources();
+		duration_array = res.getStringArray(R.array.duration_array);
+		type_array = res.getStringArray(R.array.type_array);
+		location_auto_complete.setText(anEvent.getEvent_location_in_words());
+		description.setText(anEvent.getDescription_of_event());
+		name_of_event.setText(anEvent.getName_of_event());
+		setduration(duration_of_event, anEvent.getDuration());
+		setDate(datePicker, anEvent.getDate());
+		setTime(timePicker, anEvent.getTime());
+		setType(type_of_event, anEvent.getType_of_event());
+	}
+
+	private void setType(Spinner type_of_event, String type)
+	{
+		int position = 0;
+		// loop thru the durations array to find position of item that was selected
+		// by user
+		for (int i = 0; i < type_array.length; i++)
+		{
+			if (type_array[i].equalsIgnoreCase(type))
+			{
+				position = i;
+				break;
+			}
+		}
+		// make the spinner display that selection
+		type_of_event.setSelection(position);
+	}
+
+	private Event getEvent()
+	{
+		Bundle aBundle = getIntent().getExtras();
+		if (aBundle != null)
+		{
+			try
+			{
+				Double latitude = aBundle.getDouble("latitude");
+				Double longitude = aBundle.getDouble("longitude");
+				String time = aBundle.getString("time");
+				String date = aBundle.getString("date");
+				String description = aBundle.getString("description");
+				String name = aBundle.getString("name");
+				String duration = aBundle.getString("duration");
+				String location_in_words = aBundle.getString("location_in_words");
+				if (anEventOwner != null)
+				{
+					user_id = anEventOwner.getUser_id();
+					Toast.makeText(EditEventActivity.this, "User_id=" + user_id, Toast.LENGTH_SHORT).show();
+				}
+				event_id = aBundle.getInt("event_id");
+				String type = aBundle.getString("type");
+				return new Event(latitude, longitude, time, date, description, name, duration, location_in_words, user_id, event_id, type);
+			}
+			catch (Exception e)
+			{
+				Log.e("GET EVENT", e.getMessage());
+				return null;
+			}
+
+		}
+		return null;
+	}
+
+	// sets date to the event date
+	private void setDate(DatePicker datePicker, String date)
+	{
+		// break up the date string into sub tokens
+		StringTokenizer stringTokenizer = new StringTokenizer(date, DATE_DELIMETER);
+		// retrieve and convert the day,month and year
+		int day = Integer.parseInt(stringTokenizer.nextToken());
+		int month = Integer.parseInt(stringTokenizer.nextToken());
+		int year = Integer.parseInt(stringTokenizer.nextToken());
+		// update the date picker to display the current date
+		datePicker.updateDate(year, month - 1, day);
+
+	}
+
+	// sets the duration to event duration
+	private void setduration(Spinner spinner, String duration)
+	{
+		int position = 0;
+		// loop thru the durations array to find position of item that was selected
+		// by user
+		for (int i = 0; i < duration_array.length; i++)
+		{
+			if (duration_array[i].equalsIgnoreCase(duration))
+			{
+				position = i;
+				break;
+			}
+		}
+		// make the spinner display that selection
+		spinner.setSelection(position);
+	}
+
+	// sets the time to event time
+	private void setTime(TimePicker time_picker, String time)
+	{
+		// break up the time string into tokens
+		StringTokenizer stringTokenizer = new StringTokenizer(time, TIME_DELIMETER);
+		// change the hour and minute tokens into integers
+		int hour = Integer.parseInt(stringTokenizer.nextToken());
+		int min = Integer.parseInt(stringTokenizer.nextToken());
+		// make time picker a 24 hour clock
+		time_picker.setIs24HourView(true);
+		// set the time of the time picker
+		time_picker.setCurrentHour(hour);
+		time_picker.setCurrentMinute(min);
+
+	}
 
 	// Fetches all places from GooglePlaces AutoComplete Web Service
 	class PlacesTask extends AsyncTask<String, Void, String>
@@ -268,7 +392,7 @@ public class NewEventActivity extends SherlockActivity
 		protected void onPreExecute()
 		{
 			// create progress dialog and display it to user
-			pDialog = new ProgressDialog(NewEventActivity.this);
+			pDialog = new ProgressDialog(EditEventActivity.this);
 			pDialog.setMessage(PROGRESS_DIALOG_TEXT);
 			pDialog.setIndeterminate(false);
 			pDialog.setCancelable(false);
@@ -311,10 +435,10 @@ public class NewEventActivity extends SherlockActivity
 			String type = type_of_event.getSelectedItem().toString();
 
 			// store all info in an event object
-			Event anEvent = new Event(location.latitude, location.longitude, time, date, desc, event_name, event_duration, location_in_words, user_id, -1, type);
+			Event anEvent = new Event(location.latitude, location.longitude, time, date, desc, event_name, event_duration, location_in_words, user_id, event_id, type);
 
 			// save the event
-			result = EventsFactory.SaveEvent(anEvent);
+			result = EventsFactory.UpdateEvent(anEvent);
 			return result;
 		}
 
@@ -340,17 +464,17 @@ public class NewEventActivity extends SherlockActivity
 				// if we failed to save event coz of server side error
 				case EventsFactory.FAILURE:
 					text = "Failed To Save Event";
-					Toast.makeText(NewEventActivity.this, text, duration).show();
+					Toast.makeText(EditEventActivity.this, text, duration).show();
 					break;
-				// if there is no internet connection to server
+				// if there is no Internet connection to server
 				case EventsFactory.NO_CONNECTION:
 					text = "Sorry but there is no connection to the server";
-					Toast.makeText(NewEventActivity.this, text, duration).show();
+					Toast.makeText(EditEventActivity.this, text, duration).show();
 					break;
-				// if user entered a location whose cordinates cant be found
+				// if user entered a location whose coordinates cant be found
 				case NO_LOCATION_FOUND:
 					text = "Failed To Find Location Of Event.Event Was Not Created";
-					Toast.makeText(NewEventActivity.this, text, duration).show();
+					Toast.makeText(EditEventActivity.this, text, duration).show();
 					break;
 			}
 

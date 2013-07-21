@@ -39,9 +39,10 @@ public class CustomArrayAdapter extends ArrayAdapter<String>
 	{
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View rowView = inflater.inflate(R.layout.list_events, parent, false);
-		TextView textView = (TextView) rowView.findViewById(R.id.label);
+		TextView label = (TextView) rowView.findViewById(R.id.label);
 		ImageView imageView = (ImageView) rowView.findViewById(R.id.logo);
-		textView.setText(values.get(position));
+		label.setText(values.get(position));
+		
 
 		// Change icon based on name
 		String type = events_ArrayList.get(position).getType_of_event();

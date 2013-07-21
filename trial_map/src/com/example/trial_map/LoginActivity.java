@@ -2,6 +2,7 @@ package com.example.trial_map;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.view.WindowManager.LayoutParams;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -29,6 +30,12 @@ public class LoginActivity extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.login);
 
+		//make dialog fill screen
+		LayoutParams params = getWindow().getAttributes();
+		params.height = LayoutParams.WRAP_CONTENT;
+		params.width = LayoutParams.MATCH_PARENT;
+		getWindow().setAttributes(params);
+
 		// getting object of widgets
 		email_editText = (EditText) findViewById(R.id.email_editText);
 		password_editText = (EditText) findViewById(R.id.password_editText);
@@ -55,7 +62,6 @@ public class LoginActivity extends Activity
 		});
 	}
 
-
 	private class LoginTask extends AsyncTask<String, Void, Integer>
 	{
 		private static final String	ILLEGAL_PARAMETER_TEXT		= "Neither Intent Nor EventOwner Can Be Null";
@@ -71,7 +77,7 @@ public class LoginActivity extends Activity
 			pDialog = new ProgressDialog(LoginActivity.this);
 			pDialog.setMessage(LOGIN_PROGRESS_DIALOG_MSG);
 			pDialog.setIndeterminate(false);
-			pDialog.setCancelable(false);
+			pDialog.setCancelable(true);
 			pDialog.show();
 		}
 

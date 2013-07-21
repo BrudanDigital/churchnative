@@ -1,123 +1,258 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/scroll_View"
+    android:id="@+id/widget32"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@color/black" >
 
-    <TableLayout
-        android:id="@+id/table_layout"
-        android:layout_width="309dp"
-        android:layout_height="431dp"
+    <LinearLayout
+        android:id="@+id/widget86"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
         android:background="@color/black"
         android:orientation="vertical" >
 
-        <TextView
-            android:id="@+id/description_textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="Description"
-            android:textColor="@color/white" />
-        
-        <TextView
-            android:id="@+id/location_textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Location"
-            android:textColor="@color/white" />
-
-         <com.example.trial_map.widgets.CustomAutoCompleteTextView
-            android:id="@+id/location_autoComplete"
+        <RelativeLayout
+            android:id="@+id/details_relativeLayout0"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/str_atv_places"
-            android:textColor="@color/black"
-            android:textSize="18sp" />
+            android:layout_height="30dp" >
 
-        <TextView
-            android:id="@+id/name_textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="name"
-            android:textColor="@color/white" />
+            <TextView
+                android:id="@+id/details_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:text="Name Of Event"
+                android:textColor="@color/white" />
+        </RelativeLayout>
 
-        <EditText
-            android:id="@+id/name_editText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="18sp" />
-
-        <TextView
-            android:id="@+id/start_time_textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Start Time"
-            android:textColor="@color/white" />
-
-        <TimePicker
-            android:id="@+id/timePicker2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/duration_textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="duration"
-            android:textColor="@color/white" />
-
-         <Spinner
-            android:id="@+id/spinner2"
+        <View
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:entries="@array/duration_array"
-            android:prompt="@string/duration_prompt" />
-
-        <TextView
-            android:id="@+id/date_textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="date"
-            android:textColor="@color/white" />
-
-        <DatePicker
-            android:id="@+id/datePicker2"
-            android:layout_width="fill_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:endYear="@string/end_year"
-            android:startYear="@string/start_year"/>
-
-        <Button
-            android:id="@+id/button_done"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Close" />
+            android:layout_height="2dip"
+            android:background="@color/white" />
 
         <RelativeLayout
-            android:id="@+id/relative_layout"
-            android:layout_width="wrap_content"
-            android:layout_height="106dp"
-            android:background="@color/black" >
+            android:id="@+id/details_relativeLayout1"
+            android:layout_width="fill_parent"
+            android:layout_height="48dp" >
 
-            <Button
-                android:id="@+id/button_delete"
-                android:layout_width="137dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_alignTop="@+id/button_save"
-                android:text="Delete Event" />
-
-            <Button
-                android:id="@+id/button_save"
-                android:layout_width="139dp"
+            <TextView
+                android:id="@+id/details_descriptionLabel"
+                android:layout_width="123dp"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
-                android:text="Save" />
+                android:text="DESCRIPTION"
+                android:textColor="@color/orange" />
+
+            <TextView
+                android:id="@+id/details_descriptionValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/details_descriptionLabel"
+                android:layout_alignBottom="@+id/details_descriptionLabel"
+                android:layout_marginLeft="34dp"
+                android:layout_toRightOf="@+id/details_descriptionLabel"
+                android:gravity="center"
+                android:text="TextView"
+                android:textColor="@color/white" />
+
         </RelativeLayout>
-    </TableLayout>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dip"
+            android:background="@color/white" />
+
+        <RelativeLayout
+            android:id="@+id/details_relativeLayout2"
+            android:layout_width="fill_parent"
+            android:layout_height="48dp" >
+
+            <TextView
+                android:id="@+id/details_locationLabel"
+                android:layout_width="123dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:text="LOCATION"
+                android:textColor="@color/orange" />
+
+            <TextView
+                android:id="@+id/details_locationValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/details_locationLabel"
+                android:layout_alignBottom="@+id/details_locationLabel"
+                android:layout_marginLeft="37dp"
+                android:layout_toRightOf="@+id/details_locationLabel"
+                android:gravity="center"
+                android:text="TextView"
+                android:textColor="@color/white" />
+
+        </RelativeLayout>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dip"
+            android:background="@color/white" />
+
+        <RelativeLayout
+            android:id="@+id/details_relativeLayout3"
+            android:layout_width="fill_parent"
+            android:layout_height="48dp" >
+
+            <TextView
+                android:id="@+id/details_typeLabel"
+                android:layout_width="123dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:text="TYPE"
+                android:textColor="@color/orange" />
+
+            <TextView
+                android:id="@+id/details_typeValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/details_typeLabel"
+                android:layout_alignBottom="@+id/details_typeLabel"
+                android:layout_marginLeft="40dp"
+                android:layout_toRightOf="@+id/details_typeLabel"
+                android:gravity="center"
+                android:text="TextView"
+                android:textColor="@color/white" />
+
+        </RelativeLayout>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dip"
+            android:background="@color/white" />
+
+        <RelativeLayout
+            android:id="@+id/details_relativeLayout4"
+            android:layout_width="fill_parent"
+            android:layout_height="48dp" >
+
+            <TextView
+                android:id="@+id/details_dateLabel"
+                android:layout_width="123dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:text="DATE"
+                android:textColor="@color/orange" />
+
+            <TextView
+                android:id="@+id/details_dateValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/details_dateLabel"
+                android:layout_alignBottom="@+id/details_dateLabel"
+                android:layout_marginLeft="40dp"
+                android:layout_toRightOf="@+id/details_dateLabel"
+                android:gravity="center"
+                android:text="TextView"
+                android:textColor="@color/white" />
+
+        </RelativeLayout>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dip"
+            android:background="@color/white" />
+
+        <RelativeLayout
+            android:id="@+id/details_relativeLayout5"
+            android:layout_width="fill_parent"
+            android:layout_height="48dp" >
+
+            <TextView
+                android:id="@+id/details_timeLabel"
+                android:layout_width="123dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:text="START TIME"
+                android:textColor="@color/orange" />
+
+            <TextView
+                android:id="@+id/details_timeValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/details_timeLabel"
+                android:layout_alignBottom="@+id/details_timeLabel"
+                android:layout_marginLeft="40dp"
+                android:layout_toRightOf="@+id/details_timeLabel"
+                android:gravity="center"
+                android:text="TextView"
+                android:textColor="@color/white" />
+
+        </RelativeLayout>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dip"
+            android:background="@color/white" />
+
+        <RelativeLayout
+            android:id="@+id/details_relativeLayout6"
+            android:layout_width="fill_parent"
+            android:layout_height="48dp" >
+
+            <TextView
+                android:id="@+id/details_durationLabel"
+                android:layout_width="123dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:text="DURATION"
+                android:textColor="@color/orange" />
+
+            <TextView
+                android:id="@+id/details_durationValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/details_durationLabel"
+                android:layout_alignBottom="@+id/details_durationLabel"
+                android:layout_marginLeft="42dp"
+                android:layout_toRightOf="@+id/details_durationLabel"
+                android:gravity="center"
+                android:text="TextView"
+                android:textColor="@color/white" />
+
+        </RelativeLayout>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dip"
+            android:background="@color/white" />
+
+        <RelativeLayout
+            android:id="@+id/details_relativeLayout6"
+            android:layout_width="fill_parent"
+            android:layout_height="80dp" >
+
+            <RatingBar
+                android:id="@+id/details_ratingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" 
+                android:layout_below="@+id/details_ratingsLabel"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"/>
+
+            <TextView
+                android:id="@+id/details_ratingsLabel"
+                android:layout_width="123dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:text="RATE THIS EVENT"
+                android:textColor="@color/white" />
+
+        </RelativeLayout>
+    </LinearLayout>
 
 </ScrollView>

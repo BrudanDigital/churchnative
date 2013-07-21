@@ -49,19 +49,23 @@
         </activity>
         <activity
             android:name=".EventDetailsActivity"
-            android:label="Details Of Selected Event" 
-            android:theme="@style/Theme.Sherlock.Light.DarkActionBar">
+            android:label="DETAILS OF EVENT"
+            android:theme="@style/Theme.Sherlock.Light.DarkActionBar" >
         </activity>
         <activity
             android:name=".LoginActivity"
-               android:label="Login Here" 
-               android:theme="@android:style/Theme.Dialog">
+            android:label="LOGIN HERE"
+            android:theme="@android:style/Theme.Dialog" >
         </activity>
         <activity
             android:name=".ListEventsActivity"
-            android:label="View All Events"
-            android:theme="@style/Theme.Sherlock.Light.DarkActionBar"
-              >
+            android:label="VIEW ALL EVENTS"
+            android:theme="@style/Theme.Sherlock.Light.DarkActionBar" >
+        </activity>
+        <activity
+            android:name=".EditEventActivity"
+            android:label="EDIT EVENT HERE"
+            android:theme="@style/Theme.Sherlock.Light.DarkActionBar" >
         </activity>
 
         <uses-library android:name="com.google.android.maps" />

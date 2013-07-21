@@ -18,7 +18,7 @@ public class Event implements Serializable
 	private String						date;
 	private String						event_description;
 	private String						event_duration;
-	private String 		type_of_event;
+	private String 						type_of_event;
 	private int								user_id;
 	private int								event_id;
 

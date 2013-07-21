@@ -5,13 +5,18 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import android.R.integer;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -54,23 +59,47 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 	private static final String				ILLEGAL_PARAMETER_TEXT						= "Parameters cannot be null";
 	private static final CharSequence	FAILED_TO_GET_EVENTS_TEXT					= "Failed To Retrieve Any Events";
 	private static final String				GOOGLE_MARKER_SNIPPET_TEXT				= "On:";
+	private static final CharSequence	ALERT_DIALOG_TITLE								= "Ops!! Sorry.";
+	private static final CharSequence	ALERT_DIALOG_MSG									= "This Application Requires An Internet Connection";
+	private static final CharSequence	ALERT_BUTTON_TEXT									= "Okay";
+	private static final CharSequence	DELETION_SUCCESSFULL_TEXT					= "Event Deleted Successfully";
 
 	// variables
 	private ArrayList<Event>					eventsArrayList										= null;
 	private HashMap<String, Event>		eventMarkerMap										= new HashMap<String, Event>();
 	private GoogleMap									googleMap;
 	private Location									location;
-	private EventOwner								anEventOwner											= null;
+	public static  EventOwner								anEventOwner											= null;
 	private Menu											menu															= null;
 
-	// FIXME app should check for net b4 starting
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		setContentView(HOME_SCREEN);
-		LoadMapTask loadMapTask=new LoadMapTask();
-		loadMapTask.execute();
+		try
+		{
+			if (isInternetAvailable())
+			{
+				setContentView(HOME_SCREEN);
+				LoadMapTask loadMapTask = new LoadMapTask();
+				loadMapTask.execute();
+			}
+			else
+			{
+				showNoInternetFoundAlertDialog();
+			}
+		}
+		catch (NullPointerException e)
+		{
+			Intent intent = new Intent(MainActivity.this, MainActivity.class);
+			startActivity(intent);
+			finish();
+		}
+		catch (Exception e)
+		{
+			showNoInternetFoundAlertDialog();
+		}
+
 	}
 
 	protected boolean isRouteDisplayed()
@@ -148,8 +177,8 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 				}
 				return true;
 			case list_events:
-				StartIntent startIntent = new StartIntent();
-				startIntent.execute();
+				StartListingEventsTask startListingEventsTask = new StartListingEventsTask();
+				startListingEventsTask.execute();
 				return true;
 			case add_an_event:
 				goToNewEventScreen();
@@ -206,6 +235,10 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 				break;
 			// return from ListEventsActivity
 			case LIST_EVENTS_ACTIVITY_RESULT_CODE:
+				if (resultCode == RESULT_OK)
+				{
+					Toast.makeText(MainActivity.this, DELETION_SUCCESSFULL_TEXT, SHORT_DURATION).show();
+				}
 				break;
 			// return from loginActivity
 			case LOGIN_ACTIVITY_RESULT_CODE:
@@ -227,7 +260,6 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 				break;
 		}
 
-		// displayEventsIn10kmRadius(googleMap);
 	}
 
 	// retrieves an event owner object
@@ -249,8 +281,42 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 
 	}
 
+	// checks if there is an Internet connection
+	private boolean isInternetAvailable()
+	{
+		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+		return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+	}
+
+	// displays alert dialog if no Internet found
+	private void showNoInternetFoundAlertDialog()
+	{
+		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+
+		// set title
+		alertDialogBuilder.setTitle(ALERT_DIALOG_TITLE);
+
+		// set dialog message
+		alertDialogBuilder.setMessage(ALERT_DIALOG_MSG).setCancelable(false).setPositiveButton(ALERT_BUTTON_TEXT, new DialogInterface.OnClickListener()
+		{
+			public void onClick(DialogInterface dialog, int id)
+			{
+				// if this button is clicked, close
+				// current activity
+				MainActivity.this.finish();
+			}
+		});
+
+		// create alert dialog
+		AlertDialog alertDialog = alertDialogBuilder.create();
+
+		// show it
+		alertDialog.show();
+	}
+
 	// task to events in background thread
-	private class StartIntent extends AsyncTask<String, integer, Void>
+	private class StartListingEventsTask extends AsyncTask<String, integer, Intent>
 	{
 		private final CharSequence	PROGRESS_DIALOG_TEXT	= "Loading.Please Wait...";
 		private ProgressDialog			pDialog;
@@ -262,33 +328,41 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 			pDialog = new ProgressDialog(MainActivity.this);
 			pDialog.setMessage(PROGRESS_DIALOG_TEXT);
 			pDialog.setIndeterminate(false);
-			pDialog.setCancelable(false);
+			pDialog.setCancelable(true);
 			pDialog.show();
 		}
 
 		@Override
-		protected Void doInBackground(String... maps)
+		protected Intent doInBackground(String... args)
 		{
-
-			// first check if there are any events
-			if (EventsFactory.getEventsIn10KmRadius() != null)
+			try
 			{
-				// start subactivity to list events
-				Intent listEventsScreen = new Intent(MainActivity.this, ListEventsActivity.class);
-				pDialog.dismiss();
-				startActivityForResult(listEventsScreen, LIST_EVENTS_ACTIVITY_RESULT_CODE);
-			}
-			else
-			{// if none then inform user
-				Toast.makeText(MainActivity.this, FAILED_TO_GET_EVENTS_TEXT, Toast.LENGTH_LONG).show();
+				// first check if there are any events
+				if (EventsFactory.getEventsIn10KmRadius() != null)
+				{
+					Intent listEventsScreen = new Intent(MainActivity.this, ListEventsActivity.class);
+					pDialog.dismiss();
+					startActivityForResult(listEventsScreen, LIST_EVENTS_ACTIVITY_RESULT_CODE);
+					return null;
+				}
+				else 
+				{
+					pDialog.dismiss();
+					Toast.makeText(MainActivity.this, FAILED_TO_GET_EVENTS_TEXT, Toast.LENGTH_LONG).show();
+				}
 			}
 
+			catch (Exception e)
+			{
+			}
+			// if none then inform user
 			return null;
+
 		}
 
 	}
-
-	//Loads Map In Background thread inorder to make app more responsive
+	
+	// Loads Map In Background thread inorder to make app more responsive
 	private class LoadMapTask extends AsyncTask<String, Integer, Location>
 	{
 		private final CharSequence	PROGRESS_DIALOG_TEXT	= "Loading Map...";
@@ -363,7 +437,8 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 		}
 	}
 
-	//handles location changes in background inorder to make app more responsive
+	// handles location changes in background inorder to make app more responsive
+	
 	private class GetLocationTask extends AsyncTask<Location, Integer, LatLng>
 	{
 		@Override
@@ -396,7 +471,6 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 
 				// Zoom in the Google Map
 				googleMap.animateCamera(CameraUpdateFactory.zoomTo(GOOGLE_MAP_DEFAULT_ZOOM_LEVEL));
-
 
 				// add listener for clicks on info window that pops up when user clicks
 				// on
@@ -487,7 +561,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 				});
 				if (eventsArrayList != null)
 				{
-					
+
 					// if u fail to query database for events then return
 					Iterator<Event> iterator = eventsArrayList.iterator();
 					eventMarkerMap = new HashMap<String, Event>();
@@ -497,50 +571,51 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 					while (iterator.hasNext())
 					{
 						Event anEvent = iterator.next();
-						String type=anEvent.getType_of_event();
+						String type = anEvent.getType_of_event();
 						LatLng location = anEvent.getLocation_of_event();
-						String title = anEvent.getDescription_of_event().toUpperCase();
+						String title = anEvent.getName_of_event().toUpperCase();
 						String snippet = GOOGLE_MARKER_SNIPPET_TEXT + anEvent.getDate();
-						MarkerOptions myMarkerOptions=new MarkerOptions();
+						MarkerOptions myMarkerOptions = new MarkerOptions();
 						myMarkerOptions.position(location);
 						myMarkerOptions.title(title);
 						myMarkerOptions.snippet(snippet);
-						int resource_id=0;
+						int resource_id = 0;
+
 						if (type.equalsIgnoreCase("meeting"))
 						{
-							resource_id=R.drawable.meeting;
+							resource_id = R.drawable.meeting;
 						}
 						else if (type.equalsIgnoreCase("party"))
 						{
-							resource_id=R.drawable.party;
+							resource_id = R.drawable.party;
 						}
 						else if (type.equalsIgnoreCase("Social"))
 						{
-							resource_id=R.drawable.social;
+							resource_id = R.drawable.social;
 						}
 						else if (type.equalsIgnoreCase("religious"))
 						{
-							resource_id=R.drawable.religious;
+							resource_id = R.drawable.religious;
 						}
 						else if (type.equalsIgnoreCase("programming"))
 						{
-							resource_id=R.drawable.programming;
+							resource_id = R.drawable.programming;
 						}
 						else if (type.equalsIgnoreCase("cinema"))
 						{
-							resource_id=R.drawable.cinema;
+							resource_id = R.drawable.cinema;
 						}
 						else if (type.equalsIgnoreCase("drink up"))
 						{
-							resource_id=R.drawable.drink_up;
+							resource_id = R.drawable.drink_up;
 						}
 						else if (type.equalsIgnoreCase("music festival"))
 						{
-							resource_id=R.drawable.music_festival;
+							resource_id = R.drawable.music_festival;
 						}
 						else if (type.equalsIgnoreCase("strike"))
 						{
-							resource_id=R.drawable.strike;
+							resource_id = R.drawable.strike;
 						}
 						myMarkerOptions.icon(BitmapDescriptorFactory.fromResource(resource_id));
 						Marker aMarker = googleMap.addMarker(myMarkerOptions);
@@ -569,4 +644,5 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 
 	}
 
+	
 }

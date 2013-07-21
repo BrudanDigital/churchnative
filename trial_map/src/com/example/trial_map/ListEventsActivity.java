@@ -3,7 +3,9 @@ package com.example.trial_map;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -26,13 +28,18 @@ import com.example.trial_map.widgets.QuickAction;
 //This class displays all events in 10km as a list for user to select from
 public class ListEventsActivity extends SherlockListActivity
 {
-	private static final int	DETAILS_ACTIVITY_RESULT_CODE	= 100;
-	ArrayList<Event>					events_ArrayList							= EventsFactory.getEventsIn10KmRadius();
-	private View							view													= null;
-	private int								index_of_selected_event				= -1;
-	QuickAction								mQuickAction									= null;
-	GetEventDetailsTask				getEventDetailsTask;
-	private static final int	BACK													= R.id.menu_back;
+	private static final int					DETAILS_ACTIVITY_RESULT_CODE	= 100;
+	private static final int					BACK													= R.id.menu_back;
+	protected static final int				EDIT_EVENT_RESULT_CODE				= 100;
+	private static final CharSequence	UPDATE_EVENT_OK_TEXT					= "Event Updated SuccessFully";
+	private static final int					SHORT_DURATION								= Toast.LENGTH_SHORT;
+	private ArrayList<Event>					events_ArrayList							= EventsFactory.getEventsIn10KmRadius();
+	private View											view													= null;
+	private int												index_of_selected_event				= -1;
+	private QuickAction								mQuickAction									= null;
+	private GetEventDetailsTask				getEventDetailsTask;
+	private EditEventDetailsTask			editEventDetailsTask;
+	
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -40,29 +47,41 @@ public class ListEventsActivity extends SherlockListActivity
 		super.onCreate(savedInstanceState);
 		// make background black
 		getWindow().getDecorView().setBackgroundColor(Color.BLACK);
+
 		// Add action item
 		ActionItem action_details = new ActionItem();
-
+		// set text for action item
 		action_details.setTitle("Details");
+		// set icon for action item
 		action_details.setIcon(getResources().getDrawable(R.drawable.event_details));
 
-		// Accept action item
+		// Delete action item
 		ActionItem action_delete = new ActionItem();
-
+		// set text for action item
 		action_delete.setTitle("Delete");
+		// set icon for action item
 		action_delete.setIcon(getResources().getDrawable(R.drawable.delete_event));
 
-		// Upload action item
+		// Edit action item
 		ActionItem action_edit = new ActionItem();
-
+		// set text for action item
 		action_edit.setTitle("Edit");
+		// set icon for action item
 		action_edit.setIcon(getResources().getDrawable(R.drawable.edit_event));
+
+		// Get Route action
+		ActionItem action_directions = new ActionItem();
+		// set text for action item
+		action_directions.setTitle("Get Directions");
+		// set icon for action item
+		action_directions.setIcon(getResources().getDrawable(R.drawable.get_directions));
 
 		mQuickAction = new QuickAction(this);
 
 		mQuickAction.addActionItem(action_details);
 		mQuickAction.addActionItem(action_delete);
 		mQuickAction.addActionItem(action_edit);
+		mQuickAction.addActionItem(action_directions);
 
 		// setup the action item click listener
 		mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener()
@@ -79,18 +98,24 @@ public class ListEventsActivity extends SherlockListActivity
 					getEventDetailsTask.execute();
 				}
 				else if (pos == 1)// if delete event is clicked
-				{ // Accept item selected
-					Toast.makeText(ListEventsActivity.this, "DELETE item selected", Toast.LENGTH_SHORT).show();
+				{ // show alert dialog
+					showTheDoYouReallyWantToDeleteThisDialog();
 				}
 				else if (pos == 2)// if edit event is clicked
+				{ // go to the edit activity
+					editEventDetailsTask = new EditEventDetailsTask();
+					editEventDetailsTask.execute();
+				}
+				else if (pos == 3)// if edit event is clicked
 				{ // Upload item selected
-					Toast.makeText(ListEventsActivity.this, "EDIT selected", Toast.LENGTH_SHORT).show();
+					Toast.makeText(ListEventsActivity.this, "Get Directions selected", Toast.LENGTH_SHORT).show();
 				}
 			}
+
 		});
 
 		// set list adapter to my customer adapter
-		setListAdapter(new CustomArrayAdapter(this, getEventsAsStringArray(),events_ArrayList));
+		setListAdapter(new CustomArrayAdapter(this, getEventsAsStringArray(), events_ArrayList));
 	}
 
 	// handler for click on an list view item by user
@@ -116,12 +141,21 @@ public class ListEventsActivity extends SherlockListActivity
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
+		if (view != null)
+		{// return color of background back to black
+			view.setBackgroundColor(Color.BLACK);
+			view = null;
+		}
 		if (requestCode == DETAILS_ACTIVITY_RESULT_CODE)
 		{
-			if (view != null)
+
+		}
+		if (requestCode == EDIT_EVENT_RESULT_CODE)
+		{
+			if (resultCode == RESULT_OK)
 			{
-				view.setBackgroundColor(Color.BLACK);
-				view = null;
+
+				Toast.makeText(this, UPDATE_EVENT_OK_TEXT, SHORT_DURATION).show();
 			}
 		}
 	}
@@ -144,7 +178,13 @@ public class ListEventsActivity extends SherlockListActivity
 		Log.e("sendEvent", "" + name);
 		String duration = anEvent.getDuration();
 		String location_in_words = anEvent.getEvent_location_in_words();
-		int user_id = anEvent.getUser_id();
+		int user_id;
+		Bundle aBundle = getIntent().getExtras();
+		if (aBundle != null)
+		{
+			user_id = aBundle.getInt("user_id");
+		}
+		user_id = anEvent.getUser_id();
 		int event_id = anEvent.getEvent_id();
 		String type = anEvent.getType_of_event();
 		// create bundle to store all the object state
@@ -165,7 +205,7 @@ public class ListEventsActivity extends SherlockListActivity
 		intent.putExtras(extras);
 	}
 
-//returns event descriptions in string array
+	// returns event descriptions in string array
 	public ArrayList<String> getEventsAsStringArray()
 	{
 
@@ -182,6 +222,50 @@ public class ListEventsActivity extends SherlockListActivity
 			eventStrings.add(event.getName_of_event());
 		}
 		return eventStrings;
+	}
+
+	private void showTheDoYouReallyWantToDeleteThisDialog()
+	{
+		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ListEventsActivity.this);
+
+		// set title
+		alertDialogBuilder.setTitle("Really?");
+
+		// set dialog message
+		alertDialogBuilder.setMessage("Do You Really Want To Delete This Item").setCancelable(false).setPositiveButton("Yes", new DialogInterface.OnClickListener()
+		{
+			public void onClick(DialogInterface dialog, int id)
+			{
+				int delete_status = EventsFactory.DeleteEvent(events_ArrayList.get(index_of_selected_event));
+				if (delete_status == 1)
+				{
+					setResult(RESULT_OK);
+					finish();
+				}
+				else
+				{
+					String text = "Failed to Delete Event";
+					int duration = Toast.LENGTH_LONG;
+					Toast.makeText(ListEventsActivity.this, text, duration).show();
+				}
+				// events_ArrayList.remove(index_of_selected_event);
+			}
+
+		}).setNegativeButton("No", new DialogInterface.OnClickListener()
+		{
+			public void onClick(DialogInterface dialog, int id)
+			{
+				// if this button is clicked, just close
+				// the dialog box and do nothing
+				dialog.cancel();
+			}
+		});
+
+		// create alert dialog
+		AlertDialog alertDialog = alertDialogBuilder.create();
+
+		// show it
+		alertDialog.show();
 	}
 
 	// method called to create menu and its items
@@ -212,6 +296,7 @@ public class ListEventsActivity extends SherlockListActivity
 
 	}
 
+//this class starts the  event details activity in background while displaying progress dialog
 	private class GetEventDetailsTask extends AsyncTask<Void, String, Void>
 	{
 		private final CharSequence	PROGRESS_DIALOG_TEXT	= "Getting Details...";
@@ -224,7 +309,7 @@ public class ListEventsActivity extends SherlockListActivity
 			pDialog = new ProgressDialog(ListEventsActivity.this);
 			pDialog.setMessage(PROGRESS_DIALOG_TEXT);
 			pDialog.setIndeterminate(false);
-			pDialog.setCancelable(false);
+			pDialog.setCancelable(true);
 			pDialog.show();
 		}
 
@@ -238,6 +323,37 @@ public class ListEventsActivity extends SherlockListActivity
 			// start new sub activity
 			pDialog.dismiss();
 			startActivityForResult(intent, DETAILS_ACTIVITY_RESULT_CODE);
+			return null;
+		}
+	}
+
+	//this class starts the edit event activity in background while displaying progress dialog
+	private class EditEventDetailsTask extends AsyncTask<Void, String, Void>
+	{
+		private final CharSequence	PROGRESS_DIALOG_TEXT	= "Getting Details...";
+		private ProgressDialog			pDialog;
+
+		@Override
+		protected void onPreExecute()
+		{
+			// create progress dialog and display it to user
+			pDialog = new ProgressDialog(ListEventsActivity.this);
+			pDialog.setMessage(PROGRESS_DIALOG_TEXT);
+			pDialog.setIndeterminate(false);
+			pDialog.setCancelable(true);
+			pDialog.show();
+		}
+
+		@Override
+		protected Void doInBackground(Void... arg0)
+		{
+			// create a new sub activity
+			Intent intent = new Intent(ListEventsActivity.this, EditEventActivity.class);
+			// Use helper method to send event to next activity
+			sendEvent(intent, events_ArrayList.get(index_of_selected_event));
+			// start new sub activity
+			pDialog.dismiss();
+			startActivityForResult(intent, EDIT_EVENT_RESULT_CODE);
 			return null;
 		}
 	}
