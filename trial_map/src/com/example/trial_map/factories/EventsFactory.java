@@ -10,9 +10,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.location.Location;
 import android.util.Log;
 
 import com.example.trial_map.beans.Event;
+import com.google.android.gms.maps.model.LatLng;
 
 //factory class for Events
 
@@ -41,7 +43,7 @@ public class EventsFactory
 	private static final String	GET_EVENTS_URL			= PHP_SCRIPT_ADDRESS + "get_events.php";
 	private static final String	DELETE_EVENT_URL		= PHP_SCRIPT_ADDRESS + "delete_event.php";
 	private static final String	UPDATE_EVENT_URL		= PHP_SCRIPT_ADDRESS + "update_event.php";
-	// int FLAGS
+	// integer FLAGS
 	public static final int			SUCCESS							= 1;
 	public static final int			FAILURE							= 0;
 	public static final int			NO_CONNECTION				= 2;
@@ -100,13 +102,16 @@ public class EventsFactory
 
 	}
 
-	public static ArrayList<Event> getEventsIn10KmRadius()
+	//returns all events within 10km of users location
+	public static ArrayList<Event> getEventsIn10KmRadius(LatLng user_latLng)
 	{
 		try
 		{
 
 			JSONParser jsonParser = new JSONParser();
+
 			JSONObject jsonObject = jsonParser.makeHttpGetRequest(GET_EVENTS_URL);
+			;
 
 			// Checking for SUCCESS TAG
 			int success = jsonObject.getInt(TAG_SUCCESS);
@@ -126,23 +131,28 @@ public class EventsFactory
 					Log.e("latitude", "" + latitude);
 					double longitude = events.getDouble(TAG_LONGITUDE);
 					Log.e("longitude", "" + longitude);
-					String time = events.getString(TAG_TIME);
-					Log.e("time", "" + time);
-					String date = events.getString(TAG_DATE);
-					Log.e("date", "" + date);
-					String description = events.getString(TAG_DESCRIPTION);
-					Log.e("description", "" + description);
-					String name = events.getString(TAG_NAME);
-					Log.e("name", "" + name);
-					String duration = events.getString(TAG_DURATION);
-					Log.e("duration", "" + duration);
-					String event_location_in_words = events.getString(TAG_LOCATION);
-					Log.e("location", "" + event_location_in_words);
-					int user_id = events.getInt("user_id");
-					int event_id = events.getInt("event_id");
-					String type_of_event = events.getString("type");
-					Event anEvent = new Event(latitude, longitude, time, date, description, name, duration, event_location_in_words, user_id, event_id, type_of_event);
-					all_events_10km_radius.add(anEvent);
+					LatLng location = new LatLng(latitude, longitude);
+					//only add event if its with in 10km of user location
+					if (distanceBtnIsLessThan10km(location, user_latLng))
+					{
+						String time = events.getString(TAG_TIME);
+						Log.e("time", "" + time);
+						String date = events.getString(TAG_DATE);
+						Log.e("date", "" + date);
+						String description = events.getString(TAG_DESCRIPTION);
+						Log.e("description", "" + description);
+						String name = events.getString(TAG_NAME);
+						Log.e("name", "" + name);
+						String duration = events.getString(TAG_DURATION);
+						Log.e("duration", "" + duration);
+						String event_location_in_words = events.getString(TAG_LOCATION);
+						Log.e("location", "" + event_location_in_words);
+						int user_id = events.getInt("user_id");
+						int event_id = events.getInt("event_id");
+						String type_of_event = events.getString("type");
+						Event anEvent = new Event(latitude, longitude, time, date, description, name, duration, event_location_in_words, user_id, event_id, type_of_event);
+						all_events_10km_radius.add(anEvent);
+					}
 				}
 				return all_events_10km_radius;
 			}
@@ -161,6 +171,7 @@ public class EventsFactory
 
 	}
 
+	//deletes an event at the server
 	public static int DeleteEvent(Event event)
 	{
 		String event_id = "" + event.getEvent_id();
@@ -170,29 +181,30 @@ public class EventsFactory
 
 		JSONObject json = jParser.makeHttpRequest(DELETE_EVENT_URL, "POST", params);
 		Log.e("DELETE EVENT", "" + json.toString());
-		
-			try
-			{
-				// Checking for SUCCESS TAG
-				int success = json.getInt(TAG_SUCCESS);
 
-				if (success == 1)
-				{
-					return SUCCESS;
-				}
-				else
-				{
-					return FAILURE;
-				}
-			}
-			catch (Exception e)
+		try
+		{
+			// Checking for SUCCESS TAG
+			int success = json.getInt(TAG_SUCCESS);
+
+			if (success == 1)
 			{
-				Log.e("DELETE EVENT", "" + e.getMessage());
+				return SUCCESS;
 			}
-	
+			else
+			{
+				return FAILURE;
+			}
+		}
+		catch (Exception e)
+		{
+			Log.e("DELETE EVENT", "" + e.getMessage());
+		}
+
 		return NO_CONNECTION;
 	}
 
+	//updates an event at the server side
 	public static Integer UpdateEvent(Event anEvent)
 	{
 		// get parameters
@@ -206,7 +218,7 @@ public class EventsFactory
 		String description = anEvent.getDescription_of_event();
 		String user_id = "" + anEvent.getUser_id();
 		String type_of_event = anEvent.getType_of_event();
-		String id=""+anEvent.getEvent_id();
+		String id = "" + anEvent.getEvent_id();
 		// Building Parameters
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
 		params.add(new BasicNameValuePair("location", location));
@@ -248,4 +260,25 @@ public class EventsFactory
 		return NO_CONNECTION;
 	}
 
+	//checks if the any 2 points are within 10km of each other
+	private static boolean distanceBtnIsLessThan10km(LatLng latLng1, LatLng latLng2)
+	{
+		Location locationA = new Location("point A");
+
+		locationA.setLatitude(latLng1.latitude);
+		locationA.setLongitude(latLng1.longitude);
+
+		Location locationB = new Location("point B");
+
+		locationB.setLatitude(latLng2.latitude);
+		locationB.setLongitude(latLng2.longitude);
+
+		float distance = locationA.distanceTo(locationB);
+		System.out.print("DISTANCE=" + distance);
+		if (distance <= 10000)
+		{
+			return true;
+		}
+		return false;
+	}
 }

@@ -63,13 +63,15 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 	private static final CharSequence	ALERT_DIALOG_MSG									= "This Application Requires An Internet Connection";
 	private static final CharSequence	ALERT_BUTTON_TEXT									= "Okay";
 	private static final CharSequence	DELETION_SUCCESSFULL_TEXT					= "Event Deleted Successfully";
+	public static double user_latitude=0;
+	public static double user_longitude=0;
 
 	// variables
 	private ArrayList<Event>					eventsArrayList										= null;
 	private HashMap<String, Event>		eventMarkerMap										= new HashMap<String, Event>();
 	private GoogleMap									googleMap;
 	private Location									location;
-	public static  EventOwner								anEventOwner											= null;
+	public static EventOwner					anEventOwner											= null;
 	private Menu											menu															= null;
 
 	@Override
@@ -338,14 +340,14 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 			try
 			{
 				// first check if there are any events
-				if (EventsFactory.getEventsIn10KmRadius() != null)
+				if (EventsFactory.getEventsIn10KmRadius(new LatLng(user_latitude, user_longitude)) != null)
 				{
 					Intent listEventsScreen = new Intent(MainActivity.this, ListEventsActivity.class);
 					pDialog.dismiss();
 					startActivityForResult(listEventsScreen, LIST_EVENTS_ACTIVITY_RESULT_CODE);
 					return null;
 				}
-				else 
+				else
 				{
 					pDialog.dismiss();
 					Toast.makeText(MainActivity.this, FAILED_TO_GET_EVENTS_TEXT, Toast.LENGTH_LONG).show();
@@ -361,7 +363,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 		}
 
 	}
-	
+
 	// Loads Map In Background thread inorder to make app more responsive
 	private class LoadMapTask extends AsyncTask<String, Integer, Location>
 	{
@@ -438,7 +440,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 	}
 
 	// handles location changes in background inorder to make app more responsive
-	
+
 	private class GetLocationTask extends AsyncTask<Location, Integer, LatLng>
 	{
 		@Override
@@ -447,15 +449,15 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 			if (arg0 != null)
 			{
 				// Getting latitude of the current location
-				double latitude = location.getLatitude();
+				user_latitude = location.getLatitude();
 
 				// Getting longitude of the current location
-				double longitude = location.getLongitude();
+				user_longitude = location.getLongitude();
 
 				// Creating a LatLng object for the current location
-				LatLng latLng = new LatLng(latitude, longitude);
+				LatLng latLng = new LatLng(user_latitude, user_longitude);
 				// try to get events
-				eventsArrayList = EventsFactory.getEventsIn10KmRadius();
+				eventsArrayList = EventsFactory.getEventsIn10KmRadius(latLng);
 				return latLng;
 			}
 			return null;
@@ -644,5 +646,4 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 
 	}
 
-	
 }

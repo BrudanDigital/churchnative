@@ -24,6 +24,7 @@ import com.example.trial_map.beans.Event;
 import com.example.trial_map.factories.EventsFactory;
 import com.example.trial_map.widgets.CustomArrayAdapter;
 import com.example.trial_map.widgets.QuickAction;
+import com.google.android.gms.maps.model.LatLng;
 
 //This class displays all events in 10km as a list for user to select from
 public class ListEventsActivity extends SherlockListActivity
@@ -33,13 +34,25 @@ public class ListEventsActivity extends SherlockListActivity
 	protected static final int				EDIT_EVENT_RESULT_CODE				= 100;
 	private static final CharSequence	UPDATE_EVENT_OK_TEXT					= "Event Updated SuccessFully";
 	private static final int					SHORT_DURATION								= Toast.LENGTH_SHORT;
-	private ArrayList<Event>					events_ArrayList							= EventsFactory.getEventsIn10KmRadius();
+	private static final CharSequence	DELETE_DIALOG_MSG							= "Do You Really Want To Delete This Item";
+	private static final CharSequence	DELETE_DIALOG_TITLE						= "Really";
+	private static final CharSequence	DIALOG_POSITIVE_BTN_TXT				= "Yes";
+	private static final CharSequence	DIALOG_NEGATIVE_BTN_TXT				= "No";
+	private static final String				ACTION_DELETE_TITLE						= "Delete";
+	private static final String				ACTION_EDIT_TITLE							= "Edit";
+	private static final String				ACTION_GET_DIRECTIONS_TITLE		= "Get Diretions";
+	private static final String				ACTION_DETAILS_TITLE					= "Details";
+	private static final int	GET_DIRECTIONS_ICON	= R.drawable.get_directions;
+	private static final int	EDIT_EVENT_ICON	= R.drawable.edit_event;
+	private static final int	EVENT_DETAILS_ICON	= R.drawable.event_details;
+	private static final int	DELETE_EVENT_ICON	= R.drawable.delete_event;
+	private static LatLng user_location=new LatLng(MainActivity.user_latitude, MainActivity.user_longitude);
+	private ArrayList<Event>					events_ArrayList							= EventsFactory.getEventsIn10KmRadius(user_location);
 	private View											view													= null;
 	private int												index_of_selected_event				= -1;
 	private QuickAction								mQuickAction									= null;
 	private GetEventDetailsTask				getEventDetailsTask;
 	private EditEventDetailsTask			editEventDetailsTask;
-	
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -51,30 +64,30 @@ public class ListEventsActivity extends SherlockListActivity
 		// Add action item
 		ActionItem action_details = new ActionItem();
 		// set text for action item
-		action_details.setTitle("Details");
+		action_details.setTitle(ACTION_DETAILS_TITLE);
 		// set icon for action item
-		action_details.setIcon(getResources().getDrawable(R.drawable.event_details));
+		action_details.setIcon(getResources().getDrawable(EVENT_DETAILS_ICON));
 
 		// Delete action item
 		ActionItem action_delete = new ActionItem();
 		// set text for action item
-		action_delete.setTitle("Delete");
+		action_delete.setTitle(ACTION_DELETE_TITLE);
 		// set icon for action item
-		action_delete.setIcon(getResources().getDrawable(R.drawable.delete_event));
+		action_delete.setIcon(getResources().getDrawable(DELETE_EVENT_ICON));
 
 		// Edit action item
 		ActionItem action_edit = new ActionItem();
 		// set text for action item
-		action_edit.setTitle("Edit");
+		action_edit.setTitle(ACTION_EDIT_TITLE);
 		// set icon for action item
-		action_edit.setIcon(getResources().getDrawable(R.drawable.edit_event));
+		action_edit.setIcon(getResources().getDrawable(EDIT_EVENT_ICON));
 
 		// Get Route action
 		ActionItem action_directions = new ActionItem();
 		// set text for action item
-		action_directions.setTitle("Get Directions");
+		action_directions.setTitle(ACTION_GET_DIRECTIONS_TITLE);
 		// set icon for action item
-		action_directions.setIcon(getResources().getDrawable(R.drawable.get_directions));
+		action_directions.setIcon(getResources().getDrawable(GET_DIRECTIONS_ICON));
 
 		mQuickAction = new QuickAction(this);
 
@@ -116,6 +129,7 @@ public class ListEventsActivity extends SherlockListActivity
 
 		// set list adapter to my customer adapter
 		setListAdapter(new CustomArrayAdapter(this, getEventsAsStringArray(), events_ArrayList));
+
 	}
 
 	// handler for click on an list view item by user
@@ -154,8 +168,14 @@ public class ListEventsActivity extends SherlockListActivity
 		{
 			if (resultCode == RESULT_OK)
 			{
-
 				Toast.makeText(this, UPDATE_EVENT_OK_TEXT, SHORT_DURATION).show();
+				// if result code ok is received
+				// means user edited/deleted product
+				// reload this screen again
+				Intent intent = getIntent();
+				finish();
+				startActivity(intent);
+
 			}
 		}
 	}
@@ -224,15 +244,16 @@ public class ListEventsActivity extends SherlockListActivity
 		return eventStrings;
 	}
 
+	//displays dialog asking user if he really wants to delete the event
 	private void showTheDoYouReallyWantToDeleteThisDialog()
 	{
 		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ListEventsActivity.this);
 
 		// set title
-		alertDialogBuilder.setTitle("Really?");
+		alertDialogBuilder.setTitle(DELETE_DIALOG_TITLE);
 
 		// set dialog message
-		alertDialogBuilder.setMessage("Do You Really Want To Delete This Item").setCancelable(false).setPositiveButton("Yes", new DialogInterface.OnClickListener()
+		alertDialogBuilder.setMessage(DELETE_DIALOG_MSG).setCancelable(false).setPositiveButton(DIALOG_POSITIVE_BTN_TXT, new DialogInterface.OnClickListener()
 		{
 			public void onClick(DialogInterface dialog, int id)
 			{
@@ -251,7 +272,7 @@ public class ListEventsActivity extends SherlockListActivity
 				// events_ArrayList.remove(index_of_selected_event);
 			}
 
-		}).setNegativeButton("No", new DialogInterface.OnClickListener()
+		}).setNegativeButton(DIALOG_NEGATIVE_BTN_TXT, new DialogInterface.OnClickListener()
 		{
 			public void onClick(DialogInterface dialog, int id)
 			{
@@ -296,7 +317,8 @@ public class ListEventsActivity extends SherlockListActivity
 
 	}
 
-//this class starts the  event details activity in background while displaying progress dialog
+	// this class starts the event details activity in background while displaying
+	// progress dialog
 	private class GetEventDetailsTask extends AsyncTask<Void, String, Void>
 	{
 		private final CharSequence	PROGRESS_DIALOG_TEXT	= "Getting Details...";
@@ -327,7 +349,8 @@ public class ListEventsActivity extends SherlockListActivity
 		}
 	}
 
-	//this class starts the edit event activity in background while displaying progress dialog
+	// this class starts the edit event activity in background while displaying
+	// progress dialog
 	private class EditEventDetailsTask extends AsyncTask<Void, String, Void>
 	{
 		private final CharSequence	PROGRESS_DIALOG_TEXT	= "Getting Details...";
