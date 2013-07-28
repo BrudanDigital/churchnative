@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollView1"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/black" >
+
+    <LinearLayout
+        android:id="@+id/main_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="430dp"
+        android:background="@color/black"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/textView_location"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Location Of Event"
+            android:labelFor="@+id/autoComplete_location"
+            android:textColor="@color/white" />
+
+        <com.example.trial_map.widgets.CustomAutoCompleteTextView
+            android:id="@+id/autoComplete_location"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"         
+            android:hint="@string/str_atv_places"
+            android:textColor="@color/black"
+            android:textSize="18sp" />
+        
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dip"
+            android:background="@color/white" />
+
+        <TextView
+            android:id="@+id/textView_name"
+            android:layout_width="fill_parent"
+            android:textColor="@color/white"
+            android:layout_height="wrap_content"
+            
+            android:labelFor="@+id/editText_name"
+            android:text="Name Of Event" />
+
+        <EditText
+            android:id="@+id/editText_name"
+            android:layout_width="fill_parent"
+            android:layout_height="48dp"
+             android:singleLine="true"
+            android:imeOptions="actionNext"
+            android:textSize="18sp" />
+        
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dip"
+            android:background="@color/white" />
+        
+         <TextView
+            android:id="@+id/textView_description"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:labelFor="@+id/editText_description"
+            android:layout_weight="1"
+            android:text="Description Of Event"
+            android:textColor="@color/white" />
+
+        <EditText
+            android:id="@+id/editText_description"
+            android:layout_width="fill_parent"
+            android:layout_height="100dp"
+            android:layout_weight="1"
+             android:singleLine="true"
+            android:imeOptions="actionNext"
+            android:textSize="18sp" />
+        
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dip"
+            android:background="@color/white" />
+        <TextView
+            android:id="@+id/textView_eventType"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:labelFor="@+id/eventType_spinner"
+            android:textColor="@color/white"
+            android:text="Type Of Event" />
+
+        <Spinner
+            android:id="@+id/eventType_spinner"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/type_array"
+            android:prompt="@string/event_type_prompt" />
+        
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dip"
+            android:background="@color/white" />
+
+        <TextView
+            android:id="@+id/textView_time"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:labelFor="@+id/timePicker"
+            android:layout_weight="1"
+            android:text="Start Time"
+            android:textColor="@color/white" />
+
+        <TimePicker
+            android:id="@+id/timePicker"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" 
+            android:imeOptions="actionNext"
+            />
+        
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dip"
+            android:background="@color/white" />
+
+        <TextView
+            android:id="@+id/textView_duration"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:labelFor="@+id/spinner"
+            android:textColor="@color/white"
+            android:text="Duration" />
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/duration_array"
+            android:imeOptions="actionNext"
+            android:prompt="@string/duration_prompt" />
+        
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dip"
+            android:background="@color/white" />
+
+        <TextView
+            android:id="@+id/textView_date"
+            android:layout_width="fill_parent"
+           android:layout_height="wrap_content"
+            android:labelFor="@+id/datePicker"
+            android:layout_weight="1"
+            android:text="Date"
+            android:textColor="@color/white" />
+
+        <DatePicker
+            android:id="@+id/datePicker"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:endYear="@string/end_year"
+            android:startYear="@string/start_year"/>
+        
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dip"
+            android:background="@color/white" />
+
+        <RelativeLayout
+            android:id="@+id/button_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="100dp"
+            android:layout_weight="1"
+            android:background="@color/black" >
+
+            <Button
+                android:id="@+id/button_addEvent"
+                android:layout_width="160dp"
+                android:layout_height="60dp"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:text="Save Event" />
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</ScrollView>
