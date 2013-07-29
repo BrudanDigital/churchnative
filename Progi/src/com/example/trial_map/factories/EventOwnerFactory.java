@@ -8,14 +8,12 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import android.util.Log;
-
 import com.example.trial_map.beans.EventOwner;
 
 public class EventOwnerFactory
 {
 	/** url to php script at website **/
-	private static final String	PHP_SCRIPT_ADDRESS			= "http://192.168.43.169/android_connect/";
+	private static final String	PHP_SCRIPT_ADDRESS			= EventsFactory.PHP_SCRIPT_ADDRESS;
 	private static final String	LOGIN_URL								= PHP_SCRIPT_ADDRESS + "login.php";
 	private static final String	TAG_SUCCESS							= "success";
 	private static final String	TAG_EVENT_OWNER					= "event_owner";
@@ -62,7 +60,6 @@ public class EventOwnerFactory
 			}
 			else
 			{// success is 0 and no results
-				Log.e("SUCCESS", "is 0");
 				return null;
 			}
 		}

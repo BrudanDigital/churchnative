@@ -52,6 +52,7 @@ public class QuickAction extends PopupWindows
 
 		mTrackAnim.setInterpolator(new Interpolator()
 		{
+			@Override
 			public float getInterpolation(float t)
 			{
 				final float inner = (t * 1.55f) - 1.1f;
@@ -69,7 +70,7 @@ public class QuickAction extends PopupWindows
 
 	public void setRootViewId(int id)
 	{
-		mRootView = (ViewGroup) inflater.inflate(id, null);
+		mRootView = inflater.inflate(id, null);
 		mTrack = (ViewGroup) mRootView.findViewById(R.id.tracks);
 
 		mArrowDown = (ImageView) mRootView.findViewById(R.id.arrow_down);
@@ -94,7 +95,7 @@ public class QuickAction extends PopupWindows
 		String title = action.getTitle();
 		Drawable icon = action.getIcon();
 
-		View container = (View) inflater.inflate(R.layout.action_item, null);
+		View container = inflater.inflate(R.layout.action_item, null);
 
 		ImageView img = (ImageView) container.findViewById(R.id.iv_icon);
 		TextView text = (TextView) container.findViewById(R.id.tv_title);
@@ -113,6 +114,7 @@ public class QuickAction extends PopupWindows
 
 		container.setOnClickListener(new OnClickListener()
 		{
+			@Override
 			public void onClick(View v)
 			{
 				if (mListener != null)

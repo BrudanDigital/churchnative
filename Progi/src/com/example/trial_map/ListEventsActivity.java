@@ -3,6 +3,8 @@ package com.example.trial_map;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.json.JSONObject;
+
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -10,7 +12,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -22,6 +23,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.example.trial_map.beans.ActionItem;
 import com.example.trial_map.beans.Event;
 import com.example.trial_map.factories.EventsFactory;
+import com.example.trial_map.factories.NetworkManager;
 import com.example.trial_map.widgets.CustomArrayAdapter;
 import com.example.trial_map.widgets.QuickAction;
 import com.google.android.gms.maps.model.LatLng;
@@ -66,6 +68,7 @@ public class ListEventsActivity extends SherlockListActivity
 	private ActionItem									action_directions;
 	private ActionItem									action_delete;
 	private ActionItem									action_details;
+	public static ArrayList<String>			directionsArrayList							= null;
 
 
 	@Override
@@ -138,6 +141,7 @@ public class ListEventsActivity extends SherlockListActivity
 		// setup the action item click listener
 		mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener()
 		{
+			@Override
 			public void onItemClick(int pos)
 			{
 				if (index_of_selected_event == -1)
@@ -171,10 +175,11 @@ public class ListEventsActivity extends SherlockListActivity
 				}
 				else if (pos == 3)// if get directions is clicked
 				{ // start display directions activity
-					Intent intent = new Intent(ListEventsActivity.this, DisplayDirectionsActivity.class);
+					LatLng origin = new LatLng(MainActivity.user_latitude, MainActivity.user_longitude);
 					LatLng dest = new LatLng(events_ArrayList.get(index_of_selected_event).getLatitude(), events_ArrayList.get(index_of_selected_event).getLongitude());
-					sendEventLocation(intent, dest);
-					startActivityForResult(intent, DISPLAY_DIRECTIONS_RESULT_CODE);
+					GetDirectionsTask getDirectionsTask = new GetDirectionsTask();
+					LatLng[] latLngs = { origin, dest };
+					getDirectionsTask.execute(latLngs);
 				}
 			}
 		});
@@ -210,8 +215,9 @@ public class ListEventsActivity extends SherlockListActivity
 	 */
 	private boolean heCreatedTheEventInQuestion()
 	{
-		Log.e("User_id", "" + USER_ID);
-		Log.e("Event_user_id", "" + events_ArrayList.get(index_of_selected_event).getUser_id());
+		// Log.e("User_id", "" + USER_ID);
+		// Log.e("Event_user_id", "" +
+		// events_ArrayList.get(index_of_selected_event).getUser_id());
 		if (USER_ID == -1)
 		{
 			return false;
@@ -293,24 +299,6 @@ public class ListEventsActivity extends SherlockListActivity
 
 
 	/**
-	 * @param intent
-	 *          the intent to be used to send the event
-	 * @param dest
-	 *          the destination to be sent with the intent sends the destination
-	 *          using the given intent
-	 */
-	private void sendEventLocation(Intent intent, LatLng dest)
-	{
-		Double latitude = dest.latitude;
-		Double longitude = dest.longitude;
-		Bundle aBundle = new Bundle();
-		aBundle.putDouble("lat", latitude);
-		aBundle.putDouble("long", longitude);
-		intent.putExtras(aBundle);
-	}
-
-
-	/**
 	 * @return the current users id if exists or -1 if not found
 	 */
 	public int getUserId()
@@ -355,17 +343,11 @@ public class ListEventsActivity extends SherlockListActivity
 	{
 		// get object state
 		Double latitude = anEvent.getLatitude();
-		Log.e("sendEvent", "" + latitude);
 		Double longitude = anEvent.getLongitude();
-		Log.e("sendEvent", "" + longitude);
 		String time = anEvent.getTime();
-		Log.e("sendEvent", "" + time);
 		String date = anEvent.getDate();
-		Log.e("sendEvent", "" + date);
 		String description = anEvent.getDescription_of_event();
-		Log.e("sendEvent", "" + description);
 		String name = anEvent.getName_of_event();
-		Log.e("sendEvent", "" + name);
 		String duration = anEvent.getDuration();
 		String location_in_words = anEvent.getEvent_location_in_words();
 		int user_id;
@@ -411,8 +393,7 @@ public class ListEventsActivity extends SherlockListActivity
 		ArrayList<String> eventStrings = new ArrayList<String>();
 		while (iterator.hasNext())
 		{
-			Log.e("GET EVENTS", "events gotten");
-			Event event = (Event) iterator.next();
+			Event event = iterator.next();
 			eventStrings.add(event.getName_of_event());
 		}
 		return eventStrings;
@@ -432,6 +413,7 @@ public class ListEventsActivity extends SherlockListActivity
 		// set dialog message
 		alertDialogBuilder.setMessage(DELETE_DIALOG_MSG).setCancelable(false).setPositiveButton(DIALOG_POSITIVE_BTN_TXT, new DialogInterface.OnClickListener()
 		{
+			@Override
 			public void onClick(DialogInterface dialog, int id)
 			{
 				int delete_status = EventsFactory.DeleteEvent(events_ArrayList.get(index_of_selected_event));
@@ -453,6 +435,7 @@ public class ListEventsActivity extends SherlockListActivity
 
 		}).setNegativeButton(DIALOG_NEGATIVE_BTN_TXT, new DialogInterface.OnClickListener()
 		{
+			@Override
 			public void onClick(DialogInterface dialog, int id)
 			{
 				// if this button is clicked, just close
@@ -469,13 +452,6 @@ public class ListEventsActivity extends SherlockListActivity
 	}
 
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.actionbarsherlock.app.SherlockListActivity#onCreateOptionsMenu(android
-	 * .view.Menu)
-	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
@@ -483,18 +459,11 @@ public class ListEventsActivity extends SherlockListActivity
 		getSupportActionBar().setDisplayShowHomeEnabled(false);
 		// add menu options to the UI
 		MenuInflater menuInflater = getSupportMenuInflater();
-		menuInflater.inflate(R.layout.menu_custom, menu);
+		menuInflater.inflate(R.layout.menu_item_back, menu);
 		return true;
 	}
 
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.actionbarsherlock.app.SherlockListActivity#onOptionsItemSelected(android
-	 * .view.MenuItem)
-	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem menu_item)
 	{
@@ -585,4 +554,60 @@ public class ListEventsActivity extends SherlockListActivity
 		}
 	}
 
+
+	/**
+	 * async task that uses network to get directions in words to destination
+	 * 
+	 */
+	private class GetDirectionsTask extends AsyncTask<LatLng, String, ArrayList<String>>
+	{
+		private final String		PROGRESS_DIALOG_TEXT	= "Getting Directions...";
+		private ProgressDialog	pDialog;
+
+
+		@Override
+		protected void onPreExecute()
+		{
+			// create progress dialog and display it to user
+			pDialog = new ProgressDialog(ListEventsActivity.this);
+			pDialog.setMessage(PROGRESS_DIALOG_TEXT);
+			pDialog.setIndeterminate(false);
+			pDialog.setCancelable(true);
+			pDialog.show();
+		}
+
+
+		@Override
+		protected ArrayList<String> doInBackground(LatLng... latLngs)
+		{
+			try
+			{
+				LatLng dest = latLngs[0];
+				LatLng origin = latLngs[1];
+				String url = NetworkManager.getDirectionsUrl(origin, dest);
+				// Log.e("URL", url);
+				String json = NetworkManager.downloadJSONdata(url);
+				// Log.e("DATA", json);
+				JSONObject jsonObject = new JSONObject(json);
+				ArrayList<String> directions = NetworkManager.DrivingDirectionsParser(jsonObject);
+				return directions;
+			}
+			catch (Exception e)
+			{
+
+			}
+			return null;
+		}
+
+
+		@Override
+		protected void onPostExecute(ArrayList<String> directions)
+		{
+			pDialog.dismiss();
+			directionsArrayList = directions;
+			Intent intent = new Intent(ListEventsActivity.this, DisplayDirectionsActivity.class);
+			startActivityForResult(intent, DISPLAY_DIRECTIONS_RESULT_CODE);
+
+		}
+	}
 }

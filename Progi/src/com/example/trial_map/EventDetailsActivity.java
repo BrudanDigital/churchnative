@@ -1,8 +1,8 @@
 package com.example.trial_map;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.TextView;
 
 import com.example.trial_map.beans.Event;
@@ -25,6 +25,8 @@ public class EventDetailsActivity extends ActionBarActivity
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(eventDetailsScreen);
+		// make background black
+		getWindow().getDecorView().setBackgroundColor(Color.BLACK);
 
 		// get objects of the widgets
 		location_TextView = (TextView) findViewById(R.id.details_locationValue);
@@ -43,13 +45,13 @@ public class EventDetailsActivity extends ActionBarActivity
 		}
 		else
 		{
-			Log.e("event gotten", "event is null");
+			// Log.e("event gotten", "event is null");
 		}
 
 	}
 
 
-	/**gets event passed as parameters from previous activity**/
+	/** gets event passed as parameters from previous activity **/
 	private Event getEvent(Intent intent)
 	{
 
@@ -73,7 +75,7 @@ public class EventDetailsActivity extends ActionBarActivity
 	}
 
 
-	/**fills widgets with event details**/
+	/** fills widgets with event details **/
 	private void showEventDetails(Event anEvent)
 	{
 		location_TextView.setText(anEvent.getEvent_location_in_words());

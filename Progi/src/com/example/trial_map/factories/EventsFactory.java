@@ -11,7 +11,6 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.location.Location;
-import android.util.Log;
 
 import com.example.trial_map.beans.Event;
 import com.google.android.gms.maps.model.LatLng;
@@ -37,7 +36,7 @@ public class EventsFactory
 	private static final String	TAG_DURATION				= "duration";
 	private static final String	TAG_LOCATION				= "location";
 	// url to php script at website
-	private static final String	PHP_SCRIPT_ADDRESS	= "http://192.168.43.169/android_connect/";
+	static final String	PHP_SCRIPT_ADDRESS	= "http://192.168.43.169/android_connect/";
 	private static final String	CREATE_EVENT_URL		= PHP_SCRIPT_ADDRESS + "create_event.php";
 	private static final String	GET_EVENTS_URL			= PHP_SCRIPT_ADDRESS + "get_events.php";
 	private static final String	DELETE_EVENT_URL		= PHP_SCRIPT_ADDRESS + "delete_event.php";
@@ -76,7 +75,6 @@ public class EventsFactory
 		params.add(new BasicNameValuePair("type", type_of_event));
 		// storing events
 		JSONObject json = jParser.makeHttpRequest(CREATE_EVENT_URL, "POST", params);
-		Log.e("SAVE EVENT", "" + json.toString());
 		if (json != null)
 		{
 
@@ -96,7 +94,7 @@ public class EventsFactory
 			}
 			catch (JSONException e)
 			{
-				Log.e("SAVE EVENT", "" + e.getMessage());
+
 			}
 		}
 		return NO_CONNECTION;
@@ -109,7 +107,6 @@ public class EventsFactory
 	{
 		try
 		{
-
 			NetworkManager jsonParser = new NetworkManager();
 
 			JSONObject jsonObject = jsonParser.makeHttpGetRequest(GET_EVENTS_URL);
@@ -130,9 +127,9 @@ public class EventsFactory
 					JSONObject events = events_array.getJSONObject(i);
 					// Storing each json item in variable
 					double latitude = events.getDouble(TAG_LATITUDE);
-					Log.e("latitude", "" + latitude);
+
 					double longitude = events.getDouble(TAG_LONGITUDE);
-					Log.e("longitude", "" + longitude);
+
 					LatLng location = new LatLng(latitude, longitude);
 					// only add event if its with in 10km of user location
 					if (user_location != null && user_location.latitude != 0 && user_location.longitude != 0)
@@ -140,17 +137,17 @@ public class EventsFactory
 						if (distanceBtnIsLessThan10km(location, user_location))
 						{
 							String time = events.getString(TAG_TIME);
-							Log.e("time", "" + time);
+
 							String date = events.getString(TAG_DATE);
-							Log.e("date", "" + date);
+
 							String description = events.getString(TAG_DESCRIPTION);
-							Log.e("description", "" + description);
+
 							String name = events.getString(TAG_NAME);
-							Log.e("name", "" + name);
+
 							String duration = events.getString(TAG_DURATION);
-							Log.e("duration", "" + duration);
+
 							String event_location_in_words = events.getString(TAG_LOCATION);
-							Log.e("location", "" + event_location_in_words);
+
 							int user_id = events.getInt("user_id");
 							int event_id = events.getInt("event_id");
 							String type_of_event = events.getString("type");
@@ -161,17 +158,16 @@ public class EventsFactory
 					else
 					{
 						String time = events.getString(TAG_TIME);
-						Log.e("time", "" + time);
 						String date = events.getString(TAG_DATE);
-						Log.e("date", "" + date);
+
 						String description = events.getString(TAG_DESCRIPTION);
-						Log.e("description", "" + description);
+
 						String name = events.getString(TAG_NAME);
-						Log.e("name", "" + name);
+
 						String duration = events.getString(TAG_DURATION);
-						Log.e("duration", "" + duration);
+
 						String event_location_in_words = events.getString(TAG_LOCATION);
-						Log.e("location", "" + event_location_in_words);
+
 						int user_id = events.getInt("user_id");
 						int event_id = events.getInt("event_id");
 						String type_of_event = events.getString("type");
@@ -184,14 +180,12 @@ public class EventsFactory
 			}
 			else
 			{// success is 0 and no results
-				Log.e("SUCCESS", "is 0");
 				return null;
 			}
 
 		}
 		catch (Exception e)
 		{
-			Log.e("JSON error", "" + e.getMessage());
 			return null;
 		}
 
@@ -207,7 +201,7 @@ public class EventsFactory
 		params.add(new BasicNameValuePair("id", event_id));
 
 		JSONObject json = jParser.makeHttpRequest(DELETE_EVENT_URL, "POST", params);
-		Log.e("DELETE EVENT", "" + json.toString());
+		// Log.e("DELETE EVENT", "" + json.toString());
 
 		try
 		{
@@ -225,7 +219,6 @@ public class EventsFactory
 		}
 		catch (Exception e)
 		{
-			Log.e("DELETE EVENT", "" + e.getMessage());
 		}
 
 		return NO_CONNECTION;
@@ -262,7 +255,7 @@ public class EventsFactory
 		params.add(new BasicNameValuePair("id", id));
 		// storing events
 		JSONObject json = jParser.makeHttpRequest(UPDATE_EVENT_URL, "POST", params);
-		Log.e("UPDATE EVENT", "" + json.toString());
+		// Log.e("UPDATE EVENT", "" + json.toString());
 		if (json != null)
 		{
 
@@ -282,7 +275,6 @@ public class EventsFactory
 			}
 			catch (JSONException e)
 			{
-				Log.e("UPDATE EVENT", "" + e.getMessage());
 			}
 		}
 		return NO_CONNECTION;
@@ -313,5 +305,94 @@ public class EventsFactory
 			return true;
 		}
 		return false;
+	}
+
+	/**checks if an event is valid and can be saved**/
+	public static boolean EventIsValid(Event anEvent)
+	{
+		// check if the location in words is valid
+		String event_location_in_words = anEvent.getEvent_location_in_words();
+		if (Validator.isNullOrEmpty(event_location_in_words))
+		{
+			return false;
+		}
+
+		// check if the location (latlng) is valid
+		LatLng event_location = anEvent.getLocation_of_event();
+		if (Validator.isNullOrEmpty(event_location))
+		{
+			return false;
+		}
+
+		// check if the location in words is valid
+		String event_name = anEvent.getName_of_event();
+		if (Validator.isNullOrEmpty(event_name))
+		{
+			return false;
+		}
+
+		// check if the latitude is valid
+		double latitude = anEvent.getLatitude();
+		if (latitude <= 0)
+		{
+			return false;
+		}
+
+		// check if the longitude is valid
+		double longitude = anEvent.getLongitude();
+		if (longitude <= 0)
+		{
+			return false;
+		}
+
+		// check if the start_time is valid
+		String start_time = anEvent.getTime();
+		if (Validator.isNullOrEmpty(start_time))
+		{
+			return false;
+		}
+
+		// check if the date is valid
+		String date = anEvent.getDate();
+		if (Validator.isNullOrEmpty(date))
+		{
+			return false;
+		}
+
+		// check if the event description is valid
+		String event_description = anEvent.getDescription_of_event();
+		if (Validator.isNullOrEmpty(event_description))
+		{
+			return false;
+		}
+
+		// check if the duration of the event is valid
+		String event_duration = anEvent.getDuration();
+		if (Validator.isNullOrEmpty(event_duration))
+		{
+			return false;
+		}
+
+		// check if the type of event is valid
+		String type_of_event = anEvent.getType_of_event();
+		if (Validator.isNullOrEmpty(type_of_event))
+		{
+			return false;
+		}
+
+		// check if the user_id is valid
+		int user_id = anEvent.getUser_id();
+		if (user_id < -1)
+		{
+			return false;
+		}
+
+		// check if the event_id is valid
+		int event_id = anEvent.getEvent_id();
+		if (event_id < -1)
+		{
+			return false;
+		}
+		return true;
 	}
 }

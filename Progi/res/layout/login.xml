@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/login_tablelayout"
+    android:id="@+id/login_scrollView"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/black"
+    
     android:orientation="vertical" >
 
     <LinearLayout
-        android:id="@+id/login_tablelayout"
+        android:id="@+id/login_linearlayout"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
         android:background="@color/black"
         android:orientation="vertical" >
 
@@ -17,12 +17,13 @@
             android:id="@+id/email_textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Email"
+            android:hint="@string/email"
             android:textColor="@color/white" />
 
         <EditText
             android:id="@+id/email_editText"
             android:layout_width="fill_parent"
+            android:inputType="textEmailAddress"
             android:layout_height="50dp"
             android:imeOptions="actionNext"
             android:singleLine="true"
@@ -32,7 +33,7 @@
             android:id="@+id/password_textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Password"
+            android:text="@string/password"
             android:textColor="@color/white" />
 
         <EditText
@@ -56,7 +57,7 @@
                 android:layout_height="60dp"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
-                android:text="LOGIN" />
+                android:text="@string/login" />
         </RelativeLayout>
     </LinearLayout>
 

@@ -12,7 +12,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -28,6 +27,7 @@ import com.example.trial_map.asyncTasks.AutoCompleteTask;
 import com.example.trial_map.asyncTasks.UpdateEventTask;
 import com.example.trial_map.beans.Event;
 import com.example.trial_map.beans.EventOwner;
+import com.example.trial_map.factories.EventsFactory;
 import com.example.trial_map.factories.NetworkManager;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -44,7 +44,7 @@ public class EditEventActivity extends ActionBarActivity
 	private static final String				TIME_DELIMETER					= ":";
 	private static final String				DATE_DELIMETER					= "/";
 	private static final CharSequence	PROGRESS_DIALOG_TEXT		= "Getting Input Data...";
-
+	private final CharSequence				INVALID_USER_INPUT_TEXT	= "Please Fill In All The Required Fields Before Submiiting Data";
 	// widgets
 	private AutoCompleteTextView			location_auto_complete;
 	private EditText									description;
@@ -177,8 +177,10 @@ public class EditEventActivity extends ActionBarActivity
 
 
 	/**
-	 * @param type_of_event spinner whose value to change
-	 * @param type value to which to set spinner to
+	 * @param type_of_event
+	 *          spinner whose value to change
+	 * @param type
+	 *          value to which to set spinner to
 	 */
 	private void setType(Spinner type_of_event, String type)
 	{
@@ -198,7 +200,6 @@ public class EditEventActivity extends ActionBarActivity
 	}
 
 
-	
 	/**
 	 * @return the event sent by previous activity
 	 */
@@ -228,7 +229,7 @@ public class EditEventActivity extends ActionBarActivity
 			}
 			catch (Exception e)
 			{
-				Log.e("GET EVENT", e.getMessage());
+				// Log.e("GET EVENT", e.getMessage());
 				return null;
 			}
 
@@ -237,7 +238,7 @@ public class EditEventActivity extends ActionBarActivity
 	}
 
 
-	/**sets date to the event date*/
+	/** sets date to the event date */
 	private void setDate(DatePicker datePicker, String date)
 	{
 		// break up the date string into sub tokens
@@ -252,7 +253,7 @@ public class EditEventActivity extends ActionBarActivity
 	}
 
 
-	/** sets the duration to event duration**/
+	/** sets the duration to event duration **/
 	private void setduration(Spinner spinner, String duration)
 	{
 		int position = 0;
@@ -271,7 +272,7 @@ public class EditEventActivity extends ActionBarActivity
 	}
 
 
-	/**sets the time to event time**/
+	/** sets the time to event time **/
 	private void setTime(TimePicker time_picker, String time)
 	{
 		// break up the time string into tokens
@@ -287,7 +288,8 @@ public class EditEventActivity extends ActionBarActivity
 
 	}
 
-	/** closes an open progress dialog**/
+
+	/** closes an open progress dialog **/
 	private void closeProgressDialog()
 	{
 		if (pDialog != null)
@@ -296,7 +298,8 @@ public class EditEventActivity extends ActionBarActivity
 		}
 	}
 
-	/**shows a progress dialog to the user**/
+
+	/** shows a progress dialog to the user **/
 	private void showProgressDialog()
 	{
 		// create progress dialog and display it to user
@@ -308,7 +311,7 @@ public class EditEventActivity extends ActionBarActivity
 	}
 
 
-	/**returns the latitude and longitude of location chosen by user**/
+	/** returns the latitude and longitude of location chosen by user **/
 	private LatLng getLatLngOfLocationInputByUser(String location_in_words)
 	{
 		// replace all commas in the input with a + sign
@@ -356,13 +359,13 @@ public class EditEventActivity extends ActionBarActivity
 		}
 		catch (JSONException e)
 		{
-			Log.e("JSON Parser", "" + e.getMessage());
+			// Log.e("JSON Parser", "" + e.getMessage());
 		}
 		return null;
 	}
 
 
-	/**enables or disables gui widgets**/
+	/** enables or disables gui widgets **/
 	private void EnableWidgets(boolean bool)
 	{
 		button_saveEvent.setEnabled(bool);
@@ -373,9 +376,13 @@ public class EditEventActivity extends ActionBarActivity
 		duration_of_event.setEnabled(bool);
 	}
 
-	/**async task that gets user input and then updates the event in background**/
+
+	/** async task that gets user input and then updates the event in background **/
 	private class GetUserInputTask extends AsyncTask<Void, String, Event>
 	{
+	
+
+
 		@Override
 		protected void onPreExecute()
 		{
@@ -426,16 +433,24 @@ public class EditEventActivity extends ActionBarActivity
 
 
 		@Override
-		protected void onPostExecute(Event result)
+		protected void onPostExecute(Event anEvent)
 		{
 			closeProgressDialog();
-			if (result == null)
-			{
+			if (anEvent == null)
+			{// the location of the event could not be geocoded
 				Toast.makeText(EditEventActivity.this, NO_LOCATION_FOUND_TEXT, Toast.LENGTH_LONG).show();
 				return;
 			}
-			UpdateEventTask updateEventTask = new UpdateEventTask(EditEventActivity.this);
-			updateEventTask.execute(result);
+			if (EventsFactory.EventIsValid(anEvent))
+			{// event is valid.save the event
+				UpdateEventTask updateEventTask = new UpdateEventTask(EditEventActivity.this);
+				updateEventTask.execute(anEvent);
+			}
+			else
+			{// event not valid.user input is wrong inform user
+				Toast.makeText(EditEventActivity.this, INVALID_USER_INPUT_TEXT, Toast.LENGTH_LONG).show();
+			}
+
 		}
 
 	}

@@ -10,7 +10,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.graphics.Color;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.example.trial_map.factories.NetworkManager;
@@ -64,11 +63,11 @@ public class DrawRouteTask extends AsyncTask<String, String, List<List<HashMap<S
 			jObject = new JSONObject(data);
 			// Starts parsing the object to get route
 			routes = NetworkManager.DirectionsParser(jObject);
-			Log.e("ROUTES", routes.toString());
+			
 		}
 		catch (Exception e)
 		{
-			Log.d("Background Task", e.toString());
+		
 		}
 		return routes;
 	}

@@ -10,7 +10,7 @@ public class ActionBarActivity extends SherlockActivity
 	private static final int	BACK	= R.id.menu_back;
 
 
-	// method called to create menu and its items
+	/** method called to create menu and its items**/
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
@@ -18,12 +18,12 @@ public class ActionBarActivity extends SherlockActivity
 		getSupportActionBar().setDisplayShowHomeEnabled(false);
 		// add menu options to the UI
 		MenuInflater menuInflater = getSupportMenuInflater();
-		menuInflater.inflate(R.layout.menu_custom, menu);
+		menuInflater.inflate(R.layout.menu_item_back, menu);
 		return true;
 	}
 
 
-	// handler for click on menu item
+	/** handler for click on menu item**/
 	@Override
 	public boolean onOptionsItemSelected(MenuItem menu_item)
 	{

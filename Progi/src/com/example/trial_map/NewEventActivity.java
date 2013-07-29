@@ -9,7 +9,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -24,10 +23,11 @@ import android.widget.Toast;
 import com.example.trial_map.asyncTasks.AutoCompleteTask;
 import com.example.trial_map.asyncTasks.SaverTask;
 import com.example.trial_map.beans.Event;
+import com.example.trial_map.factories.EventsFactory;
 import com.example.trial_map.factories.NetworkManager;
 import com.google.android.gms.maps.model.LatLng;
 
-/**this activity helps user to create a new event on the server side**/
+/** this activity helps user to create a new event on the server side **/
 public class NewEventActivity extends ActionBarActivity
 {
 	private static final int					NEW_EVENT_XML						= R.layout.new_event;
@@ -36,7 +36,7 @@ public class NewEventActivity extends ActionBarActivity
 	private static final String				TAG_STATUS							= "status";
 	private static final CharSequence	PROGRESS_DIALOG_TEXT		= "Getting Details Input...";
 	private static final CharSequence	NO_LOCATION_FOUND_TEXT	= "Failed To Find Location Of Event.Event Was Not Created";
-
+	private final CharSequence				INVALID_USER_INPUT_TEXT	= "Please Fill In All The Required Fields Before Submiiting Data";
 	// widgets
 	private AutoCompleteTextView			location_auto_complete;
 	private EditText									description;
@@ -161,7 +161,7 @@ public class NewEventActivity extends ActionBarActivity
 	}
 
 
-	/**returns the latitude and longitude of location chosen by user**/
+	/** returns the latitude and longitude of location chosen by user **/
 	private LatLng getLatLngOfLocationInputByUser(String location_in_words)
 	{
 		// replace all commas in the input with a + sign
@@ -209,13 +209,12 @@ public class NewEventActivity extends ActionBarActivity
 		}
 		catch (JSONException e)
 		{
-			Log.e("JSON Parser", "" + e.getMessage());
 		}
 		return null;
 	}
 
 
-	/**enables or disables gui widgets**/
+	/** enables or disables gui widgets **/
 	private void EnableWidgets(boolean bool)
 	{
 		button_saveEvent.setEnabled(bool);
@@ -227,9 +226,12 @@ public class NewEventActivity extends ActionBarActivity
 	}
 
 
-	/**async task that gets user input and then saves it.all happens in background**/
+	/**
+	 * async task that gets user input and then saves it.all happens in background
+	 **/
 	private class GetUserInputTask extends AsyncTask<Void, String, Event>
 	{
+
 		@Override
 		protected void onPreExecute()
 		{
@@ -280,16 +282,25 @@ public class NewEventActivity extends ActionBarActivity
 
 
 		@Override
-		protected void onPostExecute(Event result)
+		protected void onPostExecute(Event anEvent)
 		{
 			closeProgressDialog();
-			if (result == null)
+			//no event is returned becoz no location for the event could be found
+			if (anEvent == null)
 			{
 				Toast.makeText(NewEventActivity.this, NO_LOCATION_FOUND_TEXT, Toast.LENGTH_LONG).show();
 				return;
 			}
-			SaverTask saverTask = new SaverTask(NewEventActivity.this);
-			saverTask.execute(result);
+			if (EventsFactory.EventIsValid(anEvent))
+			{//event is valid.save the event
+				SaverTask saverTask = new SaverTask(NewEventActivity.this);
+				saverTask.execute(anEvent);
+			}
+			else
+			{//event not valid.user input is wrong inform user
+				Toast.makeText(NewEventActivity.this, INVALID_USER_INPUT_TEXT, Toast.LENGTH_LONG).show();
+			}
+
 		}
 
 	}

@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.view.View.OnTouchListener;
 import android.widget.PopupWindow;
@@ -30,6 +31,7 @@ public class PopupWindows {
 		mWindow = new PopupWindow(context);
 
 		mWindow.setTouchInterceptor(new OnTouchListener() {
+			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				if (event.getAction() == MotionEvent.ACTION_OUTSIDE) {
 					mWindow.dismiss();
@@ -60,8 +62,8 @@ public class PopupWindows {
 		else
 			mWindow.setBackgroundDrawable(mBackground);
 
-		mWindow.setWidth(WindowManager.LayoutParams.WRAP_CONTENT);
-		mWindow.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
+		mWindow.setWidth(LayoutParams.WRAP_CONTENT);
+		mWindow.setHeight(LayoutParams.WRAP_CONTENT);
 		mWindow.setTouchable(true);
 		mWindow.setFocusable(true);
 		mWindow.setOutsideTouchable(true);

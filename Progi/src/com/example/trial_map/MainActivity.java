@@ -16,7 +16,6 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -338,7 +337,6 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 		String description = aBundle.getString("description");
 		String location = aBundle.getString("location");
 		anEventOwner = new EventOwner(user_id, email, password, name, location, description);
-		Log.e("BUNDLE", "eventOwner recieved");
 
 	}
 
@@ -356,6 +354,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 		// set dialog message
 		alertDialogBuilder.setMessage(ALERT_DIALOG_MSG).setCancelable(false).setPositiveButton(ALERT_BUTTON_TEXT, new DialogInterface.OnClickListener()
 		{
+			@Override
 			public void onClick(DialogInterface dialog, int id)
 			{
 				// if this button is clicked, close
@@ -607,14 +606,8 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 						if (!eventMarkerMap.containsKey(marker_id))
 						{
 							eventMarkerMap.put(marker_id, anEvent);
-							// check to confirm that its stored
-							if (eventMarkerMap.containsKey(marker_id))
-							{
-								Log.e("HASH TABLE", "stored event");
-							}
 						}
 					}
-					Log.e("first_time", "" + first_time);
 					if (first_time)
 					{
 						myVib.vibrate(3000);
@@ -638,7 +631,6 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 								Event anEvent = getEventAssociatedWithMarker(marker);
 								if (anEvent == null)
 								{// if no event is found return now
-									Log.e("INFO CLICK", "event is null");
 									return;
 								}
 								// create a new sub activity
@@ -656,17 +648,17 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 						private void sendEvent(Intent intent, Event anEvent)
 						{
 							Double latitude = anEvent.getLatitude();
-							Log.e("sendEvent", "" + latitude);
+							
 							Double longitude = anEvent.getLongitude();
-							Log.e("sendEvent", "" + longitude);
+							
 							String time = anEvent.getTime();
-							Log.e("sendEvent", "" + time);
+							
 							String date = anEvent.getDate();
-							Log.e("sendEvent", "" + date);
+							
 							String description = anEvent.getDescription_of_event();
-							Log.e("sendEvent", "" + description);
+							
 							String name = anEvent.getName_of_event();
-							Log.e("sendEvent", "" + name);
+							
 							String duration = anEvent.getDuration();
 							String location_in_words = anEvent.getEvent_location_in_words();
 							int user_id = anEvent.getUser_id();
@@ -696,15 +688,11 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 							{
 								// look up desired event from hash map
 								String marker_id = marker.getId();
-								Log.e("MARKER_ID", "" + marker_id);
+								
 								Event anEvent = eventMarkerMap.get(marker_id);
-								Log.e("MARKER_ID", "" + anEvent);
+								
 								// return event
 								return anEvent;
-							}
-							else
-							{
-								Log.e("HASHMAP", "hash map is null");
 							}
 							return null;
 
@@ -714,8 +702,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 				}
 				else
 				{
-					String text = "Failed To Retrieve Any Events";
-					Toast.makeText(MainActivity.this, text, LONG_DURATION).show();
+					Toast.makeText(MainActivity.this, FAILED_TO_GET_EVENTS_TEXT, LONG_DURATION).show();
 				}
 
 			}
