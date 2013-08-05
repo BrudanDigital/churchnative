@@ -1,5 +1,6 @@
 package com.example.trial_map.beans;
 
+//java bean class for an event owner
 public class EventOwner
 {
 	private int			user_id;
@@ -8,11 +9,6 @@ public class EventOwner
 	private String	company_name;
 	private String	company_location;
 	private String	description_of_services;
-
-
-	public EventOwner()
-	{
-	}
 
 
 	public EventOwner(int user_id, String email, String password, String company_name, String company_location, String description_of_services_offered)

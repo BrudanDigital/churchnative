@@ -105,6 +105,7 @@ public class NewEventActivity extends ActionBarActivity implements OnItemClickLi
 	}
 
 
+	/**closes the progress dialog**/
 	private void closeProgressDialog()
 	{
 		if (pDialog != null)
@@ -114,6 +115,7 @@ public class NewEventActivity extends ActionBarActivity implements OnItemClickLi
 	}
 
 
+	/**displays a progress dialog to the user**/
 	private void showProgressDialog()
 	{
 		// create progress dialog and display it to user
@@ -283,6 +285,7 @@ public class NewEventActivity extends ActionBarActivity implements OnItemClickLi
 	}
 
 
+	/**called when user clicks on item from auto complete drop down list**/
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3)
 	{

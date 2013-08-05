@@ -9,7 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.example.trial_map.beans.EventOwner;
-
+/**This Class carries out operations on EventOwner objects**/
 public class EventOwnerFactory
 {
 	/** url to php script at website **/

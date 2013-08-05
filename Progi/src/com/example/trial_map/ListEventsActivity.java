@@ -96,6 +96,7 @@ public class ListEventsActivity extends SherlockListActivity
 	}
 
 
+	/** called when app is resuming **/
 	protected void onResume()
 	{
 		super.onResume();
@@ -103,6 +104,7 @@ public class ListEventsActivity extends SherlockListActivity
 	}
 
 
+	/** Called when user navigates away from app **/
 	@Override
 	protected void onPause()
 	{
@@ -111,6 +113,7 @@ public class ListEventsActivity extends SherlockListActivity
 	}
 
 
+	/** displays toast messages only when app in the foreground **/
 	public static void displayToast(Context aContext, String text, int duration)
 	{
 		if (isInForeGround)
@@ -120,6 +123,7 @@ public class ListEventsActivity extends SherlockListActivity
 	}
 
 
+	/** returns an array of events to displayed in list View **/
 	private ArrayList<Event> getEventsArrayList()
 	{
 		if (MainActivity.type_of_event != null)
@@ -219,7 +223,7 @@ public class ListEventsActivity extends SherlockListActivity
 				{ // start display directions activity
 					LatLng origin = new LatLng(MainActivity.user_latitude, MainActivity.user_longitude);
 					LatLng dest = new LatLng(getSelectedEvent(index_of_selected_event).getLatitude(), getSelectedEvent(index_of_selected_event).getLongitude());
-					MainActivity.dest=dest;
+					MainActivity.dest = dest;
 					GetDirectionsTask getDirectionsTask = new GetDirectionsTask();
 					LatLng[] latLngs = { origin, dest };
 					getDirectionsTask.execute(latLngs);
@@ -303,13 +307,11 @@ public class ListEventsActivity extends SherlockListActivity
 	}
 
 
-	/*
-	 * handle results returned by sub activities
-	 */
+	/** handles results returned by sub activities **/
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
-		isInForeGround=true;
+		isInForeGround = true;
 		if (view != null)
 		{// return color of background back to black
 			view.setBackgroundColor(Color.BLACK);
@@ -429,7 +431,7 @@ public class ListEventsActivity extends SherlockListActivity
 		{
 			throw new IllegalStateException("events_ArrayList cant be null");
 		}
-		if (MainActivity.type_of_event != null )
+		if (MainActivity.type_of_event != null)
 		{
 			return sortByType(MainActivity.type_of_event);
 		}
@@ -438,6 +440,7 @@ public class ListEventsActivity extends SherlockListActivity
 	}
 
 
+	/** returns an array of the events sorted by date created **/
 	private ArrayList<String> sortByDateOfEvent()
 	{
 		if (events_ArrayList == null)
@@ -453,11 +456,12 @@ public class ListEventsActivity extends SherlockListActivity
 			String data = capitaliseFirstLetterOfEachWord(event.getName_of_event()) + "\nOn:" + event.getDate();
 			sortedArrayList.add(data);
 		}
-		//MainActivity.sort_by_date = true;
+		// MainActivity.sort_by_date = true;
 		return sortedArrayList;
 	}
 
 
+	/** returns an array of events with the given type of event **/
 	public ArrayList<String> sortByType(String type_of_event)
 	{
 
@@ -534,6 +538,7 @@ public class ListEventsActivity extends SherlockListActivity
 	}
 
 
+	/** Called when creating menu items **/
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
@@ -553,6 +558,7 @@ public class ListEventsActivity extends SherlockListActivity
 	}
 
 
+	/** handler for clicks on menu items **/
 	@Override
 	public boolean onOptionsItemSelected(MenuItem menu_item)
 	{
@@ -607,13 +613,13 @@ public class ListEventsActivity extends SherlockListActivity
 	}
 
 
+	/** resets the static flags in main activity to null **/
 	private void resetMainActivityVariables()
 	{
 		MainActivity.sortedArrayList = null;
 		MainActivity.type_of_event = null;
-		//MainActivity.sort_by_date = false;
 	}
-	
+
 
 	/**
 	 * this class starts the event details activity in background while displaying
@@ -689,27 +695,35 @@ public class ListEventsActivity extends SherlockListActivity
 		}
 	}
 
+
+	/** capitalizes the first letter of each word in a given string **/
 	public static String capitaliseFirstLetterOfEachWord(String aString)
 	{
-		if (aString==null)
+		if (aString == null)
 		{
 			throw new IllegalArgumentException("Parameter Cant be Null");
 		}
-		
+
 		boolean prevWasWhiteSp = true;
-    char[] chars = aString.toCharArray();
-    for (int i = 0; i < chars.length; i++) {
-        if (Character.isLetter(chars[i])) {
-            if (prevWasWhiteSp) {
-                chars[i] = Character.toUpperCase(chars[i]);    
-            }
-            prevWasWhiteSp = false;
-        } else {
-            prevWasWhiteSp = Character.isWhitespace(chars[i]);
-        }
-    }
-    return new String(chars);
+		char[] chars = aString.toCharArray();
+		for (int i = 0; i < chars.length; i++)
+		{
+			if (Character.isLetter(chars[i]))
+			{
+				if (prevWasWhiteSp)
+				{
+					chars[i] = Character.toUpperCase(chars[i]);
+				}
+				prevWasWhiteSp = false;
+			}
+			else
+			{
+				prevWasWhiteSp = Character.isWhitespace(chars[i]);
+			}
+		}
+		return new String(chars);
 	}
+
 
 	/**
 	 * async task that uses network to get directions in words to destination
@@ -770,6 +784,7 @@ public class ListEventsActivity extends SherlockListActivity
 	}
 
 
+	/** returns the event selected by the user from the list view **/
 	public Event getSelectedEvent(int index_of_selected_event)
 	{
 		if (MainActivity.type_of_event != null)

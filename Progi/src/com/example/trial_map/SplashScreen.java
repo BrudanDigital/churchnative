@@ -16,11 +16,12 @@ public class SplashScreen extends Activity
 	private Vibrator					myVib;
 
 
-	/** Called when the activity is first created. */
+	/** Called when the app is first starting. */
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+		//vibrate to thank user
 		myVib = (Vibrator) this.getSystemService(VIBRATOR_SERVICE);
 		myVib.vibrate(VIBRATION_DURATION);
 		// Splash screen view

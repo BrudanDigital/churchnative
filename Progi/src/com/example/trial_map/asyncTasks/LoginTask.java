@@ -10,6 +10,10 @@ import android.widget.Toast;
 import com.example.trial_map.beans.EventOwner;
 import com.example.trial_map.factories.EventOwnerFactory;
 
+/**
+ * This class checks to see if user exists in the database on web server and
+ * returns an object representing him
+ **/
 public class LoginTask extends AsyncTask<String, Void, Integer>
 {
 	private static final String	ILLEGAL_PARAMETER_TEXT		= "Neither Intent Nor EventOwner Can Be Null";
@@ -23,6 +27,7 @@ public class LoginTask extends AsyncTask<String, Void, Integer>
 	private EventOwner					anEventOwner;
 
 
+	// Constructor
 	public LoginTask(Activity anActivity)
 	{
 		this.anActivity = anActivity;
@@ -76,6 +81,7 @@ public class LoginTask extends AsyncTask<String, Void, Integer>
 	}
 
 
+	// Send Event owner object Back to activity
 	private void sendEventOwner(Intent intent, EventOwner anEventOwner)
 	{
 		if (intent == null || anEventOwner == null)

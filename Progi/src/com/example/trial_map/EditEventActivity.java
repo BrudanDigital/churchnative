@@ -117,7 +117,7 @@ public class EditEventActivity extends ActionBarActivity implements OnItemClickL
 		location_auto_complete.setAdapter(new PlacesAutoCompleteAdapter(this, R.layout.list_item));
 
 		location_auto_complete.setOnItemClickListener(this);
-		
+
 	}
 
 
@@ -424,8 +424,7 @@ public class EditEventActivity extends ActionBarActivity implements OnItemClickL
 	}
 
 
-
-
+	/** called when user clicks on item from auto complete drop down list **/
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3)
 	{

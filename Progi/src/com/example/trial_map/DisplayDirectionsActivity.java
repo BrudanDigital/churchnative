@@ -10,15 +10,12 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.android.gms.maps.model.LatLng;
-
+/**this activity displays directions to selected event to the user**/
 public class DisplayDirectionsActivity extends ActionBarActivity
 {
 	private TextView	directionsTextView;
 	private Button		drawRouteBtn;
-	LatLng						dest;
-
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{

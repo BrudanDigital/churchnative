@@ -51,7 +51,7 @@ public class EventDetailsActivity extends ActionBarActivity
 	}
 
 
-	/** gets event passed as parameters from previous activity **/
+	/** returns event passed as parameters from previous activity **/
 	private Event getEvent(Intent intent)
 	{
 
@@ -87,7 +87,9 @@ public class EventDetailsActivity extends ActionBarActivity
 		description_TextView.setText(capitalizeFirstletter(anEvent.getDescription_of_event()));
 
 	}
-	
+
+
+	/** capitalizes the first letter of each word in given string **/
 	private String capitalizeFirstletter(String aString)
 	{
 		return ListEventsActivity.capitaliseFirstLetterOfEachWord(aString);

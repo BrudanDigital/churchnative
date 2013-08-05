@@ -31,6 +31,7 @@ public class Validator
 	}
 
 
+	/** checks if the given date is less than todays date **/
 	public static boolean isDateOkay(String date)
 	{
 		Calendar calendar = Calendar.getInstance();

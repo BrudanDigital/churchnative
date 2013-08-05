@@ -15,6 +15,7 @@ import com.example.trial_map.factories.Validator;
 /** this class logs a user in **/
 public class LoginActivity extends Activity
 {
+	protected static final String	INVALID_INPUT_TEXT	= "InValid Email Or Password";
 	private EditText	email_editText;
 	private EditText	password_editText;
 	private Button		login_button;
@@ -57,7 +58,7 @@ public class LoginActivity extends Activity
 				}
 				else
 				{
-					Toast.makeText(LoginActivity.this, "InValid Email Or Password", Toast.LENGTH_LONG).show();
+					Toast.makeText(LoginActivity.this, INVALID_INPUT_TEXT, Toast.LENGTH_LONG).show();
 				}
 
 			}

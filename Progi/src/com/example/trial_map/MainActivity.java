@@ -69,6 +69,9 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 	private static final CharSequence	ALERT_DIALOG_MSG									= "This Application Requires An Internet Connection";
 	private static final CharSequence	ALERT_BUTTON_TEXT									= "Okay";
 	private static final long					VIBRATION_DURATION								= 2000;
+	private static final int					LOGIN															= R.id.menu_login;
+	private static final int					LIST_EVENTS												= R.id.menu_listEvents;
+	private static final int					ADD_AN_EVENT											= R.id.menu_addEvent;
 	public static double							user_latitude											= 0;
 	public static double							user_longitude										= 0;
 	public static ArrayList<Event>		sortedArrayList										= null;
@@ -120,22 +123,27 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 	}
 
 
+	/**Called when the activity is brought to foreground again**/
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
+		// enable toast messages by setting this to true
 		isInForeGround = true;
 	}
 
 
+	/**Called When user navigates away from app**/
 	@Override
 	protected void onPause()
 	{
 		super.onPause();
+		// disable toast messages by setting this to false
 		isInForeGround = false;
 	}
 
 
+	/** displays toast messages if this activity in the foreground **/
 	public static void displayToast(Context aContext, String text, int duration)
 	{
 		if (isInForeGround)
@@ -150,14 +158,14 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 		return false;
 	}
 
-
+	/**Called when user changes location by moving phone**/
 	@Override
-	public void onLocationChanged(Location arg0)
+	public void onLocationChanged(Location location)
 	{
-		if (googleMap != null && arg0 != null)
+		if (googleMap != null && location != null)
 		{ // update the events u are displaying
 			OnLocationChangedTask onLocationChangedTask = new OnLocationChangedTask();
-			onLocationChangedTask.execute(arg0);
+			onLocationChangedTask.execute(location);
 		}
 	}
 
@@ -183,7 +191,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 	}
 
 
-	// method called to create menu and its items
+	/** method called to create menu and its items **/
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
@@ -200,17 +208,14 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 	}
 
 
-	// handler for click on menu item
+	/** handler for click on menu item **/
 	@Override
 	public boolean onOptionsItemSelected(MenuItem menu_item)
 	{
-		final int login = R.id.menu_login;
-		final int list_events = R.id.menu_listEvents;
-		final int add_an_event = R.id.menu_addEvent;
 
 		switch (menu_item.getItemId())
 		{
-			case login:
+			case LOGIN:
 				String title = menu_item.getTitle().toString();
 				if (title.equalsIgnoreCase(LOGIN_BUTTON_TEXT) && anEventOwner == null)
 				{// user wants to login
@@ -221,11 +226,11 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 					logOut(menu_item, menu);
 				}
 				return true;
-			case list_events:
+			case LIST_EVENTS:
 				StartListingEventsTask startListingEventsTask = new StartListingEventsTask();
 				startListingEventsTask.execute();
 				return true;
-			case add_an_event:
+			case ADD_AN_EVENT:
 				goToNewEventScreen();
 				return true;
 
@@ -254,7 +259,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 
 
 	/**
-	 * creates new subactivity for logging in
+	 * creates a new subactivity for logging in
 	 */
 	private void goToLoginScreen()
 	{
@@ -265,7 +270,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 
 
 	/**
-	 * creates new subactivity to create new event
+	 * creates a new subactivity to create new event
 	 */
 	private void goToNewEventScreen()
 	{
@@ -283,12 +288,12 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 	}
 
 
-	// handle results returned by sub activities
+	/** handle results returned by sub activities**/
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		super.onActivityResult(requestCode, resultCode, data);
-		isInForeGround=true;
+		isInForeGround = true;
 		switch (requestCode)
 		{
 		// return form NewEventActivity
@@ -322,7 +327,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 			case LOGIN_ACTIVITY_RESULT_CODE:
 				if (resultCode == RESULT_OK)
 				{// user has successfully logged in
-					
+
 					// get returned eventOwner Object
 					getEventOwner(data);
 					// enable add event menu item

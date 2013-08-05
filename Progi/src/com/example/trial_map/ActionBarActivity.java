@@ -8,12 +8,16 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
-public class ActionBarActivity extends SherlockActivity
+/**This is a SuperClass for most activities that share these common methods**/
+/**This class cannot be instantiated but can be extended**/
+/** it adds the sherlock action bar to activities **/
+public abstract class ActionBarActivity extends SherlockActivity
 {
 	private static final int	BACK						= R.id.menu_back;
 	private static boolean		isInForeGround	= false;
 
 
+	/** called when app is resuming **/
 	protected void onResume()
 	{
 		super.onResume();
@@ -21,6 +25,7 @@ public class ActionBarActivity extends SherlockActivity
 	}
 
 
+	/** Called when user navigates away from activity **/
 	@Override
 	protected void onPause()
 	{
@@ -29,6 +34,7 @@ public class ActionBarActivity extends SherlockActivity
 	}
 
 
+	/** displays Toast messages only when activity is in foreground **/
 	public static void displayToast(Context aContext, String text, int duration)
 	{
 		if (isInForeGround)
