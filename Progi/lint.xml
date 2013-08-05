@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lint>
     <issue id="DefaultLocale" severity="ignore" />
+    <issue id="HardcodedText">
+        <ignore path="res/layout/menu_item_back.xml" />
+        <ignore path="res/layout/menu_list_events.xml" />
+    </issue>
 </lint>

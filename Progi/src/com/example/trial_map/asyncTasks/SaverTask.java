@@ -12,7 +12,7 @@ import com.example.trial_map.factories.NetworkManager;
 // saves new event in background thread using network to send data
 public class SaverTask extends AsyncTask<Event, String, Integer>
 {
-	
+
 	private final CharSequence	PROGRESS_DIALOG_TEXT	= "Saving Event. Please wait...";
 	private Integer							result;
 	private ProgressDialog			pDialog;
@@ -20,10 +20,12 @@ public class SaverTask extends AsyncTask<Event, String, Integer>
 	String											text;
 	int													duration							= Toast.LENGTH_LONG;
 
+
 	public SaverTask(Activity anActivity)
 	{
 		this.anActivity = anActivity;
 	}
+
 
 	@Override
 	protected void onPreExecute()
@@ -36,17 +38,19 @@ public class SaverTask extends AsyncTask<Event, String, Integer>
 		pDialog.show();
 	}
 
+
 	@Override
 	protected Integer doInBackground(Event... anEvent)
 	{
 		if (NetworkManager.isInternetAvailable(anActivity))
-		{	
-		// save the event
-		result = EventsFactory.SaveEvent(anEvent[0]);
-		return result;
+		{
+			// save the event
+			result = EventsFactory.SaveEvent(anEvent[0]);
+			return result;
 		}
 		return EventsFactory.NO_CONNECTION;
 	}
+
 
 	@Override
 	protected void onPostExecute(Integer integer)

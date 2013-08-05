@@ -30,7 +30,6 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-
 public class NetworkManager
 {
 	private static final String	OUTPUT							= "json";
@@ -40,14 +39,14 @@ public class NetworkManager
 	static String								json								= "";
 
 
-	/** constructor**/
+	/** constructor **/
 	public NetworkManager()
 	{
 
 	}
 
 
-	/**function get json from url by making HTTP POST or GET mehtod**/
+	/** function get json from url by making HTTP POST or GET mehtod **/
 	public JSONObject makeHttpRequest(String url, String method, List<NameValuePair> params)
 	{
 
@@ -110,7 +109,7 @@ public class NetworkManager
 		}
 		catch (Exception e)
 		{
-			//Log.e("Buffer Error", "[" + json + "]");
+			// Log.e("Buffer Error", "[" + json + "]");
 		}
 
 		// try parse the string to a JSON object
@@ -120,7 +119,7 @@ public class NetworkManager
 		}
 		catch (JSONException e)
 		{
-			//Log.e("JSON Parser", "[" + json + "]");
+			// Log.e("JSON Parser", "[" + json + "]");
 
 		}
 
@@ -215,7 +214,8 @@ public class NetworkManager
 
 
 	/**
-	 * Receives a JSONObject and returns a list with driving directions to destination
+	 * Receives a JSONObject and returns a list with driving directions to
+	 * destination
 	 */
 	public static ArrayList<String> DrivingDirectionsParser(JSONObject jObject)
 	{
@@ -323,7 +323,7 @@ public class NetworkManager
 		}
 		catch (Exception e)
 		{
-			//Log.d("Exception while downloading url", e.toString());
+			// Log.d("Exception while downloading url", e.toString());
 		}
 		finally
 		{
@@ -420,7 +420,7 @@ public class NetworkManager
 		}
 		catch (Exception e)
 		{
-			//Log.e("Buffer Error", "[" + json + "]");
+			// Log.e("Buffer Error", "[" + json + "]");
 		}
 
 		// try parse the string to a JSON object
@@ -430,7 +430,7 @@ public class NetworkManager
 		}
 		catch (JSONException e)
 		{
-			//Log.e("JSON Parser", "[" + json + "]");
+			// Log.e("JSON Parser", "[" + json + "]");
 
 		}
 

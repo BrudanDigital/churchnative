@@ -1,12 +1,14 @@
 package com.example.trial_map;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 
 import org.json.JSONObject;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -20,10 +22,12 @@ import com.actionbarsherlock.app.SherlockListActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.SubMenu;
 import com.example.trial_map.beans.ActionItem;
 import com.example.trial_map.beans.Event;
 import com.example.trial_map.factories.EventsFactory;
 import com.example.trial_map.factories.NetworkManager;
+import com.example.trial_map.interfaces.DateComparator;
 import com.example.trial_map.widgets.CustomArrayAdapter;
 import com.example.trial_map.widgets.QuickAction;
 import com.google.android.gms.maps.model.LatLng;
@@ -56,6 +60,7 @@ public class ListEventsActivity extends SherlockListActivity
 	protected static final CharSequence	DELETE_EVENT_SUCCESS_TEXT				= "Event Delete SuccessFully";
 	protected static final int					LONG_DURATION										= Toast.LENGTH_LONG;
 	private static final int						DISPLAY_DIRECTIONS_RESULT_CODE	= 400;
+	private static final int						SUBMENU_GROUP_ID								= 1;
 	private static LatLng								user_location										= new LatLng(MainActivity.user_latitude, MainActivity.user_longitude);
 	private ArrayList<Event>						events_ArrayList								= EventsFactory.getEventsIn10KmRadius(user_location);
 	private View												view														= null;
@@ -69,6 +74,9 @@ public class ListEventsActivity extends SherlockListActivity
 	private ActionItem									action_delete;
 	private ActionItem									action_details;
 	public static ArrayList<String>			directionsArrayList							= null;
+	// Resources resources = getResources();
+	String[]														type_array											= { "meeting", "party", "social", "religious", "programming", "cinema", "drink up", "music festival", "strike" };
+	private static boolean							isInForeGround									= false;
 
 
 	@Override
@@ -83,8 +91,42 @@ public class ListEventsActivity extends SherlockListActivity
 		disableQuickActionItems();
 
 		// set list adapter to my customer adapter
-		setListAdapter(new CustomArrayAdapter(this, getEventsAsStringArray(), events_ArrayList));
+		setListAdapter(new CustomArrayAdapter(this, getEventsAsStringArray(), getEventsArrayList()));
 
+	}
+
+
+	protected void onResume()
+	{
+		super.onResume();
+		isInForeGround = true;
+	}
+
+
+	@Override
+	protected void onPause()
+	{
+		super.onPause();
+		isInForeGround = false;
+	}
+
+
+	public static void displayToast(Context aContext, String text, int duration)
+	{
+		if (isInForeGround)
+		{
+			Toast.makeText(aContext, text, duration).show();
+		}
+	}
+
+
+	private ArrayList<Event> getEventsArrayList()
+	{
+		if (MainActivity.type_of_event != null)
+		{
+			return MainActivity.sortedArrayList;
+		}
+		return events_ArrayList;
 	}
 
 
@@ -176,7 +218,8 @@ public class ListEventsActivity extends SherlockListActivity
 				else if (pos == 3)// if get directions is clicked
 				{ // start display directions activity
 					LatLng origin = new LatLng(MainActivity.user_latitude, MainActivity.user_longitude);
-					LatLng dest = new LatLng(events_ArrayList.get(index_of_selected_event).getLatitude(), events_ArrayList.get(index_of_selected_event).getLongitude());
+					LatLng dest = new LatLng(getSelectedEvent(index_of_selected_event).getLatitude(), getSelectedEvent(index_of_selected_event).getLongitude());
+					MainActivity.dest=dest;
 					GetDirectionsTask getDirectionsTask = new GetDirectionsTask();
 					LatLng[] latLngs = { origin, dest };
 					getDirectionsTask.execute(latLngs);
@@ -215,14 +258,12 @@ public class ListEventsActivity extends SherlockListActivity
 	 */
 	private boolean heCreatedTheEventInQuestion()
 	{
-		// Log.e("User_id", "" + USER_ID);
-		// Log.e("Event_user_id", "" +
-		// events_ArrayList.get(index_of_selected_event).getUser_id());
+		// getSelectedEvent(index_of_selected_event).getUser_id());
 		if (USER_ID == -1)
 		{
 			return false;
 		}
-		else if (events_ArrayList.get(index_of_selected_event).getUser_id() == USER_ID)
+		else if (getSelectedEvent(index_of_selected_event).getUser_id() == USER_ID)
 		{
 			return true;
 		}
@@ -268,6 +309,7 @@ public class ListEventsActivity extends SherlockListActivity
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
+		isInForeGround=true;
 		if (view != null)
 		{// return color of background back to black
 			view.setBackgroundColor(Color.BLACK);
@@ -281,7 +323,7 @@ public class ListEventsActivity extends SherlockListActivity
 		{
 			if (resultCode == RESULT_OK)
 			{
-				Toast.makeText(this, UPDATE_EVENT_OK_TEXT, SHORT_DURATION).show();
+				displayToast(this, (String) UPDATE_EVENT_OK_TEXT, SHORT_DURATION);
 				refreshListView();
 
 			}
@@ -292,7 +334,6 @@ public class ListEventsActivity extends SherlockListActivity
 			{
 				setResult(RESULT_OK);
 				finish();
-
 			}
 		}
 	}
@@ -384,19 +425,61 @@ public class ListEventsActivity extends SherlockListActivity
 	 */
 	public ArrayList<String> getEventsAsStringArray()
 	{
+		if (events_ArrayList == null)
+		{
+			throw new IllegalStateException("events_ArrayList cant be null");
+		}
+		if (MainActivity.type_of_event != null )
+		{
+			return sortByType(MainActivity.type_of_event);
+		}
+		return sortByDateOfEvent();
+
+	}
+
+
+	private ArrayList<String> sortByDateOfEvent()
+	{
+		if (events_ArrayList == null)
+		{
+			return null;
+		}
+		Collections.sort(events_ArrayList, new DateComparator());
+		ArrayList<String> sortedArrayList = new ArrayList<String>();
+		Iterator<Event> iterator = events_ArrayList.iterator();
+		while (iterator.hasNext())
+		{
+			Event event = iterator.next();
+			String data = capitaliseFirstLetterOfEachWord(event.getName_of_event()) + "\nOn:" + event.getDate();
+			sortedArrayList.add(data);
+		}
+		//MainActivity.sort_by_date = true;
+		return sortedArrayList;
+	}
+
+
+	public ArrayList<String> sortByType(String type_of_event)
+	{
 
 		if (events_ArrayList == null)
 		{
 			return null;
 		}
+		ArrayList<String> sortedArrayList = new ArrayList<String>();
+		ArrayList<Event> sortedEventsArrayList = new ArrayList<Event>();
 		Iterator<Event> iterator = events_ArrayList.iterator();
-		ArrayList<String> eventStrings = new ArrayList<String>();
 		while (iterator.hasNext())
 		{
 			Event event = iterator.next();
-			eventStrings.add(event.getName_of_event());
+			if (event.getType_of_event().equalsIgnoreCase(type_of_event))
+			{
+				String data = capitaliseFirstLetterOfEachWord(event.getName_of_event()) + "\nOn:" + event.getDate();
+				sortedArrayList.add(data);
+				sortedEventsArrayList.add(event);
+			}
 		}
-		return eventStrings;
+		MainActivity.sortedArrayList = sortedEventsArrayList;
+		return sortedArrayList;
 	}
 
 
@@ -416,11 +499,11 @@ public class ListEventsActivity extends SherlockListActivity
 			@Override
 			public void onClick(DialogInterface dialog, int id)
 			{
-				int delete_status = EventsFactory.DeleteEvent(events_ArrayList.get(index_of_selected_event));
+				int delete_status = EventsFactory.DeleteEvent(getSelectedEvent(index_of_selected_event));
 				if (delete_status == 1)
 				{
 
-					Toast.makeText(ListEventsActivity.this, DELETE_EVENT_SUCCESS_TEXT, LONG_DURATION).show();
+					displayToast(ListEventsActivity.this, (String) DELETE_EVENT_SUCCESS_TEXT, LONG_DURATION);
 					refreshListView();
 
 				}
@@ -428,9 +511,8 @@ public class ListEventsActivity extends SherlockListActivity
 				{
 					String text = "Failed to Delete Event";
 					int duration = Toast.LENGTH_LONG;
-					Toast.makeText(ListEventsActivity.this, text, duration).show();
+					displayToast(ListEventsActivity.this, text, duration);
 				}
-				// events_ArrayList.remove(index_of_selected_event);
 			}
 
 		}).setNegativeButton(DIALOG_NEGATIVE_BTN_TXT, new DialogInterface.OnClickListener()
@@ -459,7 +541,14 @@ public class ListEventsActivity extends SherlockListActivity
 		getSupportActionBar().setDisplayShowHomeEnabled(false);
 		// add menu options to the UI
 		MenuInflater menuInflater = getSupportMenuInflater();
-		menuInflater.inflate(R.layout.menu_item_back, menu);
+		menuInflater.inflate(R.layout.menu_list_events, menu);
+		SubMenu subMenu = menu.addSubMenu(Menu.NONE, Menu.NONE, Menu.NONE, "Sort By Type");
+		for (int i = 0; i < type_array.length; i++)
+		{
+			// add(group_id,unique_id,order,title)
+			subMenu.add(SUBMENU_GROUP_ID, i + 1, i, type_array[i]);
+		}
+
 		return true;
 	}
 
@@ -471,14 +560,60 @@ public class ListEventsActivity extends SherlockListActivity
 		switch (menu_item.getItemId())
 		{
 			case BACK:
+				resetMainActivityVariables();
 				setResult(RESULT_CANCELED);
 				finish();
 				return true;
+			case 1:
+				MainActivity.type_of_event = "meeting";
+				refreshListView();
+				return true;
+			case 2:
+				MainActivity.type_of_event = "party";
+				refreshListView();
+				return true;
+			case 3:
+				MainActivity.type_of_event = "social";
+				refreshListView();
+				return true;
+			case 4:
+				MainActivity.type_of_event = "religious";
+				refreshListView();
+				return true;
+			case 5:
+				MainActivity.type_of_event = "programming";
+				refreshListView();
+				return true;
+			case 6:
+				MainActivity.type_of_event = "cinema";
+				refreshListView();
+				return true;
+			case 7:
+				MainActivity.type_of_event = "drink up";
+				refreshListView();
+				return true;
+			case 8:
+				MainActivity.type_of_event = "music festival";
+				refreshListView();
+				return true;
+			case 9:
+				MainActivity.type_of_event = "strike";
+				refreshListView();
+				return true;
+
 		}
 		return super.onOptionsItemSelected(menu_item);
 
 	}
 
+
+	private void resetMainActivityVariables()
+	{
+		MainActivity.sortedArrayList = null;
+		MainActivity.type_of_event = null;
+		//MainActivity.sort_by_date = false;
+	}
+	
 
 	/**
 	 * this class starts the event details activity in background while displaying
@@ -509,7 +644,7 @@ public class ListEventsActivity extends SherlockListActivity
 			// create a new sub activity
 			Intent intent = new Intent(ListEventsActivity.this, EventDetailsActivity.class);
 			// Use helper method to send event to next activity
-			sendEvent(intent, events_ArrayList.get(index_of_selected_event));
+			sendEvent(intent, getSelectedEvent(index_of_selected_event));
 			// start new sub activity
 			pDialog.dismiss();
 			startActivityForResult(intent, DETAILS_ACTIVITY_RESULT_CODE);
@@ -546,7 +681,7 @@ public class ListEventsActivity extends SherlockListActivity
 			// create a new sub activity
 			Intent intent = new Intent(ListEventsActivity.this, EditEventActivity.class);
 			// Use helper method to send event to next activity
-			sendEvent(intent, events_ArrayList.get(index_of_selected_event));
+			sendEvent(intent, getSelectedEvent(index_of_selected_event));
 			// start new sub activity
 			pDialog.dismiss();
 			startActivityForResult(intent, EDIT_EVENT_RESULT_CODE);
@@ -554,6 +689,27 @@ public class ListEventsActivity extends SherlockListActivity
 		}
 	}
 
+	public static String capitaliseFirstLetterOfEachWord(String aString)
+	{
+		if (aString==null)
+		{
+			throw new IllegalArgumentException("Parameter Cant be Null");
+		}
+		
+		boolean prevWasWhiteSp = true;
+    char[] chars = aString.toCharArray();
+    for (int i = 0; i < chars.length; i++) {
+        if (Character.isLetter(chars[i])) {
+            if (prevWasWhiteSp) {
+                chars[i] = Character.toUpperCase(chars[i]);    
+            }
+            prevWasWhiteSp = false;
+        } else {
+            prevWasWhiteSp = Character.isWhitespace(chars[i]);
+        }
+    }
+    return new String(chars);
+	}
 
 	/**
 	 * async task that uses network to get directions in words to destination
@@ -584,11 +740,13 @@ public class ListEventsActivity extends SherlockListActivity
 			{
 				LatLng dest = latLngs[0];
 				LatLng origin = latLngs[1];
+				// get url to google
 				String url = NetworkManager.getDirectionsUrl(origin, dest);
-				// Log.e("URL", url);
+				// download the directions as json
 				String json = NetworkManager.downloadJSONdata(url);
-				// Log.e("DATA", json);
+				// get the json data as an object
 				JSONObject jsonObject = new JSONObject(json);
+				// get the directions
 				ArrayList<String> directions = NetworkManager.DrivingDirectionsParser(jsonObject);
 				return directions;
 			}
@@ -609,5 +767,16 @@ public class ListEventsActivity extends SherlockListActivity
 			startActivityForResult(intent, DISPLAY_DIRECTIONS_RESULT_CODE);
 
 		}
+	}
+
+
+	public Event getSelectedEvent(int index_of_selected_event)
+	{
+		if (MainActivity.type_of_event != null)
+		{
+			return MainActivity.sortedArrayList.get(index_of_selected_event);
+		}
+		return events_ArrayList.get(index_of_selected_event);
+
 	}
 }

@@ -10,8 +10,6 @@ import android.app.ProgressDialog;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -23,18 +21,18 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.example.trial_map.asyncTasks.AutoCompleteTask;
 import com.example.trial_map.asyncTasks.UpdateEventTask;
 import com.example.trial_map.beans.Event;
 import com.example.trial_map.beans.EventOwner;
 import com.example.trial_map.factories.EventsFactory;
 import com.example.trial_map.factories.NetworkManager;
+import com.example.trial_map.widgets.PlacesAutoCompleteAdapter;
 import com.google.android.gms.maps.model.LatLng;
 
 /**
  * This activity helps a user to edit an event already in the database
  **/
-public class EditEventActivity extends ActionBarActivity
+public class EditEventActivity extends ActionBarActivity implements OnItemClickListener
 {
 	// constants
 	private static final int					NEW_EVENT_XML						= R.layout.new_event;
@@ -44,7 +42,7 @@ public class EditEventActivity extends ActionBarActivity
 	private static final String				TIME_DELIMETER					= ":";
 	private static final String				DATE_DELIMETER					= "/";
 	private static final CharSequence	PROGRESS_DIALOG_TEXT		= "Getting Input Data...";
-	private final CharSequence				INVALID_USER_INPUT_TEXT	= "Please Fill In All The Required Fields Before Submiiting Data";
+	private static final String				INVALID_USER_INPUT_TEXT	= "Please Fill In All The Required Fields Before Submiiting Data";
 	// widgets
 	private AutoCompleteTextView			location_auto_complete;
 	private EditText									description;
@@ -94,9 +92,6 @@ public class EditEventActivity extends ActionBarActivity
 			fillWidgetsWithEventData(anEvent);
 		}
 
-		// make auto_complete work after user types at least 1 word
-		location_auto_complete.setThreshold(1);
-
 		// add listeners to widgets
 		button_saveEvent.setOnClickListener(new View.OnClickListener()
 		{
@@ -119,40 +114,10 @@ public class EditEventActivity extends ActionBarActivity
 			}
 		});
 
-		location_auto_complete.addTextChangedListener(new TextWatcher()
-		{
+		location_auto_complete.setAdapter(new PlacesAutoCompleteAdapter(this, R.layout.list_item));
 
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count)
-			{
-				AutoCompleteTask autoCompleteTask = new AutoCompleteTask(EditEventActivity.this, location_auto_complete);
-				autoCompleteTask.execute(s.toString());
-			}
-
-
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count, int after)
-			{
-
-			}
-
-
-			@Override
-			public void afterTextChanged(Editable s)
-			{
-
-			}
-		});
-
-		location_auto_complete.setOnItemClickListener(new OnItemClickListener()
-		{
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3)
-			{
-				// if user picks location from drop down list
-				EnableWidgets(true);
-			}
-		});
+		location_auto_complete.setOnItemClickListener(this);
+		
 	}
 
 
@@ -221,7 +186,7 @@ public class EditEventActivity extends ActionBarActivity
 				if (anEventOwner != null)
 				{
 					user_id = anEventOwner.getUser_id();
-					Toast.makeText(EditEventActivity.this, "User_id=" + user_id, Toast.LENGTH_SHORT).show();
+					displayToast(EditEventActivity.this, "User_id=" + user_id, Toast.LENGTH_SHORT);
 				}
 				event_id = aBundle.getInt("event_id");
 				String type = aBundle.getString("type");
@@ -380,8 +345,6 @@ public class EditEventActivity extends ActionBarActivity
 	/** async task that gets user input and then updates the event in background **/
 	private class GetUserInputTask extends AsyncTask<Void, String, Event>
 	{
-	
-
 
 		@Override
 		protected void onPreExecute()
@@ -438,21 +401,36 @@ public class EditEventActivity extends ActionBarActivity
 			closeProgressDialog();
 			if (anEvent == null)
 			{// the location of the event could not be geocoded
-				Toast.makeText(EditEventActivity.this, NO_LOCATION_FOUND_TEXT, Toast.LENGTH_LONG).show();
+				displayToast(EditEventActivity.this, (String) NO_LOCATION_FOUND_TEXT, Toast.LENGTH_LONG);
 				return;
 			}
-			if (EventsFactory.EventIsValid(anEvent))
+			if (EventsFactory.EventIsValid(anEvent) == EventsFactory.SUCCESS)
 			{// event is valid.save the event
 				UpdateEventTask updateEventTask = new UpdateEventTask(EditEventActivity.this);
 				updateEventTask.execute(anEvent);
 			}
+			else if (EventsFactory.EventIsValid(anEvent) == EventsFactory.DATE_ERROR)
+			{
+				// event not valid.user input is wrong inform user
+				displayToast(EditEventActivity.this, EventsFactory.INVALID_DATE_TEXT, Toast.LENGTH_LONG);
+			}
 			else
 			{// event not valid.user input is wrong inform user
-				Toast.makeText(EditEventActivity.this, INVALID_USER_INPUT_TEXT, Toast.LENGTH_LONG).show();
+				displayToast(EditEventActivity.this, INVALID_USER_INPUT_TEXT, Toast.LENGTH_LONG);
 			}
 
 		}
 
+	}
+
+
+
+
+	@Override
+	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3)
+	{
+		// if user picks location from drop down list
+		EnableWidgets(true);
 	}
 
 }

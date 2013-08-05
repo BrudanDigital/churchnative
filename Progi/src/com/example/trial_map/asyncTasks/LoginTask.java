@@ -16,16 +16,18 @@ public class LoginTask extends AsyncTask<String, Void, Integer>
 	private static final int		LONG_DURATION							= Toast.LENGTH_LONG;
 	private static final int		FAILURE										= 0;
 	private static final int		SUCEESS										= 1;
-	private final CharSequence	LOGIN_ERROR_MSG						= "Cannot Login:Email Or Password Is Wrong";
+	private final CharSequence	LOGIN_ERROR_MSG						= "Cannot Login:Email Or Password Combination Is Wrong";
 	private final CharSequence	LOGIN_PROGRESS_DIALOG_MSG	= "Logging In. Please wait...";
 	private ProgressDialog			pDialog;
 	Activity										anActivity;
 	private EventOwner					anEventOwner;
 
+
 	public LoginTask(Activity anActivity)
 	{
 		this.anActivity = anActivity;
 	}
+
 
 	@Override
 	protected void onPreExecute()
@@ -37,6 +39,7 @@ public class LoginTask extends AsyncTask<String, Void, Integer>
 		pDialog.setCancelable(true);
 		pDialog.show();
 	}
+
 
 	@Override
 	protected Integer doInBackground(String... params)
@@ -51,6 +54,7 @@ public class LoginTask extends AsyncTask<String, Void, Integer>
 			return SUCEESS;
 		}
 	}
+
 
 	@Override
 	protected void onPostExecute(Integer result)
@@ -70,6 +74,7 @@ public class LoginTask extends AsyncTask<String, Void, Integer>
 		anActivity.setResult(Activity.RESULT_OK, intent);
 		anActivity.finish();
 	}
+
 
 	private void sendEventOwner(Intent intent, EventOwner anEventOwner)
 	{

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/widget32"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
@@ -14,7 +15,7 @@
         <RelativeLayout
             android:id="@+id/details_relativeLayout0"
             android:layout_width="fill_parent"
-            android:layout_height="30dp" >
+            android:layout_height="50dp" >
 
             <TextView
                 android:id="@+id/details_title"
@@ -34,7 +35,7 @@
         <RelativeLayout
             android:id="@+id/details_relativeLayout1"
             android:layout_width="fill_parent"
-            android:layout_height="48dp" >
+            android:layout_height="100dp" >
 
             <TextView
                 android:id="@+id/details_descriptionLabel"
@@ -48,12 +49,11 @@
             <TextView
                 android:id="@+id/details_descriptionValue"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBaseline="@+id/details_descriptionLabel"
-                android:layout_alignBottom="@+id/details_descriptionLabel"
+                android:layout_height="fill_parent"
+              
                 android:layout_marginLeft="34dp"
                 android:layout_toRightOf="@+id/details_descriptionLabel"
-                android:gravity="center"
+                android:gravity="top|left"
                 android:text="@string/textview"
                 android:textColor="@color/white" />
         </RelativeLayout>
@@ -66,7 +66,7 @@
         <RelativeLayout
             android:id="@+id/details_relativeLayout2"
             android:layout_width="fill_parent"
-            android:layout_height="48dp" >
+            android:layout_height="100dp" >
 
             <TextView
                 android:id="@+id/details_locationLabel"
@@ -80,12 +80,10 @@
             <TextView
                 android:id="@+id/details_locationValue"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBaseline="@+id/details_locationLabel"
-                android:layout_alignBottom="@+id/details_locationLabel"
+                android:layout_height="fill_parent"
                 android:layout_marginLeft="34dp"
                 android:layout_toRightOf="@+id/details_locationLabel"
-                android:gravity="center"
+                android:gravity="top|left"
                 android:text="@string/textview"
                 android:textColor="@color/white" />
         </RelativeLayout>
@@ -98,7 +96,7 @@
         <RelativeLayout
             android:id="@+id/details_relativeLayout3"
             android:layout_width="fill_parent"
-            android:layout_height="48dp" >
+            android:layout_height="50dp" >
 
             <TextView
                 android:id="@+id/details_typeLabel"
@@ -112,7 +110,7 @@
             <TextView
                 android:id="@+id/details_typeValue"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="fill_parent"
                 android:layout_alignBaseline="@+id/details_typeLabel"
                 android:layout_alignBottom="@+id/details_typeLabel"
                 android:layout_marginLeft="34dp"
@@ -130,7 +128,7 @@
         <RelativeLayout
             android:id="@+id/details_relativeLayout4"
             android:layout_width="fill_parent"
-            android:layout_height="48dp" >
+            android:layout_height="50dp" >
 
             <TextView
                 android:id="@+id/details_dateLabel"
@@ -144,7 +142,7 @@
             <TextView
                 android:id="@+id/details_dateValue"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="fill_parent"
                 android:layout_alignBaseline="@+id/details_dateLabel"
                 android:layout_alignBottom="@+id/details_dateLabel"
                 android:layout_marginLeft="34dp"
@@ -162,7 +160,7 @@
         <RelativeLayout
             android:id="@+id/details_relativeLayout5"
             android:layout_width="fill_parent"
-            android:layout_height="48dp" >
+            android:layout_height="50dp" >
 
             <TextView
                 android:id="@+id/details_timeLabel"
@@ -176,7 +174,7 @@
             <TextView
                 android:id="@+id/details_timeValue"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="fill_parent"
                 android:layout_alignBaseline="@+id/details_timeLabel"
                 android:layout_alignBottom="@+id/details_timeLabel"
                 android:layout_marginLeft="34dp"
@@ -194,7 +192,7 @@
         <RelativeLayout
             android:id="@+id/details_relativeLayout6"
             android:layout_width="fill_parent"
-            android:layout_height="48dp" >
+            android:layout_height="50dp" >
 
             <TextView
                 android:id="@+id/details_durationLabel"
@@ -208,7 +206,7 @@
             <TextView
                 android:id="@+id/details_durationValue"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="fill_parent"
                 android:layout_alignBaseline="@+id/details_durationLabel"
                 android:layout_alignBottom="@+id/details_durationLabel"
                 android:layout_marginLeft="34dp"
@@ -226,8 +224,8 @@
         <TextView
             android:id="@+id/details_ratingsLabel"
             android:layout_width="fill_parent"
-            android:gravity="center_horizontal"
             android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
             android:text="@string/rate_this_event"
             android:textColor="@color/white" />
 
@@ -240,21 +238,22 @@
             <RadioGroup
                 android:id="@+id/radioGroup"
                 android:layout_width="319dp"
-                android:layout_height="107dp" >
+                android:layout_height="107dp"
+                tools:ignore="UselessParent" >
 
                 <RadioButton
                     android:id="@+id/radioButton_yes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/white"
-                    android:text="@string/yes" />
+                    android:text="@string/yes"
+                    android:textColor="@color/white" />
 
                 <RadioButton
                     android:id="@+id/radioButton_no"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/white"
-                    android:text="@string/no" />
+                    android:text="@string/no"
+                    android:textColor="@color/white" />
             </RadioGroup>
         </LinearLayout>
     </LinearLayout>

@@ -34,13 +34,14 @@ public class QuickAction extends PopupWindows
 	private OnActionItemClickListener	mListener;
 
 	private int												animStyle;
-	private int												mChildPos=0;
+	private int												mChildPos							= 0;
 	private boolean										animateTrack;
 
 	public static final int						ANIM_GROW_FROM_LEFT		= 1;
 	public static final int						ANIM_GROW_FROM_RIGHT	= 2;
 	public static final int						ANIM_GROW_FROM_CENTER	= 3;
 	public static final int						ANIM_AUTO							= 4;
+
 
 	public QuickAction(Context context)
 	{
@@ -65,8 +66,9 @@ public class QuickAction extends PopupWindows
 
 		animStyle = ANIM_AUTO;
 		animateTrack = true;
-		
+
 	}
+
 
 	public void setRootViewId(int id)
 	{
@@ -79,15 +81,18 @@ public class QuickAction extends PopupWindows
 		setContentView(mRootView);
 	}
 
+
 	public void animateTrack(boolean animateTrack)
 	{
 		this.animateTrack = animateTrack;
 	}
 
+
 	public void setAnimStyle(int animStyle)
 	{
 		this.animStyle = animStyle;
 	}
+
 
 	public void addActionItem(ActionItem action)
 	{
@@ -132,10 +137,12 @@ public class QuickAction extends PopupWindows
 		mChildPos++;
 	}
 
+
 	public void setOnActionItemClickListener(OnActionItemClickListener listener)
 	{
 		mListener = listener;
 	}
+
 
 	public void show(View anchor)
 	{
@@ -177,6 +184,7 @@ public class QuickAction extends PopupWindows
 			mTrack.startAnimation(mTrackAnim);
 	}
 
+
 	private void setAnimationStyle(int screenWidth, int requestedX, boolean onTop)
 	{
 		int arrowPos = requestedX - mArrowUp.getMeasuredWidth() / 2;
@@ -213,6 +221,7 @@ public class QuickAction extends PopupWindows
 		}
 	}
 
+
 	private void showArrow(int whichArrow, int requestedX)
 	{
 		final View showArrow = (whichArrow == R.id.arrow_up) ? mArrowUp : mArrowDown;
@@ -228,6 +237,7 @@ public class QuickAction extends PopupWindows
 
 		hideArrow.setVisibility(View.INVISIBLE);
 	}
+
 
 	public interface OnActionItemClickListener
 	{

@@ -19,6 +19,7 @@ public class CustomArrayAdapter extends ArrayAdapter<String>
 	private final ArrayList<String>	values;
 	private ArrayList<Event>				events_ArrayList;
 
+
 	public CustomArrayAdapter(Context context, ArrayList<String> values)
 	{
 		super(context, R.layout.list_events, values);
@@ -26,13 +27,19 @@ public class CustomArrayAdapter extends ArrayAdapter<String>
 		this.values = values;
 	}
 
+
 	public CustomArrayAdapter(Context context, ArrayList<String> values, ArrayList<Event> events)
 	{
 		super(context, R.layout.list_events, values);
+		if (context==null||values==null||events==null)
+		{
+			throw new IllegalArgumentException("Parameters Cant be Null");
+		}
 		this.context = context;
 		this.values = values;
 		this.events_ArrayList = events;
 	}
+
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent)
@@ -42,13 +49,12 @@ public class CustomArrayAdapter extends ArrayAdapter<String>
 		TextView label = (TextView) rowView.findViewById(R.id.label);
 		ImageView imageView = (ImageView) rowView.findViewById(R.id.logo);
 		label.setText(values.get(position));
-		
 
 		// Change icon based on name
 		String type = events_ArrayList.get(position).getType_of_event();
 
 		System.out.println(type);
-		//imageView.setImageResource(R.drawable.meeting);
+		
 		if (type.equalsIgnoreCase("meeting"))
 		{
 			imageView.setImageResource(R.drawable.meeting);
@@ -88,5 +94,4 @@ public class CustomArrayAdapter extends ArrayAdapter<String>
 		return rowView;
 	}
 
-	
 }

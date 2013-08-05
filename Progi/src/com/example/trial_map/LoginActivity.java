@@ -12,12 +12,13 @@ import android.widget.Toast;
 import com.example.trial_map.asyncTasks.LoginTask;
 import com.example.trial_map.factories.Validator;
 
-/**this class logs a user in**/
+/** this class logs a user in **/
 public class LoginActivity extends Activity
 {
 	private EditText	email_editText;
 	private EditText	password_editText;
 	private Button		login_button;
+
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -47,7 +48,7 @@ public class LoginActivity extends Activity
 				String email = email_editText.getText().toString().trim();
 				String password = password_editText.getText().toString().trim();
 				// validate data
-				if (UserInputisValid(email,password))
+				if (UserInputisValid(email, password))
 				{
 					// contact server in background thread
 					String[] params = { email, password };
@@ -61,9 +62,10 @@ public class LoginActivity extends Activity
 
 			}
 
-			private boolean UserInputisValid(String email,String password)
+
+			private boolean UserInputisValid(String email, String password)
 			{
-				if (Validator.isNullOrEmpty(email)||Validator.isNullOrEmpty(password))
+				if (Validator.isNullOrEmpty(email) || Validator.isNullOrEmpty(password))
 				{
 					return false;
 				}

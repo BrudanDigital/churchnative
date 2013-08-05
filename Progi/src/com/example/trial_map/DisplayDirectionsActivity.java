@@ -32,11 +32,11 @@ public class DisplayDirectionsActivity extends ActionBarActivity
 			@Override
 			public void onClick(View arg0)
 			{
-				MainActivity.dest = dest;
 				setResult(RESULT_OK);
 				finish();
 			}
 		});
+		
 		ArrayList<String> directions = ListEventsActivity.directionsArrayList;
 		if (directions != null)
 		{

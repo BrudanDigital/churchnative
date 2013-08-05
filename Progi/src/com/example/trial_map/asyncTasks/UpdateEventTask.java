@@ -18,10 +18,12 @@ public class UpdateEventTask extends AsyncTask<Event, String, Integer>
 	String											text;
 	int													duration							= Toast.LENGTH_LONG;
 
+
 	public UpdateEventTask(Activity anActivity)
 	{
 		this.anActivity = anActivity;
 	}
+
 
 	@Override
 	protected void onPreExecute()
@@ -34,17 +36,19 @@ public class UpdateEventTask extends AsyncTask<Event, String, Integer>
 		pDialog.show();
 	}
 
+
 	@Override
 	protected Integer doInBackground(Event... anEvent)
 	{
 		if (NetworkManager.isInternetAvailable(anActivity))
 		{
-		// save the event
+			// save the event
 			result = EventsFactory.UpdateEvent(anEvent[0]);
 			return result;
 		}
 		return EventsFactory.NO_CONNECTION;
 	}
+
 
 	@Override
 	protected void onPostExecute(Integer integer)

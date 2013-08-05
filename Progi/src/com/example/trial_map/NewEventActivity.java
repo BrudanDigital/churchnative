@@ -7,8 +7,6 @@ import org.json.JSONObject;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -20,23 +18,24 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.example.trial_map.asyncTasks.AutoCompleteTask;
 import com.example.trial_map.asyncTasks.SaverTask;
 import com.example.trial_map.beans.Event;
 import com.example.trial_map.factories.EventsFactory;
 import com.example.trial_map.factories.NetworkManager;
+import com.example.trial_map.widgets.PlacesAutoCompleteAdapter;
 import com.google.android.gms.maps.model.LatLng;
 
 /** this activity helps user to create a new event on the server side **/
-public class NewEventActivity extends ActionBarActivity
+public class NewEventActivity extends ActionBarActivity implements OnItemClickListener
 {
 	private static final int					NEW_EVENT_XML						= R.layout.new_event;
 	private static final String				GEOCODE_ADDRESS					= "https://maps.googleapis.com/maps/api/geocode/json";
 	private static final String				TAG_RESULTS							= "results";
 	private static final String				TAG_STATUS							= "status";
 	private static final CharSequence	PROGRESS_DIALOG_TEXT		= "Getting Details Input...";
-	private static final CharSequence	NO_LOCATION_FOUND_TEXT	= "Failed To Find Location Of Event.Event Was Not Created";
-	private final CharSequence				INVALID_USER_INPUT_TEXT	= "Please Fill In All The Required Fields Before Submiiting Data";
+	private static final String				NO_LOCATION_FOUND_TEXT	= "Failed To Find Location Of Event.Event Was Not Created";
+	private final String							INVALID_USER_INPUT_TEXT	= "PLEASE FILL IN ALL THE REQUIRED FIELDS BEFORE SUBMITTING!!";
+
 	// widgets
 	private AutoCompleteTextView			location_auto_complete;
 	private EditText									description;
@@ -67,7 +66,6 @@ public class NewEventActivity extends ActionBarActivity
 		name_of_event = (EditText) findViewById(R.id.editText_name);
 		duration_of_event = (Spinner) findViewById(R.id.spinner);
 		type_of_event = (Spinner) findViewById(R.id.eventType_spinner);
-
 		// disable screen gui till user picks location from auto_complete text box
 		EnableWidgets(false);
 		// get user id from previous activity
@@ -76,9 +74,6 @@ public class NewEventActivity extends ActionBarActivity
 		{
 			user_id = extras.getInt("user_id");
 		}
-
-		// make auto_complete work after user types at least 1 word
-		location_auto_complete.setThreshold(1);
 
 		// add listeners to widgets
 		button_saveEvent.setOnClickListener(new View.OnClickListener()
@@ -103,41 +98,10 @@ public class NewEventActivity extends ActionBarActivity
 			}
 		});
 
-		location_auto_complete.addTextChangedListener(new TextWatcher()
-		{
+		location_auto_complete.setAdapter(new PlacesAutoCompleteAdapter(this, R.layout.list_item));
 
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count)
-			{
-				AutoCompleteTask autoCompleteTask = new AutoCompleteTask(NewEventActivity.this, location_auto_complete);
-				autoCompleteTask.execute(s.toString());
-			}
+		location_auto_complete.setOnItemClickListener(this);
 
-
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count, int after)
-			{
-
-			}
-
-
-			@Override
-			public void afterTextChanged(Editable s)
-			{
-
-			}
-		});
-
-		location_auto_complete.setOnItemClickListener(new OnItemClickListener()
-		{
-
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3)
-			{
-				// if user picks location from drop down list
-				EnableWidgets(true);
-			}
-		});
 	}
 
 
@@ -260,7 +224,14 @@ public class NewEventActivity extends ActionBarActivity
 			// get time
 			int hour = timePicker.getCurrentHour();
 			int min = timePicker.getCurrentMinute();
-			String time = hour + ":" + min;
+			String minutes=""+min;
+			if (min<10)
+			{//less than ten minutes past the hour
+				//add a 0 before the digit
+				minutes="0"+minutes;
+			}
+			
+			String time = hour + ":" + minutes;
 
 			// get Description
 			String desc = description.getText().toString();
@@ -285,24 +256,38 @@ public class NewEventActivity extends ActionBarActivity
 		protected void onPostExecute(Event anEvent)
 		{
 			closeProgressDialog();
-			//no event is returned becoz no location for the event could be found
+			// no event is returned becoz no location for the event could be found
 			if (anEvent == null)
 			{
-				Toast.makeText(NewEventActivity.this, NO_LOCATION_FOUND_TEXT, Toast.LENGTH_LONG).show();
+				displayToast(NewEventActivity.this, NO_LOCATION_FOUND_TEXT, Toast.LENGTH_LONG);
 				return;
 			}
-			if (EventsFactory.EventIsValid(anEvent))
-			{//event is valid.save the event
+			if (EventsFactory.EventIsValid(anEvent) == EventsFactory.SUCCESS)
+			{// event is valid.save the event
+
 				SaverTask saverTask = new SaverTask(NewEventActivity.this);
 				saverTask.execute(anEvent);
 			}
+			else if (EventsFactory.EventIsValid(anEvent) == EventsFactory.DATE_ERROR)
+			{
+				// event not valid.user input is wrong inform user
+				displayToast(NewEventActivity.this, EventsFactory.INVALID_DATE_TEXT, Toast.LENGTH_LONG);
+			}
 			else
-			{//event not valid.user input is wrong inform user
-				Toast.makeText(NewEventActivity.this, INVALID_USER_INPUT_TEXT, Toast.LENGTH_LONG).show();
+			{// event not valid.user input is wrong inform user
+				displayToast(NewEventActivity.this, INVALID_USER_INPUT_TEXT, Toast.LENGTH_LONG);
 			}
 
 		}
 
+	}
+
+
+	@Override
+	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3)
+	{
+		// if user picks location from drop down list
+		EnableWidgets(true);
 	}
 
 }

@@ -1,5 +1,8 @@
 package com.example.trial_map;
 
+import android.content.Context;
+import android.widget.Toast;
+
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -7,10 +10,35 @@ import com.actionbarsherlock.view.MenuItem;
 
 public class ActionBarActivity extends SherlockActivity
 {
-	private static final int	BACK	= R.id.menu_back;
+	private static final int	BACK						= R.id.menu_back;
+	private static boolean		isInForeGround	= false;
 
 
-	/** method called to create menu and its items**/
+	protected void onResume()
+	{
+		super.onResume();
+		isInForeGround = true;
+	}
+
+
+	@Override
+	protected void onPause()
+	{
+		super.onPause();
+		isInForeGround = false;
+	}
+
+
+	public static void displayToast(Context aContext, String text, int duration)
+	{
+		if (isInForeGround)
+		{
+			Toast.makeText(aContext, text, duration).show();
+		}
+	}
+
+
+	/** method called to create menu and its items **/
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
@@ -23,7 +51,7 @@ public class ActionBarActivity extends SherlockActivity
 	}
 
 
-	/** handler for click on menu item**/
+	/** handler for click on menu item **/
 	@Override
 	public boolean onOptionsItemSelected(MenuItem menu_item)
 	{

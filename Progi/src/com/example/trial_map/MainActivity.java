@@ -7,6 +7,7 @@ import java.util.Iterator;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Criteria;
@@ -38,14 +39,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-//FIXME generate a .apk
-//FIXME use proguard to reduce size of code
 //FIXME check performance of app
-//FIXME get release google maps key
-//FIXME remove all references to log
-//FIXME app should validate all input fields
-//FIXME app should not allow to set date and time back
 //FIXME app should allow users to rate events heard of this y/n
+
 /**
  * @author nsubugak This is the main activity that displays map and other
  *         options to user
@@ -72,12 +68,15 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 	private static final CharSequence	ALERT_DIALOG_TITLE								= "Ops!! Sorry.";
 	private static final CharSequence	ALERT_DIALOG_MSG									= "This Application Requires An Internet Connection";
 	private static final CharSequence	ALERT_BUTTON_TEXT									= "Okay";
-	private static final long					VIBRATION_DURATION								= 1000;
+	private static final long					VIBRATION_DURATION								= 2000;
 	public static double							user_latitude											= 0;
 	public static double							user_longitude										= 0;
-	private boolean										first_time												= true;
+	public static ArrayList<Event>		sortedArrayList										= null;
+	public static String							type_of_event											= null;
+	public static boolean							isInForeGround										= false;
 
 	// variables
+	private boolean										first_time												= true;
 	private ArrayList<Event>					eventsArrayList										= null;
 	private HashMap<String, Event>		eventMarkerMap										= new HashMap<String, Event>();
 	private GoogleMap									googleMap;
@@ -92,7 +91,6 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		myVib = (Vibrator) this.getSystemService(VIBRATOR_SERVICE);
-		myVib.vibrate(VIBRATION_DURATION);
 		super.onCreate(savedInstanceState);
 
 		try
@@ -119,6 +117,31 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 			showNoInternetFoundAlertDialog();
 		}
 
+	}
+
+
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+		isInForeGround = true;
+	}
+
+
+	@Override
+	protected void onPause()
+	{
+		super.onPause();
+		isInForeGround = false;
+	}
+
+
+	public static void displayToast(Context aContext, String text, int duration)
+	{
+		if (isInForeGround)
+		{
+			Toast.makeText(aContext, text, duration).show();
+		}
 	}
 
 
@@ -223,7 +246,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 		// make button say 'Login'
 		menu_item.setTitle(LOGIN_BUTTON_TEXT);
 		// display message
-		Toast.makeText(MainActivity.this, LOG_OUT_SUCCESS_TEXT, SHORT_DURATION).show();
+		displayToast(MainActivity.this, LOG_OUT_SUCCESS_TEXT, SHORT_DURATION);
 		// disable add event menu item
 		MenuItem addEvent = menu.findItem(R.id.menu_addEvent);
 		addEvent.setEnabled(false);
@@ -260,19 +283,19 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 	}
 
 
-	// FIXME validation of data before submitting it in all activities
 	// handle results returned by sub activities
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		super.onActivityResult(requestCode, resultCode, data);
+		isInForeGround=true;
 		switch (requestCode)
 		{
 		// return form NewEventActivity
 			case NEW_EVENT_ACTIVITY_RESULT_CODE:
 				if (resultCode == RESULT_OK)
 				{
-					Toast.makeText(this, EVENT_CREATED_TEXT, LONG_DURATION).show();
+					displayToast(this, EVENT_CREATED_TEXT, LONG_DURATION);
 				}
 				break;
 			// return from EventDetailsActivity
@@ -299,6 +322,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 			case LOGIN_ACTIVITY_RESULT_CODE:
 				if (resultCode == RESULT_OK)
 				{// user has successfully logged in
+					
 					// get returned eventOwner Object
 					getEventOwner(data);
 					// enable add event menu item
@@ -309,7 +333,8 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 					// make the button say 'Log Out'
 					login.setTitle(LOG_OUT_BUTTON_TEXT);
 					// inform user
-					Toast.makeText(MainActivity.this, LOG_IN_SUCCESS_TEXT + anEventOwner.getEmail(), Toast.LENGTH_LONG).show();
+					String success_text = LOG_IN_SUCCESS_TEXT + " " + anEventOwner.getEmail();
+					displayToast(MainActivity.this, success_text, Toast.LENGTH_LONG);
 				}
 			default:
 				break;
@@ -439,7 +464,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 			if (result == FAILURE)
 			{
 				pDialog.dismiss();
-				Toast.makeText(MainActivity.this, FAILED_TO_GET_EVENTS_TEXT, Toast.LENGTH_LONG).show();
+				displayToast(MainActivity.this, (String) FAILED_TO_GET_EVENTS_TEXT, LONG_DURATION);
 			}
 		}
 	}
@@ -569,7 +594,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 				if (first_time)
 				{
 					myVib.vibrate(VIBRATION_DURATION);
-					Toast.makeText(MainActivity.this, "Welcome", LONG_DURATION).show();
+					displayToast(MainActivity.this, "Welcome", LONG_DURATION);
 					first_time = false;
 				}
 
@@ -608,15 +633,6 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 							eventMarkerMap.put(marker_id, anEvent);
 						}
 					}
-					if (first_time)
-					{
-						myVib.vibrate(3000);
-						Toast.makeText(MainActivity.this, "Welcome", LONG_DURATION).show();
-						first_time = false;
-					}
-					// add listener for clicks on info window that pops up when user
-					// clicks
-					// marker
 					googleMap.setOnInfoWindowClickListener(new OnInfoWindowClickListener()
 					{
 
@@ -648,17 +664,17 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 						private void sendEvent(Intent intent, Event anEvent)
 						{
 							Double latitude = anEvent.getLatitude();
-							
+
 							Double longitude = anEvent.getLongitude();
-							
+
 							String time = anEvent.getTime();
-							
+
 							String date = anEvent.getDate();
-							
+
 							String description = anEvent.getDescription_of_event();
-							
+
 							String name = anEvent.getName_of_event();
-							
+
 							String duration = anEvent.getDuration();
 							String location_in_words = anEvent.getEvent_location_in_words();
 							int user_id = anEvent.getUser_id();
@@ -688,9 +704,9 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 							{
 								// look up desired event from hash map
 								String marker_id = marker.getId();
-								
+
 								Event anEvent = eventMarkerMap.get(marker_id);
-								
+
 								// return event
 								return anEvent;
 							}
@@ -702,7 +718,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 				}
 				else
 				{
-					Toast.makeText(MainActivity.this, FAILED_TO_GET_EVENTS_TEXT, LONG_DURATION).show();
+					displayToast(MainActivity.this, (String) FAILED_TO_GET_EVENTS_TEXT, LONG_DURATION);
 				}
 
 			}

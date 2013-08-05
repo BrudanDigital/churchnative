@@ -34,15 +34,15 @@
 	<string name="end_year">2014</string>
 	<string name="directions">DIRECTIONS</string>
 	<string name="draw_route_on_map">Draw Route On Map</string>
-	<string name="name_of_event">NAME OF EVENT</string>
+	<string name="name_of_event">NAME OF EVENT [Pick A Catchy Name]</string>
 	<string name="date">DATE</string>
 	<string name="description">DESCRIPTION</string>
 	<string name="textview">TEXT VIEW</string>
 	<string name="location">LOCATION</string>
-	<string name="type_of_event">TYPE</string>
+	<string name="type_of_event">TYPE OF EVENT [Pick The One That Is Closest]</string>
 	<string name="duration">DURATION</string>
 	<string name="rate_this_event">HEARD OF THIS EVENT</string>
-	<string name="start_time">START TIME</string>
+	<string name="start_time">START TIME OF EVENT</string>
 	<string name="email">EMAIL</string>
 	<string name="password">PASSWORD</string>
 	<string name="login">LOGIN</string>
@@ -50,4 +50,7 @@
 	<string name="yes">Yes</string>
 	<string name="no">No</string>
 	<string name="website_url">http://192.168.43.169/android_connect/</string>
+	<string name="splash_screen">Splash Screen</string>
+	<string name="location_of_event">LOCATION OF EVENT</string>
+	<string name="description_of_event">DESCRIPTION OF EVENT [Whats Is This All About]</string>
 </resources>

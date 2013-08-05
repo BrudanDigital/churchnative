@@ -63,11 +63,11 @@ public class DrawRouteTask extends AsyncTask<String, String, List<List<HashMap<S
 			jObject = new JSONObject(data);
 			// Starts parsing the object to get route
 			routes = NetworkManager.DirectionsParser(jObject);
-			
+
 		}
 		catch (Exception e)
 		{
-		
+
 		}
 		return routes;
 	}
@@ -84,17 +84,17 @@ public class DrawRouteTask extends AsyncTask<String, String, List<List<HashMap<S
 			pDialog.dismiss();
 			return;
 		}
-		//no route has been found[most likely network issues]
+		// no route has been found[most likely network issues]
 		pDialog.dismiss();
 		Toast.makeText(anActivity, "Failed To Get Directions!![check your internet connections]", Toast.LENGTH_LONG).show();
 
 	}
 
 
-	
 	/**
-	 * @param route to be drawn on the map
-	 * draws route on the map using downloaded directions
+	 * @param route
+	 *          to be drawn on the map draws route on the map using downloaded
+	 *          directions
 	 */
 	private void drawRoute(List<List<HashMap<String, String>>> route)
 	{
@@ -109,7 +109,6 @@ public class DrawRouteTask extends AsyncTask<String, String, List<List<HashMap<S
 
 		if (route.size() < 1)
 		{
-			Toast.makeText(anActivity, "No Points", Toast.LENGTH_SHORT).show();
 			return;
 		}
 

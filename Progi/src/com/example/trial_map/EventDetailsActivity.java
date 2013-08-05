@@ -78,14 +78,19 @@ public class EventDetailsActivity extends ActionBarActivity
 	/** fills widgets with event details **/
 	private void showEventDetails(Event anEvent)
 	{
-		location_TextView.setText(anEvent.getEvent_location_in_words());
+		location_TextView.setText(capitalizeFirstletter(anEvent.getEvent_location_in_words()));
 		name_TextView.setText(anEvent.getName_of_event().toUpperCase());
-		type_TextView.setText(anEvent.getType_of_event());
+		type_TextView.setText(capitalizeFirstletter(anEvent.getType_of_event()));
 		time_TextView.setText(anEvent.getTime());
 		duration_TextView.setText(anEvent.getDuration());
 		date_TextView.setText(anEvent.getDate());
-		description_TextView.setText(anEvent.getDescription_of_event());
+		description_TextView.setText(capitalizeFirstletter(anEvent.getDescription_of_event()));
 
+	}
+	
+	private String capitalizeFirstletter(String aString)
+	{
+		return ListEventsActivity.capitaliseFirstLetterOfEachWord(aString);
 	}
 
 }

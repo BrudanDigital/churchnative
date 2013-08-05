@@ -19,32 +19,35 @@ import com.google.android.gms.maps.model.LatLng;
 public class EventsFactory
 {
 	/** a context object **/
-	Context											aContext;
+	Context														aContext;
 
 	/** Creating JSON Parser object **/
-	static NetworkManager				jParser							= new NetworkManager();
+	static NetworkManager							jParser							= new NetworkManager();
 
 	/** JSON Node names **/
-	private static final String	TAG_SUCCESS					= "success";
-	private static final String	TAG_EVENTS					= "events";
-	private static final String	TAG_DESCRIPTION			= "description";
-	private static final String	TAG_LATITUDE				= "latitude";
-	private static final String	TAG_TIME						= "time";
-	private static final String	TAG_LONGITUDE				= "longitude";
-	private static final String	TAG_DATE						= "date";
-	private static final String	TAG_NAME						= "name";
-	private static final String	TAG_DURATION				= "duration";
-	private static final String	TAG_LOCATION				= "location";
+	private static final String				TAG_SUCCESS					= "success";
+	private static final String				TAG_EVENTS					= "events";
+	private static final String				TAG_DESCRIPTION			= "description";
+	private static final String				TAG_LATITUDE				= "latitude";
+	private static final String				TAG_TIME						= "time";
+	private static final String				TAG_LONGITUDE				= "longitude";
+	private static final String				TAG_DATE						= "date";
+	private static final String				TAG_NAME						= "name";
+	private static final String				TAG_DURATION				= "duration";
+	private static final String				TAG_LOCATION				= "location";
 	// url to php script at website
-	static final String	PHP_SCRIPT_ADDRESS	= "http://192.168.43.169/android_connect/";
-	private static final String	CREATE_EVENT_URL		= PHP_SCRIPT_ADDRESS + "create_event.php";
-	private static final String	GET_EVENTS_URL			= PHP_SCRIPT_ADDRESS + "get_events.php";
-	private static final String	DELETE_EVENT_URL		= PHP_SCRIPT_ADDRESS + "delete_event.php";
-	private static final String	UPDATE_EVENT_URL		= PHP_SCRIPT_ADDRESS + "update_event.php";
+	static final String								PHP_SCRIPT_ADDRESS	= "http://192.168.43.169/android_connect/";
+	private static final String				CREATE_EVENT_URL		= PHP_SCRIPT_ADDRESS + "create_event.php";
+	private static final String				GET_EVENTS_URL			= PHP_SCRIPT_ADDRESS + "get_events.php";
+	private static final String				DELETE_EVENT_URL		= PHP_SCRIPT_ADDRESS + "delete_event.php";
+	private static final String				UPDATE_EVENT_URL		= PHP_SCRIPT_ADDRESS + "update_event.php";
+	public static final String				INVALID_DATE_TEXT		= "THE SUBMITTED DATE HAS ALREADY PASSED!!";
 	// integer FLAGS
-	public static final int			SUCCESS							= 1;
-	public static final int			FAILURE							= 0;
-	public static final int			NO_CONNECTION				= 2;
+	public static final int						SUCCESS							= 1;
+	public static final int						FAILURE							= 0;
+	public static final int						NO_CONNECTION				= 2;
+	public static final int						DATE_ERROR					= 4;
+	public static final int						EMPTY_FIELD_ERROR		= 5;
 
 
 	/** saves an event on the server side **/
@@ -299,7 +302,6 @@ public class EventsFactory
 		locationB.setLongitude(latLng2.longitude);
 
 		float distance = locationA.distanceTo(locationB);
-		System.out.print("DISTANCE=" + distance);
 		if (distance <= 10000)
 		{
 			return true;
@@ -307,92 +309,98 @@ public class EventsFactory
 		return false;
 	}
 
-	/**checks if an event is valid and can be saved**/
-	public static boolean EventIsValid(Event anEvent)
+
+	/** checks if an event is valid and can be saved **/
+	public static int EventIsValid(Event anEvent)
 	{
 		// check if the location in words is valid
 		String event_location_in_words = anEvent.getEvent_location_in_words();
 		if (Validator.isNullOrEmpty(event_location_in_words))
 		{
-			return false;
+			return EMPTY_FIELD_ERROR;
 		}
 
 		// check if the location (latlng) is valid
 		LatLng event_location = anEvent.getLocation_of_event();
 		if (Validator.isNullOrEmpty(event_location))
 		{
-			return false;
+			return EMPTY_FIELD_ERROR;
 		}
 
 		// check if the location in words is valid
 		String event_name = anEvent.getName_of_event();
 		if (Validator.isNullOrEmpty(event_name))
 		{
-			return false;
+			return EMPTY_FIELD_ERROR;
 		}
 
 		// check if the latitude is valid
 		double latitude = anEvent.getLatitude();
 		if (latitude <= 0)
 		{
-			return false;
+			return EMPTY_FIELD_ERROR;
 		}
 
 		// check if the longitude is valid
 		double longitude = anEvent.getLongitude();
 		if (longitude <= 0)
 		{
-			return false;
+			return EMPTY_FIELD_ERROR;
 		}
 
 		// check if the start_time is valid
 		String start_time = anEvent.getTime();
 		if (Validator.isNullOrEmpty(start_time))
 		{
-			return false;
+			return EMPTY_FIELD_ERROR;
 		}
 
 		// check if the date is valid
 		String date = anEvent.getDate();
 		if (Validator.isNullOrEmpty(date))
 		{
-			return false;
+			return EMPTY_FIELD_ERROR;
+		}
+		if (!Validator.isDateOkay(date))
+		{
+			return DATE_ERROR;
 		}
 
 		// check if the event description is valid
 		String event_description = anEvent.getDescription_of_event();
 		if (Validator.isNullOrEmpty(event_description))
 		{
-			return false;
+			return EMPTY_FIELD_ERROR;
 		}
 
 		// check if the duration of the event is valid
 		String event_duration = anEvent.getDuration();
 		if (Validator.isNullOrEmpty(event_duration))
 		{
-			return false;
+			return EMPTY_FIELD_ERROR;
 		}
 
 		// check if the type of event is valid
 		String type_of_event = anEvent.getType_of_event();
 		if (Validator.isNullOrEmpty(type_of_event))
 		{
-			return false;
+			return EMPTY_FIELD_ERROR;
 		}
 
 		// check if the user_id is valid
 		int user_id = anEvent.getUser_id();
 		if (user_id < -1)
 		{
-			return false;
+			return EMPTY_FIELD_ERROR;
 		}
 
 		// check if the event_id is valid
 		int event_id = anEvent.getEvent_id();
 		if (event_id < -1)
 		{
-			return false;
+			return EMPTY_FIELD_ERROR;
 		}
-		return true;
+		return SUCCESS;
 	}
+
 }
