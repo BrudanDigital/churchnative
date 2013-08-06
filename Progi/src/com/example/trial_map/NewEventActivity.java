@@ -18,11 +18,11 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.example.trial_map.adapters.PlacesAutoCompleteAdapter;
 import com.example.trial_map.asyncTasks.SaverTask;
 import com.example.trial_map.beans.Event;
 import com.example.trial_map.factories.EventsFactory;
 import com.example.trial_map.factories.NetworkManager;
-import com.example.trial_map.widgets.PlacesAutoCompleteAdapter;
 import com.google.android.gms.maps.model.LatLng;
 
 /** this activity helps user to create a new event on the server side **/
@@ -105,7 +105,7 @@ public class NewEventActivity extends ActionBarActivity implements OnItemClickLi
 	}
 
 
-	/**closes the progress dialog**/
+	/** closes the progress dialog **/
 	private void closeProgressDialog()
 	{
 		if (pDialog != null)
@@ -115,7 +115,7 @@ public class NewEventActivity extends ActionBarActivity implements OnItemClickLi
 	}
 
 
-	/**displays a progress dialog to the user**/
+	/** displays a progress dialog to the user **/
 	private void showProgressDialog()
 	{
 		// create progress dialog and display it to user
@@ -226,13 +226,13 @@ public class NewEventActivity extends ActionBarActivity implements OnItemClickLi
 			// get time
 			int hour = timePicker.getCurrentHour();
 			int min = timePicker.getCurrentMinute();
-			String minutes=""+min;
-			if (min<10)
-			{//less than ten minutes past the hour
-				//add a 0 before the digit
-				minutes="0"+minutes;
+			String minutes = "" + min;
+			if (min < 10)
+			{// less than ten minutes past the hour
+				// add a 0 before the digit
+				minutes = "0" + minutes;
 			}
-			
+
 			String time = hour + ":" + minutes;
 
 			// get Description
@@ -285,7 +285,7 @@ public class NewEventActivity extends ActionBarActivity implements OnItemClickLi
 	}
 
 
-	/**called when user clicks on item from auto complete drop down list**/
+	/** called when user clicks on item from auto complete drop down list **/
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3)
 	{

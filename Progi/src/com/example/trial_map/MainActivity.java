@@ -10,6 +10,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -48,6 +49,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
  */
 public class MainActivity extends SherlockFragmentActivity implements LocationListener
 {
+	// important constants from xml file
+	private Resources									res																= null;
+	public static String							WEBSITE_URL												= null;
+	public static String							GOOGLE_DIRECTIONS_URL							= null;
+	public static String							GOOGLE_PLACES_URL									= null;
 	// constants
 	private static final int					NEW_EVENT_ACTIVITY_RESULT_CODE		= 100;
 	private static final int					DETAILS_ACTIVITY_RESULT_CODE			= 200;
@@ -101,6 +107,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 			if (NetworkManager.isInternetAvailable(this))
 			{
 				setContentView(HOME_SCREEN);
+				initializeStaticVariables();
 				DrawMapTask drawMapTask = new DrawMapTask();
 				drawMapTask.execute();
 			}
@@ -117,13 +124,22 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 		}
 		catch (Exception e)
 		{
-			showNoInternetFoundAlertDialog();
 		}
 
 	}
 
 
-	/**Called when the activity is brought to foreground again**/
+	/**DO_NOT_DELETE this reads variables from strings xml file and initializes them so that other classes can use them **/
+	private void initializeStaticVariables()
+	{
+		res = getResources();
+		WEBSITE_URL = res.getString(R.string.website_url);
+		GOOGLE_DIRECTIONS_URL = res.getString(R.string.directions_api_url);
+		GOOGLE_PLACES_URL = res.getString(R.string.places_api_url);
+	}
+
+
+	/** Called when the activity is brought to foreground again **/
 	@Override
 	protected void onResume()
 	{
@@ -133,7 +149,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 	}
 
 
-	/**Called When user navigates away from app**/
+	/** Called When user navigates away from app **/
 	@Override
 	protected void onPause()
 	{
@@ -158,7 +174,8 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 		return false;
 	}
 
-	/**Called when user changes location by moving phone**/
+
+	/** Called when user changes location by moving phone **/
 	@Override
 	public void onLocationChanged(Location location)
 	{
@@ -288,7 +305,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 	}
 
 
-	/** handle results returned by sub activities**/
+	/** handle results returned by sub activities **/
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{

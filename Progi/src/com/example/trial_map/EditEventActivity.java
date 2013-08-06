@@ -21,12 +21,12 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.example.trial_map.adapters.PlacesAutoCompleteAdapter;
 import com.example.trial_map.asyncTasks.UpdateEventTask;
 import com.example.trial_map.beans.Event;
 import com.example.trial_map.beans.EventOwner;
 import com.example.trial_map.factories.EventsFactory;
 import com.example.trial_map.factories.NetworkManager;
-import com.example.trial_map.widgets.PlacesAutoCompleteAdapter;
 import com.google.android.gms.maps.model.LatLng;
 
 /**

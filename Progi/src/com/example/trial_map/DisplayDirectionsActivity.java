@@ -10,12 +10,13 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-/**this activity displays directions to selected event to the user**/
+/** this activity displays directions to selected event to the user **/
 public class DisplayDirectionsActivity extends ActionBarActivity
 {
 	private TextView	directionsTextView;
 	private Button		drawRouteBtn;
-	
+
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -33,7 +34,7 @@ public class DisplayDirectionsActivity extends ActionBarActivity
 				finish();
 			}
 		});
-		
+
 		ArrayList<String> directions = ListEventsActivity.directionsArrayList;
 		if (directions != null)
 		{

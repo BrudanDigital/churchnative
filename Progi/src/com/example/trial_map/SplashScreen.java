@@ -21,7 +21,7 @@ public class SplashScreen extends Activity
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		//vibrate to thank user
+		// vibrate to thank user
 		myVib = (Vibrator) this.getSystemService(VIBRATOR_SERVICE);
 		myVib.vibrate(VIBRATION_DURATION);
 		// Splash screen view

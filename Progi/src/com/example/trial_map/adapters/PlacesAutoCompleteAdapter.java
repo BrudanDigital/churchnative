@@ -1,4 +1,4 @@
-package com.example.trial_map.widgets;
+package com.example.trial_map.adapters;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,15 +12,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.example.trial_map.MainActivity;
+
 import android.content.Context;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
 
+/**list adapter for a google places autocomplete textView**/
 public class PlacesAutoCompleteAdapter extends ArrayAdapter<String> implements Filterable
 {
-	private static final String	PLACES_API_BASE		= "https://maps.googleapis.com/maps/api/place";
-	private static final String	TYPE_AUTOCOMPLETE	= "/autocomplete";
+	private static final String	PLACES_API_BASE		= MainActivity.GOOGLE_PLACES_URL;
+	private static final String	TYPE_AUTOCOMPLETE	= "autocomplete";
 	private static final String	OUT_JSON					= "/json";
 	private static final String	API_KEY						= "AIzaSyCN1vdOEKhXyHSM0IvanKE6FYFoUaWjAPA";
 	private ArrayList<String>		resultList;

@@ -20,7 +20,7 @@ public class SaverTask extends AsyncTask<Event, String, Integer>
 	String											text;
 	int													duration							= Toast.LENGTH_LONG;
 
-
+//Constructor
 	public SaverTask(Activity anActivity)
 	{
 		this.anActivity = anActivity;

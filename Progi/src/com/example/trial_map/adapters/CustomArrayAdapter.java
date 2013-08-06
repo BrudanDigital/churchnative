@@ -1,4 +1,4 @@
-package com.example.trial_map.widgets;
+package com.example.trial_map.adapters;
 
 import java.util.ArrayList;
 

@@ -86,7 +86,7 @@
             android:gravity="top|left"
             android:lines="8"
             android:imeOptions="actionNext"
-            android:inputType="textMultiLine"
+            android:inputType="textMultiLine|textShortMessage"
             android:scrollHorizontally="true"
             android:textSize="18sp" />
 

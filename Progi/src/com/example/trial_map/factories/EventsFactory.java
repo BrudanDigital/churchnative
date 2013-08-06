@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.location.Location;
 
+import com.example.trial_map.MainActivity;
 import com.example.trial_map.beans.Event;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -36,7 +37,7 @@ public class EventsFactory
 	private static final String				TAG_DURATION				= "duration";
 	private static final String				TAG_LOCATION				= "location";
 	// url to php script at website
-	static final String								PHP_SCRIPT_ADDRESS	= "http://192.168.43.169/android_connect/";
+	static final String								PHP_SCRIPT_ADDRESS	= MainActivity.WEBSITE_URL;
 	private static final String				CREATE_EVENT_URL		= PHP_SCRIPT_ADDRESS + "create_event.php";
 	private static final String				GET_EVENTS_URL			= PHP_SCRIPT_ADDRESS + "get_events.php";
 	private static final String				DELETE_EVENT_URL		= PHP_SCRIPT_ADDRESS + "delete_event.php";

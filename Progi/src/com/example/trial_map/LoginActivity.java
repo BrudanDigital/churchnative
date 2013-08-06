@@ -16,9 +16,9 @@ import com.example.trial_map.factories.Validator;
 public class LoginActivity extends Activity
 {
 	protected static final String	INVALID_INPUT_TEXT	= "InValid Email Or Password";
-	private EditText	email_editText;
-	private EditText	password_editText;
-	private Button		login_button;
+	private EditText							email_editText;
+	private EditText							password_editText;
+	private Button								login_button;
 
 
 	@Override

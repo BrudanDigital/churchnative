@@ -23,12 +23,12 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.SubMenu;
+import com.example.trial_map.adapters.CustomArrayAdapter;
+import com.example.trial_map.adapters.DateComparator;
 import com.example.trial_map.beans.ActionItem;
 import com.example.trial_map.beans.Event;
 import com.example.trial_map.factories.EventsFactory;
 import com.example.trial_map.factories.NetworkManager;
-import com.example.trial_map.interfaces.DateComparator;
-import com.example.trial_map.widgets.CustomArrayAdapter;
 import com.example.trial_map.widgets.QuickAction;
 import com.google.android.gms.maps.model.LatLng;
 

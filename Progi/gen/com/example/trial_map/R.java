@@ -1397,6 +1397,7 @@ containing a value of this type.
         public static final int description=0x7f0a002d;
         public static final int description_of_event=0x7f0a003d;
         public static final int directions=0x7f0a0029;
+        public static final int directions_api_url=0x7f0a003e;
         public static final int draw_route_on_map=0x7f0a002a;
         public static final int duration=0x7f0a0031;
         public static final int duration_prompt=0x7f0a0025;
@@ -1420,6 +1421,7 @@ containing a value of this type.
         public static final int name_of_event=0x7f0a002b;
         public static final int no=0x7f0a0039;
         public static final int password=0x7f0a0035;
+        public static final int places_api_url=0x7f0a003f;
         public static final int rate_this_event=0x7f0a0032;
         public static final int save_event=0x7f0a0037;
         public static final int splash_screen=0x7f0a003b;

@@ -17,6 +17,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+/**this class draws a route between 2 latlng points on a given google map object**/
 public class DrawRouteTask extends AsyncTask<String, String, List<List<HashMap<String, String>>>>
 {
 	private static final String									PROGRESS_DIALOG_TEXT		= "Drawing Route";
@@ -27,7 +28,7 @@ public class DrawRouteTask extends AsyncTask<String, String, List<List<HashMap<S
 	Activity																		anActivity							= null;
 	GoogleMap																		aMap										= null;
 
-
+	//Constructor
 	public DrawRouteTask(Activity anActivity, GoogleMap map)
 	{
 		this.anActivity = anActivity;
@@ -47,7 +48,7 @@ public class DrawRouteTask extends AsyncTask<String, String, List<List<HashMap<S
 	}
 
 
-	// Downloading data in non-ui thread
+	// Downloading data in non-gui thread
 	@Override
 	protected List<List<HashMap<String, String>>> doInBackground(String... url)
 	{

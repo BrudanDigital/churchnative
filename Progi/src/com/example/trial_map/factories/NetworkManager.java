@@ -24,6 +24,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.example.trial_map.MainActivity;
 import com.google.android.gms.maps.model.LatLng;
 
 import android.content.Context;
@@ -33,7 +34,7 @@ import android.net.NetworkInfo;
 public class NetworkManager
 {
 	private static final String	OUTPUT							= "json";
-	private static final String	DIRECTIONS_API_URL	= "https://maps.googleapis.com/maps/api/directions/" + OUTPUT + "?";
+	private static final String	DIRECTIONS_API_URL	= MainActivity.GOOGLE_DIRECTIONS_URL + OUTPUT + "?";
 	static InputStream					is									= null;
 	static JSONObject						jObj								= null;
 	static String								json								= "";

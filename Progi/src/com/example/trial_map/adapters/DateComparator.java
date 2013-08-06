@@ -1,4 +1,4 @@
-package com.example.trial_map.interfaces;
+package com.example.trial_map.adapters;
 
 import java.util.Comparator;
 
@@ -46,7 +46,7 @@ public class DateComparator implements Comparator<Event>
 		return false;
 	}
 
-
+	/**compares the dates of 2 events to determine which comes first**/
 	@Override
 	public int compare(Event anEvent, Event anotherEvent)
 	{

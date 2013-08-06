@@ -9,6 +9,7 @@ import com.example.trial_map.beans.Event;
 import com.example.trial_map.factories.EventsFactory;
 import com.example.trial_map.factories.NetworkManager;
 
+//updates given event in background thread using network to send data
 public class UpdateEventTask extends AsyncTask<Event, String, Integer>
 {
 	private final CharSequence	PROGRESS_DIALOG_TEXT	= "Saving Edit. Please wait...";
@@ -18,7 +19,7 @@ public class UpdateEventTask extends AsyncTask<Event, String, Integer>
 	String											text;
 	int													duration							= Toast.LENGTH_LONG;
 
-
+//constructor
 	public UpdateEventTask(Activity anActivity)
 	{
 		this.anActivity = anActivity;
