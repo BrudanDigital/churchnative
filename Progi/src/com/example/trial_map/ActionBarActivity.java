@@ -15,6 +15,8 @@ public abstract class ActionBarActivity extends SherlockActivity
 {
 	private static final int	BACK						= R.id.menu_back;
 	private static boolean		isInForeGround	= false;
+	public static final int	SHORT_DURATION	= Toast.LENGTH_SHORT;
+	public static final int	LONG_DURATION		= Toast.LENGTH_LONG;
 
 
 	/** called when app is resuming **/

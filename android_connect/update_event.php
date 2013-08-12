@@ -2,7 +2,7 @@
 
 /*
  * Following code will update an event 
- * An event is identified by product id (pid)
+ * An event is identified by event id (id)
  */
 
 // array for JSON response

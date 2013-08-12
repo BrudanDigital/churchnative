@@ -30,6 +30,7 @@ import com.google.android.gms.maps.model.LatLng;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 
 public class NetworkManager
 {
@@ -107,10 +108,11 @@ public class NetworkManager
 			}
 			is.close();
 			json = sb.toString();
+			Log.e("json", "[" + json + "]");
 		}
 		catch (Exception e)
 		{
-			// Log.e("Buffer Error", "[" + json + "]");
+			Log.e("Buffer Error", "[" + json + "]");
 		}
 
 		// try parse the string to a JSON object
@@ -120,7 +122,7 @@ public class NetworkManager
 		}
 		catch (JSONException e)
 		{
-			// Log.e("JSON Parser", "[" + json + "]");
+		 Log.e("JSON Parser", "[" + json + "]");
 
 		}
 
@@ -418,10 +420,11 @@ public class NetworkManager
 			}
 			is.close();
 			json = sb.toString();
+			Log.e("Buffer Error", "[" + json + "]");
 		}
 		catch (Exception e)
 		{
-			// Log.e("Buffer Error", "[" + json + "]");
+			 Log.e("Buffer Error", e.getMessage());
 		}
 
 		// try parse the string to a JSON object
@@ -431,7 +434,7 @@ public class NetworkManager
 		}
 		catch (JSONException e)
 		{
-			// Log.e("JSON Parser", "[" + json + "]");
+			Log.e("JSON Parser", e.getMessage());
 
 		}
 

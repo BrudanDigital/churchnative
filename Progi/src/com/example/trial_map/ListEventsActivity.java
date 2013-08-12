@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+
 import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -41,12 +42,12 @@ public class ListEventsActivity extends SherlockListActivity
 	private static final int						DETAILS_ACTIVITY_RESULT_CODE		= 100;
 	private static final int						BACK														= R.id.menu_back;
 	protected static final int					EDIT_EVENT_RESULT_CODE					= 100;
-	private static final CharSequence		UPDATE_EVENT_OK_TEXT						= "Event Updated SuccessFully";
+	private static final String					UPDATE_EVENT_OK_TEXT						= "Event Updated SuccessFully";
 	private static final int						SHORT_DURATION									= Toast.LENGTH_SHORT;
-	private static final CharSequence		DELETE_DIALOG_MSG								= "Do You Really Want To Delete This Item";
-	private static final CharSequence		DELETE_DIALOG_TITLE							= "Really";
-	private static final CharSequence		DIALOG_POSITIVE_BTN_TXT					= "Yes";
-	private static final CharSequence		DIALOG_NEGATIVE_BTN_TXT					= "No";
+	private static final String					DELETE_DIALOG_MSG								= "Do You Really Want To Delete This Item";
+	private static final String					DELETE_DIALOG_TITLE							= "Really";
+	private static final String					DIALOG_POSITIVE_BTN_TXT					= "Yes";
+	private static final String					DIALOG_NEGATIVE_BTN_TXT					= "No";
 	private static final String					ACTION_DELETE_TITLE							= "Delete";
 	private static final String					ACTION_EDIT_TITLE								= "Edit";
 	private static final String					ACTION_GET_DIRECTIONS_TITLE			= "Get Diretions";
@@ -130,7 +131,7 @@ public class ListEventsActivity extends SherlockListActivity
 		{
 			return MainActivity.sortedArrayList;
 		}
-		return events_ArrayList;
+		return this.events_ArrayList;
 	}
 
 
@@ -319,7 +320,10 @@ public class ListEventsActivity extends SherlockListActivity
 		}
 		if (requestCode == DETAILS_ACTIVITY_RESULT_CODE)
 		{
-
+			if (resultCode == RESULT_OK)
+			{
+				displayToast(getApplicationContext(), "SAVED", SHORT_DURATION);
+			}
 		}
 		if (requestCode == EDIT_EVENT_RESULT_CODE)
 		{
@@ -327,7 +331,6 @@ public class ListEventsActivity extends SherlockListActivity
 			{
 				displayToast(this, (String) UPDATE_EVENT_OK_TEXT, SHORT_DURATION);
 				refreshListView();
-
 			}
 		}
 		if (requestCode == DISPLAY_DIRECTIONS_RESULT_CODE)
@@ -427,7 +430,8 @@ public class ListEventsActivity extends SherlockListActivity
 	 */
 	public ArrayList<String> getEventsAsStringArray()
 	{
-		if (events_ArrayList == null)
+		
+		if (this.events_ArrayList == null)
 		{
 			throw new IllegalStateException("events_ArrayList cant be null");
 		}

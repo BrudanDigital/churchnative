@@ -59,4 +59,7 @@
     <string name="directions_api_url">https://maps.googleapis.com/maps/api/directions/</string>
     <string name="places_api_url">https://maps.googleapis.com/maps/api/place/</string>
     <string name="website_url">http://192.168.43.169/android_connect/</string>
+    <string name="submit">Submit</string>
+    <string name="logo">logo</string>
+    <string name="total_people_who_have_heard">TOTAL PEOPLE WHO HAVE HEARD</string>
 </resources>

@@ -8,12 +8,13 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.example.trial_map.MainActivity;
 import com.example.trial_map.beans.EventOwner;
 /**This Class carries out operations on EventOwner objects**/
 public class EventOwnerFactory
 {
 	/** url to php script at website **/
-	private static final String	PHP_SCRIPT_ADDRESS			= EventsFactory.PHP_SCRIPT_ADDRESS;
+	private static final String	PHP_SCRIPT_ADDRESS			= MainActivity.WEBSITE_URL;
 	private static final String	LOGIN_URL								= PHP_SCRIPT_ADDRESS + "login.php";
 	private static final String	TAG_SUCCESS							= "success";
 	private static final String	TAG_EVENT_OWNER					= "event_owner";

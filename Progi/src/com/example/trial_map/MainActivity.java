@@ -18,6 +18,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
+
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -40,7 +41,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-//FIXME check performance of app
+
 //FIXME app should allow users to rate events heard of this y/n
 
 /**
@@ -52,8 +53,8 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 	// important constants from xml file
 	private Resources									res																= null;
 	public static String							WEBSITE_URL												= null;
-	public static String							GOOGLE_DIRECTIONS_URL							= null;
-	public static String							GOOGLE_PLACES_URL									= null;
+	public static String							GOOGLE_DIRECTIONS_URL							= "https://maps.googleapis.com/maps/api/directions/";
+	public static String							GOOGLE_PLACES_URL									= "https://maps.googleapis.com/maps/api/place/";
 	// constants
 	private static final int					NEW_EVENT_ACTIVITY_RESULT_CODE		= 100;
 	private static final int					DETAILS_ACTIVITY_RESULT_CODE			= 200;
@@ -118,9 +119,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 		}
 		catch (NullPointerException e)
 		{
-			Intent intent = new Intent(MainActivity.this, MainActivity.class);
-			startActivity(intent);
-			finish();
+			restartActivity();
 		}
 		catch (Exception e)
 		{
@@ -129,13 +128,19 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 	}
 
 
+	private void restartActivity()
+	{
+		Intent intent = new Intent(MainActivity.this, MainActivity.class);
+		startActivity(intent);
+		finish();
+	}
+
+
 	/**DO_NOT_DELETE this reads variables from strings xml file and initializes them so that other classes can use them **/
 	private void initializeStaticVariables()
 	{
 		res = getResources();
 		WEBSITE_URL = res.getString(R.string.website_url);
-		GOOGLE_DIRECTIONS_URL = res.getString(R.string.directions_api_url);
-		GOOGLE_PLACES_URL = res.getString(R.string.places_api_url);
 	}
 
 
@@ -513,7 +518,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 			// Showing status
 			if (status != ConnectionResult.SUCCESS)
 			{ // Google Play Services are not available
-
+				
 				int requestCode = 10;
 				Dialog dialog = GooglePlayServicesUtil.getErrorDialog(status, MainActivity.this, requestCode);
 				dialog.show();
@@ -521,16 +526,17 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 			}
 			else
 			{ // Google Play Services are available
-
-				// Getting reference to the SupportMapFragment of activity_main.xml
-				SupportMapFragment fm = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+				
 				// create progress dialog and display it to user
 				pDialog = new ProgressDialog(MainActivity.this);
 				pDialog.setMessage(PROGRESS_DIALOG_TEXT);
 				pDialog.setIndeterminate(false);
 				pDialog.setCancelable(false);
 				pDialog.show();
-
+				
+				
+				// Getting reference to the SupportMapFragment of activity_main.xml
+				SupportMapFragment fm = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 				// Getting GoogleMap object from the fragment
 				googleMap = fm.getMap();
 

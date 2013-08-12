@@ -35,7 +35,6 @@ public class SplashScreen extends Activity
 		// The thread to wait for splash screen events
 		mSplashThread = new Thread()
 		{
-			@SuppressWarnings("deprecation")
 			@Override
 			public void run()
 			{
@@ -56,7 +55,7 @@ public class SplashScreen extends Activity
 				}
 				startActivity(intent);
 				finish();
-				stop();
+				
 			}
 		};
 

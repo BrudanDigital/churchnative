@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.location.Location;
 
+
 import com.example.trial_map.MainActivity;
 import com.example.trial_map.beans.Event;
 import com.google.android.gms.maps.model.LatLng;
@@ -20,35 +21,39 @@ import com.google.android.gms.maps.model.LatLng;
 public class EventsFactory
 {
 	/** a context object **/
-	Context														aContext;
+	Context											aContext;
 
 	/** Creating JSON Parser object **/
-	static NetworkManager							jParser							= new NetworkManager();
+	static NetworkManager				jParser												= new NetworkManager();
 
 	/** JSON Node names **/
-	private static final String				TAG_SUCCESS					= "success";
-	private static final String				TAG_EVENTS					= "events";
-	private static final String				TAG_DESCRIPTION			= "description";
-	private static final String				TAG_LATITUDE				= "latitude";
-	private static final String				TAG_TIME						= "time";
-	private static final String				TAG_LONGITUDE				= "longitude";
-	private static final String				TAG_DATE						= "date";
-	private static final String				TAG_NAME						= "name";
-	private static final String				TAG_DURATION				= "duration";
-	private static final String				TAG_LOCATION				= "location";
+	private static final String	TAG_SUCCESS										= "success";
+	private static final String	TAG_EVENTS										= "events";
+	private static final String	TAG_DESCRIPTION								= "description";
+	private static final String	TAG_LATITUDE									= "latitude";
+	private static final String	TAG_TIME											= "time";
+	private static final String	TAG_LONGITUDE									= "longitude";
+	private static final String	TAG_DATE											= "date";
+	private static final String	TAG_NAME											= "name";
+	private static final String	TAG_DURATION									= "duration";
+	private static final String	TAG_LOCATION									= "location";
+	private static final String	TAG_TOTAL											= "total";
 	// url to php script at website
-	static final String								PHP_SCRIPT_ADDRESS	= MainActivity.WEBSITE_URL;
-	private static final String				CREATE_EVENT_URL		= PHP_SCRIPT_ADDRESS + "create_event.php";
-	private static final String				GET_EVENTS_URL			= PHP_SCRIPT_ADDRESS + "get_events.php";
-	private static final String				DELETE_EVENT_URL		= PHP_SCRIPT_ADDRESS + "delete_event.php";
-	private static final String				UPDATE_EVENT_URL		= PHP_SCRIPT_ADDRESS + "update_event.php";
-	public static final String				INVALID_DATE_TEXT		= "THE SUBMITTED DATE HAS ALREADY PASSED!!";
+	static final String					PHP_SCRIPT_ADDRESS						= MainActivity.WEBSITE_URL;
+	private static final String	CREATE_EVENT_URL							= PHP_SCRIPT_ADDRESS + "create_event.php";
+	private static final String	GET_EVENTS_URL								= PHP_SCRIPT_ADDRESS + "get_events.php";
+	private static final String	DELETE_EVENT_URL							= PHP_SCRIPT_ADDRESS + "delete_event.php";
+	private static final String	UPDATE_EVENT_URL							= PHP_SCRIPT_ADDRESS + "update_event.php";
+	private static final String	HEARD_OF_STATUS_URL						= PHP_SCRIPT_ADDRESS + "heard_of_event.php";
+	private static final String	SAVE_HEARD_OF_STATUS_URL			= PHP_SCRIPT_ADDRESS + "save_heard_of_event_status.php";
+	private static final String	GET_PEOPLE_WHO_HAVE_HEARD_URL	= PHP_SCRIPT_ADDRESS + "get_total_people_who_have_heard.php";
+	public static final String	INVALID_DATE_TEXT							= "THE SUBMITTED DATE HAS ALREADY PASSED!!";
 	// integer FLAGS
-	public static final int						SUCCESS							= 1;
-	public static final int						FAILURE							= 0;
-	public static final int						NO_CONNECTION				= 2;
-	public static final int						DATE_ERROR					= 4;
-	public static final int						EMPTY_FIELD_ERROR		= 5;
+	public static final int			SUCCESS												= 1;
+	public static final int			FAILURE												= 0;
+	public static final int			NO_CONNECTION									= 2;
+	public static final int			DATE_ERROR										= 4;
+	public static final int			EMPTY_FIELD_ERROR							= 5;
 
 
 	/** saves an event on the server side **/
@@ -121,6 +126,7 @@ public class EventsFactory
 
 			if (success == 1)
 			{
+				//Log.e("SUCESS", "Tag Found");
 				ArrayList<Event> all_events_10km_radius = new ArrayList<Event>();
 				// Getting Array of events
 				JSONArray events_array = jsonObject.getJSONArray(TAG_EVENTS);
@@ -158,6 +164,7 @@ public class EventsFactory
 							Event anEvent = new Event(latitude, longitude, time, date, description, name, duration, event_location_in_words, user_id, event_id, type_of_event);
 							all_events_10km_radius.add(anEvent);
 						}
+
 					}
 					else
 					{
@@ -180,10 +187,15 @@ public class EventsFactory
 					}
 
 				}
+				if (all_events_10km_radius != null)
+				{
+					//Log.e("Events", "not null");
+				}
 				return all_events_10km_radius;
 			}
 			else
 			{// success is 0 and no results
+				//Log.e("SUCESS", "No Tag Found");
 				return null;
 			}
 
@@ -402,6 +414,98 @@ public class EventsFactory
 			return EMPTY_FIELD_ERROR;
 		}
 		return SUCCESS;
+	}
+
+
+	public static boolean UserHasHeardOfEvent(int event_id)
+	{
+		// Building Parameters
+		List<NameValuePair> params = new ArrayList<NameValuePair>();
+		params.add(new BasicNameValuePair("id", "" + event_id));
+		// storing events
+		JSONObject json = jParser.makeHttpRequest(HEARD_OF_STATUS_URL, "POST", params);
+		if (json != null)
+		{
+
+			try
+			{
+				// Checking for SUCCESS TAG
+				int success = json.getInt(TAG_SUCCESS);
+
+				if (success == 1)
+				{
+					return true;
+				}
+				return false;
+			}
+			catch (JSONException e)
+			{
+				return false;
+			}
+		}
+		return false;
+	}
+
+
+	public static boolean saveHeardOfStatus(int event_id)
+	{
+		// Building Parameters
+		List<NameValuePair> params = new ArrayList<NameValuePair>();
+		params.add(new BasicNameValuePair("id", "" + event_id));
+		// storing events
+		JSONObject json = jParser.makeHttpRequest(SAVE_HEARD_OF_STATUS_URL, "POST", params);
+		if (json != null)
+		{
+
+			try
+			{
+				// Checking for SUCCESS TAG
+				int success = json.getInt(TAG_SUCCESS);
+
+				if (success == 1)
+				{
+					return true;
+				}
+				return false;
+			}
+			catch (JSONException e)
+			{
+				return false;
+			}
+		}
+		return false;
+	}
+
+
+	public static int getTotalOfPeopleWhoHaveHeard(int event_id)
+	{
+		// Building Parameters
+		List<NameValuePair> params = new ArrayList<NameValuePair>();
+		params.add(new BasicNameValuePair("id", "" + event_id));
+		// storing events
+		JSONObject json = jParser.makeHttpRequest(GET_PEOPLE_WHO_HAVE_HEARD_URL, "POST", params);
+		if (json != null)
+		{
+
+			try
+			{
+				// Checking for SUCCESS TAG
+				int success = json.getInt(TAG_SUCCESS);
+
+				if (success == 1)
+				{
+					// Checking for SUCCESS TAG
+					int total = json.getInt(TAG_TOTAL);
+					return total;
+				}
+				return 0;
+			}
+			catch (JSONException e)
+			{
+				return 0;
+			}
+		}
+		return 0;
 	}
 
 }
