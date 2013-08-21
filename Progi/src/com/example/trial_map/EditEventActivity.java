@@ -6,7 +6,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.ProgressDialog;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -25,8 +24,8 @@ import com.example.trial_map.adapters.PlacesAutoCompleteAdapter;
 import com.example.trial_map.asyncTasks.UpdateEventTask;
 import com.example.trial_map.beans.Event;
 import com.example.trial_map.beans.EventOwner;
-import com.example.trial_map.factories.EventsFactory;
-import com.example.trial_map.factories.NetworkManager;
+import com.example.trial_map.managers.EventManager;
+import com.example.trial_map.managers.NetworkManager;
 import com.google.android.gms.maps.model.LatLng;
 
 /**
@@ -41,7 +40,6 @@ public class EditEventActivity extends ActionBarActivity implements OnItemClickL
 	private static final String				TAG_STATUS							= "status";
 	private static final String				TIME_DELIMETER					= ":";
 	private static final String				DATE_DELIMETER					= "/";
-	private static final CharSequence	PROGRESS_DIALOG_TEXT		= "Getting Input Data...";
 	private static final String				INVALID_USER_INPUT_TEXT	= "Please Fill In All The Required Fields Before Submiiting Data";
 	// widgets
 	private AutoCompleteTextView			location_auto_complete;
@@ -54,6 +52,7 @@ public class EditEventActivity extends ActionBarActivity implements OnItemClickL
 	private Spinner										duration_of_event;
 	private Spinner										type_of_event;
 	private int												user_id;
+int total_people_who_have_heard;
 	private Resources									res;
 	private String[]									duration_array;
 	private String[]									type_array;
@@ -61,9 +60,6 @@ public class EditEventActivity extends ActionBarActivity implements OnItemClickL
 	private EventOwner								anEventOwner						= MainActivity.anEventOwner;
 	private int												event_id;
 	private CharSequence							NO_LOCATION_FOUND_TEXT	= "Failed To Find Location Of Event.Event Was Not Created";
-	private ProgressDialog						pDialog;
-
-
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -186,11 +182,12 @@ public class EditEventActivity extends ActionBarActivity implements OnItemClickL
 				if (anEventOwner != null)
 				{
 					user_id = anEventOwner.getUser_id();
-					displayToast(EditEventActivity.this, "User_id=" + user_id, Toast.LENGTH_SHORT);
 				}
 				event_id = aBundle.getInt("event_id");
 				String type = aBundle.getString("type");
-				return new Event(latitude, longitude, time, date, description, name, duration, location_in_words, user_id, event_id, type);
+				Boolean heard_of_event=aBundle.getBoolean("heard_of_event");
+				total_people_who_have_heard=aBundle.getInt("total_people_who_have_heard");
+				return new Event(latitude, longitude, time, date, description, name, duration, location_in_words, user_id, event_id, type,heard_of_event,total_people_who_have_heard);
 			}
 			catch (Exception e)
 			{
@@ -254,28 +251,6 @@ public class EditEventActivity extends ActionBarActivity implements OnItemClickL
 	}
 
 
-	/** closes an open progress dialog **/
-	private void closeProgressDialog()
-	{
-		if (pDialog != null)
-		{
-			pDialog.dismiss();
-		}
-	}
-
-
-	/** shows a progress dialog to the user **/
-	private void showProgressDialog()
-	{
-		// create progress dialog and display it to user
-		pDialog = new ProgressDialog(this);
-		pDialog.setMessage(PROGRESS_DIALOG_TEXT);
-		pDialog.setIndeterminate(false);
-		pDialog.setCancelable(true);
-		pDialog.show();
-	}
-
-
 	/** returns the latitude and longitude of location chosen by user **/
 	private LatLng getLatLngOfLocationInputByUser(String location_in_words)
 	{
@@ -292,8 +267,9 @@ public class EditEventActivity extends ActionBarActivity implements OnItemClickL
 		// generate url
 		String url = GEOCODE_ADDRESS + "?" + paramaters;
 
+		new NetworkManager();
 		// make the request to google
-		JSONObject jsonObject = new NetworkManager().makeHttpGetRequest(url);
+		JSONObject jsonObject = NetworkManager.makeHttpGetRequest(url);
 
 		try
 		{// to get latitude and longitude
@@ -389,7 +365,7 @@ public class EditEventActivity extends ActionBarActivity implements OnItemClickL
 			String type = type_of_event.getSelectedItem().toString();
 
 			// store all info in an event object
-			Event anEvent = new Event(location.latitude, location.longitude, time, date, desc, event_name, event_duration, location_in_words, user_id, -1, type);
+			Event anEvent = new Event(location.latitude, location.longitude, time, date, desc, event_name, event_duration, location_in_words, user_id, -1, type,true,total_people_who_have_heard);
 
 			return anEvent;
 		}
@@ -404,15 +380,15 @@ public class EditEventActivity extends ActionBarActivity implements OnItemClickL
 				displayToast(EditEventActivity.this, (String) NO_LOCATION_FOUND_TEXT, Toast.LENGTH_LONG);
 				return;
 			}
-			if (EventsFactory.EventIsValid(anEvent) == EventsFactory.SUCCESS)
+			if (EventManager.EventIsValid(anEvent) == EventManager.SUCCESS)
 			{// event is valid.save the event
 				UpdateEventTask updateEventTask = new UpdateEventTask(EditEventActivity.this);
 				updateEventTask.execute(anEvent);
 			}
-			else if (EventsFactory.EventIsValid(anEvent) == EventsFactory.DATE_ERROR)
+			else if (EventManager.EventIsValid(anEvent) == EventManager.DATE_ERROR)
 			{
 				// event not valid.user input is wrong inform user
-				displayToast(EditEventActivity.this, EventsFactory.INVALID_DATE_TEXT, Toast.LENGTH_LONG);
+				displayToast(EditEventActivity.this, EventManager.INVALID_DATE_TEXT, Toast.LENGTH_LONG);
 			}
 			else
 			{// event not valid.user input is wrong inform user

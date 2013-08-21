@@ -11,8 +11,37 @@ $response = array();
 // include db connect class
 require_once 'db_connect.php';
 
+//get ip address
+$ip_address = $_SERVER['REMOTE_ADDR'];
+
 // connecting to db
 $db = new DB_CONNECT();
+
+function getTotalPeopleWhoHaveHeard($event_id) {
+    //get total number of people who know about this event
+    $querys = "Select * from heardOfEvent where event_id=$event_id";
+    // get all events from events table
+    $results = mysql_query($querys) or die(mysql_error());
+    $total = 0;
+    // check for empty result
+    while (mysql_fetch_array($results)) {
+        $total++;
+    }
+    return $total;
+}
+
+function hasUserHeardOfEvent($event_id,$ip_address) {
+    //check to see if this user has heard about this event
+    $querys = "Select * from heardOfEvent where ip_address='$ip_address' and event_id=$event_id";
+    // get all events from events table
+    $results = mysql_query($querys) or die(mysql_error());
+    $bool = false;
+    // check for empty result
+    if (mysql_num_rows($results) > 0) {
+        $bool = true;
+    }
+    return $bool;
+}
 
 function distance($lat1, $lng1, $lat2, $lng2, $miles = false) {
     $pi80 = M_PI / 180;
@@ -31,20 +60,22 @@ function distance($lat1, $lng1, $lat2, $lng2, $miles = false) {
     return ($miles ? ($km * 0.621371192) : $km);
 }
 
-// get all products from products table
+
+
+// get all events from events table
 $result = mysql_query("SELECT * FROM events_test") or die(mysql_error());
 
 // check for empty result
 if (mysql_num_rows($result) > 0) {
     // looping through all results
-    // products node
+    // events node
     $response["events"] = array();
 
-    while ($row = mysql_fetch_array($result)) 
-        {
+    while ($row = mysql_fetch_array($result)) {
         // temp user array
         $events = array();
-        $events["event_id"] = $row["id"];
+        $event_id = $row["id"];
+        $events["event_id"] = $event_id;
         $events["latitude"] = $row["latitude"];
         $events["longitude"] = $row["longitude"];
         $events["time"] = $row["start_time"];
@@ -54,17 +85,21 @@ if (mysql_num_rows($result) > 0) {
         $events["duration"] = $row["duration"];
         $events["location"] = $row["location"];
         $events["user_id"] = $row["owner_id"];
-        $events["type"] = $row["type_of_event"];
-        // push single product into final response array
+        $events["type"] = $row["type_of_event"];   
+        $events["heard_of_event"] = hasUserHeardOfEvent($event_id,$ip_address);     
+        $events["total"] = getTotalPeopleWhoHaveHeard($event_id);
+
+        // push single event into final response array
         array_push($response["events"], $events);
     }
     // success
     $response["success"] = 1;
+    $response["message"] = "Events Retrieved";
 
     // echoing JSON response
     echo json_encode($response);
 } else {
-    // no products found
+    // no events found
     $response["success"] = 0;
     $response["message"] = "No events found";
 

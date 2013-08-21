@@ -35,8 +35,11 @@ if (isset($_POST["email"])&&isset($_POST["password"])) {
             $event_owner["company_name"] = $result["company_name"];
             $event_owner["company_location"] = $result["company_location"];
             $event_owner["description_of_services"] = $result["description_of_services"];
-            // success
+            $event_owner["name"] = $result["users_name"];
+            $event_owner["number"] = $result["users_number"];
+            // success message
             $response["success"] = 1;
+            $response["message"] = "Logged In As:".$event_owner["email"];
  
             // user node
             $response["event_owner"] = array();
@@ -48,7 +51,7 @@ if (isset($_POST["email"])&&isset($_POST["password"])) {
         } else {
             // no product found
             $response["success"] = 0;
-            $response["message"] = "No event_owner found";
+            $response["message"] = "Wrong Email or Password Combination";
  
             // echo no users JSON
             echo json_encode($response);
@@ -56,7 +59,7 @@ if (isset($_POST["email"])&&isset($_POST["password"])) {
     } else {
         // no product found
         $response["success"] = 0;
-        $response["message"] = "No event_owner found";
+        $response["message"] = "Wrong Email or Password Combination";
  
         // echo no users JSON
         echo json_encode($response);

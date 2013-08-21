@@ -7,8 +7,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import com.example.trial_map.beans.Contact;
 import com.example.trial_map.beans.EventOwner;
-import com.example.trial_map.factories.EventOwnerFactory;
+import com.example.trial_map.managers.EventOwnerManager;
 
 /**
  * This class checks to see if user exists in the database on web server and
@@ -49,7 +50,7 @@ public class LoginTask extends AsyncTask<String, Void, Integer>
 	@Override
 	protected Integer doInBackground(String... params)
 	{
-		anEventOwner = EventOwnerFactory.getEventOwner(params[0], params[1]);
+		anEventOwner = EventOwnerManager.getEventOwner(params[0], params[1]);
 		if (anEventOwner == null)
 		{
 			return FAILURE;
@@ -94,6 +95,7 @@ public class LoginTask extends AsyncTask<String, Void, Integer>
 		String company_name = anEventOwner.getCompany_name();
 		String company_location = anEventOwner.getCompany_location();
 		String description = anEventOwner.getDescription_of_services();
+		Contact usersContact=anEventOwner.getUsers_contact();
 		Bundle data = new Bundle();
 		data.putInt("user_id", user_id);
 		data.putString("email", email);
@@ -101,6 +103,8 @@ public class LoginTask extends AsyncTask<String, Void, Integer>
 		data.putString("company_name", company_name);
 		data.putString("location", company_location);
 		data.putString("description", description);
+		data.putString("name", usersContact.getName());
+		data.putString("number", usersContact.getPhone_number());
 		intent.putExtras(data);
 	}
 }

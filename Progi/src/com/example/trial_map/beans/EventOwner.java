@@ -1,7 +1,7 @@
 package com.example.trial_map.beans;
 
 //java bean class for an event owner
-public class EventOwner
+public class EventOwner extends User
 {
 	private int			user_id;
 	private String	email;
@@ -11,15 +11,16 @@ public class EventOwner
 	private String	description_of_services;
 
 
-	public EventOwner(int user_id, String email, String password, String company_name, String company_location, String description_of_services_offered)
+	public EventOwner(int user_id, String email, String password, String company_name, String company_location, String description_of_services_offered,Contact userContact)
 	{
-		super();
+		super(userContact);
 		this.user_id = user_id;
 		this.email = email;
 		this.password = password;
 		this.company_name = company_name;
 		this.company_location = company_location;
 		this.description_of_services = description_of_services_offered;
+		
 
 	}
 

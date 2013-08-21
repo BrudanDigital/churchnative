@@ -4,7 +4,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -21,8 +20,8 @@ import android.widget.Toast;
 import com.example.trial_map.adapters.PlacesAutoCompleteAdapter;
 import com.example.trial_map.asyncTasks.SaverTask;
 import com.example.trial_map.beans.Event;
-import com.example.trial_map.factories.EventsFactory;
-import com.example.trial_map.factories.NetworkManager;
+import com.example.trial_map.managers.EventManager;
+import com.example.trial_map.managers.NetworkManager;
 import com.google.android.gms.maps.model.LatLng;
 
 /** this activity helps user to create a new event on the server side **/
@@ -32,7 +31,6 @@ public class NewEventActivity extends ActionBarActivity implements OnItemClickLi
 	private static final String				GEOCODE_ADDRESS					= "https://maps.googleapis.com/maps/api/geocode/json";
 	private static final String				TAG_RESULTS							= "results";
 	private static final String				TAG_STATUS							= "status";
-	private static final CharSequence	PROGRESS_DIALOG_TEXT		= "Getting Details Input...";
 	private static final String				NO_LOCATION_FOUND_TEXT	= "Failed To Find Location Of Event.Event Was Not Created";
 	private final String							INVALID_USER_INPUT_TEXT	= "PLEASE FILL IN ALL THE REQUIRED FIELDS BEFORE SUBMITTING!!";
 
@@ -47,9 +45,8 @@ public class NewEventActivity extends ActionBarActivity implements OnItemClickLi
 	private Spinner										duration_of_event;
 	private Spinner										type_of_event;
 	private int												user_id;
-	private ProgressDialog						pDialog;
-
-
+	private int total_people_who_have_heard=0;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -105,28 +102,6 @@ public class NewEventActivity extends ActionBarActivity implements OnItemClickLi
 	}
 
 
-	/** closes the progress dialog **/
-	private void closeProgressDialog()
-	{
-		if (pDialog != null)
-		{
-			pDialog.dismiss();
-		}
-	}
-
-
-	/** displays a progress dialog to the user **/
-	private void showProgressDialog()
-	{
-		// create progress dialog and display it to user
-		pDialog = new ProgressDialog(this);
-		pDialog.setMessage(PROGRESS_DIALOG_TEXT);
-		pDialog.setIndeterminate(false);
-		pDialog.setCancelable(true);
-		pDialog.show();
-	}
-
-
 	/** returns the latitude and longitude of location chosen by user **/
 	private LatLng getLatLngOfLocationInputByUser(String location_in_words)
 	{
@@ -143,8 +118,9 @@ public class NewEventActivity extends ActionBarActivity implements OnItemClickLi
 		// generate url
 		String url = GEOCODE_ADDRESS + "?" + paramaters;
 
+		new NetworkManager();
 		// make the request to google
-		JSONObject jsonObject = new NetworkManager().makeHttpGetRequest(url);
+		JSONObject jsonObject = NetworkManager.makeHttpGetRequest(url);
 
 		try
 		{// to get latitude and longitude
@@ -248,7 +224,7 @@ public class NewEventActivity extends ActionBarActivity implements OnItemClickLi
 			String type = type_of_event.getSelectedItem().toString();
 
 			// store all info in an event object
-			Event anEvent = new Event(location.latitude, location.longitude, time, date, desc, event_name, event_duration, location_in_words, user_id, -1, type);
+			Event anEvent = new Event(location.latitude, location.longitude, time, date, desc, event_name, event_duration, location_in_words, user_id, -1, type,true,total_people_who_have_heard);
 
 			return anEvent;
 		}
@@ -264,16 +240,16 @@ public class NewEventActivity extends ActionBarActivity implements OnItemClickLi
 				displayToast(NewEventActivity.this, NO_LOCATION_FOUND_TEXT, Toast.LENGTH_LONG);
 				return;
 			}
-			if (EventsFactory.EventIsValid(anEvent) == EventsFactory.SUCCESS)
+			if (EventManager.EventIsValid(anEvent) == EventManager.SUCCESS)
 			{// event is valid.save the event
 
 				SaverTask saverTask = new SaverTask(NewEventActivity.this);
 				saverTask.execute(anEvent);
 			}
-			else if (EventsFactory.EventIsValid(anEvent) == EventsFactory.DATE_ERROR)
+			else if (EventManager.EventIsValid(anEvent) == EventManager.DATE_ERROR)
 			{
 				// event not valid.user input is wrong inform user
-				displayToast(NewEventActivity.this, EventsFactory.INVALID_DATE_TEXT, Toast.LENGTH_LONG);
+				displayToast(NewEventActivity.this, EventManager.INVALID_DATE_TEXT, Toast.LENGTH_LONG);
 			}
 			else
 			{// event not valid.user input is wrong inform user

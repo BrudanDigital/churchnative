@@ -1,4 +1,4 @@
-package com.example.trial_map.factories;
+package com.example.trial_map.managers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,15 +8,14 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.example.trial_map.MainActivity;
+import com.example.trial_map.beans.Contact;
 import com.example.trial_map.beans.EventOwner;
-/**This Class carries out operations on EventOwner objects**/
-public class EventOwnerFactory
+
+/** This Class carries out operations on EventOwner objects **/
+public class EventOwnerManager extends Manager
 {
 	/** url to php script at website **/
-	private static final String	PHP_SCRIPT_ADDRESS			= MainActivity.WEBSITE_URL;
 	private static final String	LOGIN_URL								= PHP_SCRIPT_ADDRESS + "login.php";
-	private static final String	TAG_SUCCESS							= "success";
 	private static final String	TAG_EVENT_OWNER					= "event_owner";
 	private static final String	TAG_ID									= "user_id";
 	private static final String	TAG_EMAIL								= "email";
@@ -25,6 +24,8 @@ public class EventOwnerFactory
 	private static final String	TAG_LOCATION						= "company_location";
 	private static final String	TAG_DESCRIPTION					= "description_of_services";
 	private static final String	ILLEGAL_PARAMETER_TEXT	= "the paramters cannot be null";
+	private static final String	TAG_NAME								= "name";
+	private static final String	TAG_NUMBER							= "number";
 
 
 	/** retrieves an eventOwner who has the given email and password combination **/
@@ -34,15 +35,15 @@ public class EventOwnerFactory
 		{
 			throw new IllegalArgumentException(ILLEGAL_PARAMETER_TEXT);
 		}
-		NetworkManager jsonParser = new NetworkManager();
 		try
 		{
 			List<NameValuePair> url_parameters = new ArrayList<NameValuePair>();
 			url_parameters.add(new BasicNameValuePair("email", user_email));
 			url_parameters.add(new BasicNameValuePair("password", user_password));
-			JSONObject jsonObject = jsonParser.makeHttpRequest(LOGIN_URL, "POST", url_parameters);
+			JSONObject jsonObject = NetworkManager.makeHttpPostRequest(LOGIN_URL, url_parameters);
 			// Checking for SUCCESS TAG
 			int success = jsonObject.getInt(TAG_SUCCESS);
+			MESSAGE = jsonObject.getString(TAG_MESSAGE);
 			if (success == 1)
 			{
 				// Getting Array of events
@@ -56,7 +57,11 @@ public class EventOwnerFactory
 				String company_name = event_owner.getString(TAG_COMPANY_NAME);
 				String company_location = event_owner.getString(TAG_LOCATION);
 				String description_of_services = event_owner.getString(TAG_DESCRIPTION);
-				EventOwner anEventOwner = new EventOwner(user_id, email, password, company_name, company_location, description_of_services);
+				String users_name = event_owner.getString(TAG_NAME);
+				String phone_number = event_owner.getString(TAG_NUMBER);
+				Contact usersContact = new Contact(users_name, phone_number);
+				EventOwner anEventOwner = new EventOwner(user_id, email, password, company_name, company_location, description_of_services, usersContact);
+				
 				return anEventOwner;
 			}
 			else
@@ -66,15 +71,15 @@ public class EventOwnerFactory
 		}
 		catch (Exception e)
 		{
-
+			MESSAGE = NO_CONNECTION_MESSAGE;
 		}
 		return null;
 	}
 
 
 	/** creates a new eventOwner at web server **/
-	public static boolean createEventOwner(EventOwner anEventOwner)
+	public static int createEventOwner(EventOwner anEventOwner)
 	{
-		return false;
+		return FAILURE;
 	}
 }

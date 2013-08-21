@@ -28,8 +28,9 @@ import com.example.trial_map.adapters.CustomArrayAdapter;
 import com.example.trial_map.adapters.DateComparator;
 import com.example.trial_map.beans.ActionItem;
 import com.example.trial_map.beans.Event;
-import com.example.trial_map.factories.EventsFactory;
-import com.example.trial_map.factories.NetworkManager;
+import com.example.trial_map.managers.EventManager;
+import com.example.trial_map.managers.NetworkManager;
+import com.example.trial_map.util.JSONParser;
 import com.example.trial_map.widgets.QuickAction;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -63,7 +64,7 @@ public class ListEventsActivity extends SherlockListActivity
 	private static final int						DISPLAY_DIRECTIONS_RESULT_CODE	= 400;
 	private static final int						SUBMENU_GROUP_ID								= 1;
 	private static LatLng								user_location										= new LatLng(MainActivity.user_latitude, MainActivity.user_longitude);
-	private ArrayList<Event>						events_ArrayList								= EventsFactory.getEventsIn10KmRadius(user_location);
+	private ArrayList<Event>						events_ArrayList								= EventManager.getEventsIn10KmRadius(user_location);
 	private View												view														= null;
 	private int													index_of_selected_event					= -1;
 	private QuickAction									mQuickAction										= null;
@@ -75,7 +76,7 @@ public class ListEventsActivity extends SherlockListActivity
 	private ActionItem									action_delete;
 	private ActionItem									action_details;
 	public static ArrayList<String>			directionsArrayList							= null;
-	// Resources resources = getResources();
+
 	String[]														type_array											= { "meeting", "party", "social", "religious", "programming", "cinema", "drink up", "music festival", "strike" };
 	private static boolean							isInForeGround									= false;
 
@@ -405,6 +406,8 @@ public class ListEventsActivity extends SherlockListActivity
 		user_id = anEvent.getUser_id();
 		int event_id = anEvent.getEvent_id();
 		String type = anEvent.getType_of_event();
+		Boolean heard_of_event=anEvent.getHeard_of_this_event_status();
+		int total_people_who_have_heard=anEvent.getTotal_people_who_have_heard();
 		// create bundle to store all the object state
 		Bundle extras = new Bundle();
 		// add state to bundle
@@ -419,6 +422,8 @@ public class ListEventsActivity extends SherlockListActivity
 		extras.putInt("user_id", user_id);
 		extras.putInt("event_id", event_id);
 		extras.putString("type", type);
+		extras.putBoolean("heard_of_event", heard_of_event);
+		extras.putInt("total_people_who_have_heard",total_people_who_have_heard);
 		// add bundle to intent
 		intent.putExtras(extras);
 	}
@@ -507,7 +512,7 @@ public class ListEventsActivity extends SherlockListActivity
 			@Override
 			public void onClick(DialogInterface dialog, int id)
 			{
-				int delete_status = EventsFactory.DeleteEvent(getSelectedEvent(index_of_selected_event));
+				int delete_status = EventManager.DeleteEvent(getSelectedEvent(index_of_selected_event));
 				if (delete_status == 1)
 				{
 
@@ -765,7 +770,7 @@ public class ListEventsActivity extends SherlockListActivity
 				// get the json data as an object
 				JSONObject jsonObject = new JSONObject(json);
 				// get the directions
-				ArrayList<String> directions = NetworkManager.DrivingDirectionsParser(jsonObject);
+				ArrayList<String> directions = JSONParser.DrivingDirectionsParser(jsonObject);
 				return directions;
 			}
 			catch (Exception e)

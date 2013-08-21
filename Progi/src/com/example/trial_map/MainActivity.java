@@ -26,10 +26,12 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.example.trial_map.asyncTasks.DrawRouteTask;
+import com.example.trial_map.beans.Contact;
 import com.example.trial_map.beans.Event;
 import com.example.trial_map.beans.EventOwner;
-import com.example.trial_map.factories.EventsFactory;
-import com.example.trial_map.factories.NetworkManager;
+import com.example.trial_map.managers.EventManager;
+import com.example.trial_map.managers.Manager;
+import com.example.trial_map.managers.NetworkManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -141,6 +143,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 	{
 		res = getResources();
 		WEBSITE_URL = res.getString(R.string.website_url);
+		Manager.PHP_SCRIPT_ADDRESS=WEBSITE_URL;
 	}
 
 
@@ -385,10 +388,13 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 		int user_id = aBundle.getInt("user_id");
 		String email = aBundle.getString("email");
 		String password = aBundle.getString("password");
-		String name = aBundle.getString("company_name");
+		String company_name = aBundle.getString("company_name");
 		String description = aBundle.getString("description");
 		String location = aBundle.getString("location");
-		anEventOwner = new EventOwner(user_id, email, password, name, location, description);
+		String number=aBundle.getString("number");
+		String name=aBundle.getString("name");
+		Contact usersContact=new Contact(name, number);
+		anEventOwner = new EventOwner(user_id, email, password, company_name, location, description,usersContact);
 
 	}
 
@@ -452,7 +458,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 			try
 			{
 				// first check if there are any events
-				if (EventsFactory.getEventsIn10KmRadius(new LatLng(user_latitude, user_longitude)) != null)
+				if (EventManager.getEventsIn10KmRadius(new LatLng(user_latitude, user_longitude)) != null)
 				{
 					Intent listEventsScreen = new Intent(MainActivity.this, ListEventsActivity.class);
 					if (anEventOwner != null)
@@ -600,7 +606,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 				// Creating a LatLng object for the current location
 				LatLng latLng = new LatLng(user_latitude, user_longitude);
 				// try to get events
-				eventsArrayList = EventsFactory.getEventsIn10KmRadius(latLng);
+				eventsArrayList = EventManager.getEventsIn10KmRadius(latLng);
 				return latLng;
 			}
 			return null;
@@ -704,10 +710,13 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 							String name = anEvent.getName_of_event();
 
 							String duration = anEvent.getDuration();
+							
 							String location_in_words = anEvent.getEvent_location_in_words();
 							int user_id = anEvent.getUser_id();
 							int event_id = anEvent.getEvent_id();
 							String type = anEvent.getType_of_event();
+							Boolean heard_of_event=anEvent.getHeard_of_this_event_status();
+							int total_people_who_have_heard=anEvent.getTotal_people_who_have_heard();
 							Bundle extras = new Bundle();
 							extras.putDouble("latitude", latitude);
 							extras.putDouble("longitude", longitude);
@@ -720,6 +729,8 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 							extras.putInt("user_id", user_id);
 							extras.putInt("event_id", event_id);
 							extras.putString("type", type);
+							extras.putBoolean("heard_of_event", heard_of_event);
+							extras.putInt("total_people_who_have_heard",total_people_who_have_heard);
 							intent.putExtras(extras);
 						}
 

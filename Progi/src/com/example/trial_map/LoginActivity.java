@@ -10,7 +10,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.trial_map.asyncTasks.LoginTask;
-import com.example.trial_map.factories.Validator;
+import com.example.trial_map.util.Validator;
 
 /** this class logs a user in **/
 public class LoginActivity extends Activity

@@ -62,4 +62,7 @@
     <string name="submit">Submit</string>
     <string name="logo">logo</string>
     <string name="total_people_who_have_heard">TOTAL PEOPLE WHO HAVE HEARD</string>
+    <string name="enter_your_name_and_phone_number_">"Enter your Name and Phone Number "</string>
+    <string name="your_phonenumber">Your PhoneNumber</string>
+    <string name="your_name">Your Name</string>
 </resources>

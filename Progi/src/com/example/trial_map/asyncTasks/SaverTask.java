@@ -6,8 +6,8 @@ import android.os.AsyncTask;
 import android.widget.Toast;
 
 import com.example.trial_map.beans.Event;
-import com.example.trial_map.factories.EventsFactory;
-import com.example.trial_map.factories.NetworkManager;
+import com.example.trial_map.managers.EventManager;
+import com.example.trial_map.managers.NetworkManager;
 
 // saves new event in background thread using network to send data
 public class SaverTask extends AsyncTask<Event, String, Integer>
@@ -45,10 +45,10 @@ public class SaverTask extends AsyncTask<Event, String, Integer>
 		if (NetworkManager.isInternetAvailable(anActivity))
 		{
 			// save the event
-			result = EventsFactory.SaveEvent(anEvent[0]);
+			result = EventManager.SaveEvent(anEvent[0]);
 			return result;
 		}
-		return EventsFactory.NO_CONNECTION;
+		return EventManager.NO_CONNECTION;
 	}
 
 
@@ -62,19 +62,19 @@ public class SaverTask extends AsyncTask<Event, String, Integer>
 		switch (integer)
 		{
 		// if event was saved
-			case EventsFactory.SUCCESS:
+			case EventManager.SUCCESS:
 				// set result
 				anActivity.setResult(Activity.RESULT_OK);
 				// close activity
 				anActivity.finish();
 				break;
 			// if we failed to save event coz of server side error
-			case EventsFactory.FAILURE:
+			case EventManager.FAILURE:
 				text = "Failed To Save Event";
 				Toast.makeText(anActivity, text, duration).show();
 				break;
 			// if there is no Internet connection to server
-			case EventsFactory.NO_CONNECTION:
+			case EventManager.NO_CONNECTION:
 				text = "Sorry but there is no connection to the server";
 				Toast.makeText(anActivity, text, duration).show();
 				break;

@@ -1,5 +1,6 @@
 package com.example.trial_map;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.widget.Toast;
 
@@ -13,10 +14,12 @@ import com.actionbarsherlock.view.MenuItem;
 /** it adds the sherlock action bar to activities **/
 public abstract class ActionBarActivity extends SherlockActivity
 {
-	private static final int	BACK						= R.id.menu_back;
-	private static boolean		isInForeGround	= false;
-	public static final int	SHORT_DURATION	= Toast.LENGTH_SHORT;
-	public static final int	LONG_DURATION		= Toast.LENGTH_LONG;
+	protected static final int	BACK									= R.id.menu_back;
+	protected static boolean		isInForeGround				= false;
+	public static final int			SHORT_DURATION				= Toast.LENGTH_SHORT;
+	public static final int			LONG_DURATION					= Toast.LENGTH_LONG;
+	protected static String			PROGRESS_DIALOG_TEXT	= "Getting Details Input...";
+	protected ProgressDialog		pDialog;
 
 
 	/** called when app is resuming **/
@@ -75,4 +78,26 @@ public abstract class ActionBarActivity extends SherlockActivity
 
 	}
 
+
+	/** shows a progress dialog to the user **/
+	protected void showProgressDialog()
+	{
+		// create progress dialog and display it to user
+		pDialog = new ProgressDialog(this);
+		pDialog.setMessage(PROGRESS_DIALOG_TEXT);
+		pDialog.setIndeterminate(false);
+		pDialog.setCancelable(true);
+		pDialog.show();
+	}
+
+
+	/** closes an open progress dialog **/
+	protected void closeProgressDialog()
+	{
+		if (pDialog != null)
+		{
+			pDialog.dismiss();
+			pDialog=null;
+		}
+	}
 }

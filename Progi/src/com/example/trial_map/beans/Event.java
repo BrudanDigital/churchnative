@@ -1,14 +1,12 @@
 package com.example.trial_map.beans;
 
-import java.io.Serializable;
 
 import com.google.android.gms.maps.model.LatLng;
 
 //java bean class for an Event
-public class Event implements Serializable
+public class Event
 {
 
-	private static final long	serialVersionUID	= -3770730160649638144L;
 	private String						event_location_in_words;
 	private LatLng						event_location;
 	private String						event_name;
@@ -21,10 +19,12 @@ public class Event implements Serializable
 	private String						type_of_event;
 	private int								user_id;
 	private int								event_id;
+	private int								total_people_who_have_heard	= 0;
+	private boolean						heard_of_this_event_status;
 
 
 	public Event(Double latitude, Double longitude, String time, String date, String description_of_event, String name_of_event, String duration_of_event, String event_location_in_words, int user_id,
-			int event_id, String type_of_event)
+			int event_id, String type_of_event, boolean heard_of_event, int total_people_who_have_heard)
 	{
 		super();
 		this.start_time = time;
@@ -39,7 +39,8 @@ public class Event implements Serializable
 		this.user_id = user_id;
 		this.event_id = event_id;
 		this.type_of_event = type_of_event;
-
+		this.heard_of_this_event_status = heard_of_event;
+		this.setTotal_people_who_have_heard(total_people_who_have_heard);
 	}
 
 
@@ -184,6 +185,30 @@ public class Event implements Serializable
 	public void setType_of_event(String type_of_event)
 	{
 		this.type_of_event = type_of_event;
+	}
+
+
+	public boolean getHeard_of_this_event_status()
+	{
+		return heard_of_this_event_status;
+	}
+
+
+	public void setHeard_of_this_event_status(boolean heard_of_this_event_status)
+	{
+		this.heard_of_this_event_status = heard_of_this_event_status;
+	}
+
+
+	public int getTotal_people_who_have_heard()
+	{
+		return total_people_who_have_heard;
+	}
+
+
+	public void setTotal_people_who_have_heard(int total_people_who_have_heard)
+	{
+		this.total_people_who_have_heard = total_people_who_have_heard;
 	}
 
 }
