@@ -1,16 +1,15 @@
-package com.example.trial_map.util;
+package com.example.trial_map.managers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.android.gms.maps.model.LatLng;
 
-public class JSONParser
+public class JSONManager extends Manager 
 {
 
 	/**
@@ -20,7 +19,10 @@ public class JSONParser
 	 * */
 	public static List<LatLng> decodePoly(String encoded)
 	{
-
+		if (encoded==null)
+		{
+			return null;
+		}
 		List<LatLng> poly = new ArrayList<LatLng>();
 		int index = 0, len = encoded.length();
 		int lat = 0, lng = 0;
@@ -74,9 +76,10 @@ public class JSONParser
 
 		try
 		{
-			jStatus = jObject.getString("status");
+			jStatus = jObject.getString("status");		
 			if (jStatus.equalsIgnoreCase("ok"))
 			{
+				MESSAGE="Directions Found";
 				jRoutes = jObject.getJSONArray("routes");
 				/** Traversing all routes */
 				for (int i = 0; i < jRoutes.length(); i++)
@@ -126,17 +129,17 @@ public class JSONParser
 			}
 			else
 			{
+				MESSAGE="No Directions To Location Found";
 				return null;
 			}
 
 		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
 		catch (Exception e)
 		{
+			MESSAGE=NO_CONNECTION_MESSAGE;
+			e.printStackTrace();
 		}
+		
 
 		return routes;
 	}
@@ -158,6 +161,7 @@ public class JSONParser
 			jStatus = jObject.getString("status");
 			if (jStatus.equalsIgnoreCase("ok"))
 			{
+				MESSAGE="Directions Found";
 				jRoutes = jObject.getJSONArray("routes");
 				/** Traversing all routes */
 				for (int i = 0; i < jRoutes.length(); i++)
@@ -179,15 +183,13 @@ public class JSONParser
 			}
 			else
 			{
+				MESSAGE="No Directions Found";
 				return null;
 			}
 		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-		}
 		catch (Exception e)
 		{
+			MESSAGE=NO_CONNECTION_MESSAGE;
 			e.printStackTrace();
 		}
 

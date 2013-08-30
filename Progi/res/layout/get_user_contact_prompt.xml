@@ -10,15 +10,15 @@
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/enter_your_name_and_phone_number_"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:text="@string/enter_your_name_and_phone_number"
+         />
  
     <EditText
         android:id="@+id/getUserContact_username"
         android:inputType="text"
         android:hint="@string/your_name"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="48dp" >
  	
         <requestFocus />
  
@@ -29,7 +29,7 @@
         android:inputType="phone"
         android:hint="@string/your_phonenumber"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="48dp" >
     </EditText>
  
 </LinearLayout>

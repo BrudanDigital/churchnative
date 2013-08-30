@@ -58,13 +58,13 @@
         </activity>
         <activity
             android:name=".NewEventActivity"
-            android:label="CREATE A NEW EVENT HERE"
-            android:theme="@style/Theme.Sherlock.Light.DarkActionBar" >
+            android:label="CREATE NEW EVENT"
+            android:theme="@style/Theme.Sherlock.Light.DarkActionBar.MyTheme" >
         </activity>
         <activity
             android:name=".EventDetailsActivity"
             android:label="DETAILS OF EVENT"
-            android:theme="@style/Theme.Sherlock.Light.DarkActionBar" >
+            android:theme="@style/Theme.Sherlock.Light.DarkActionBar.MyTheme" >
         </activity>
         <activity
             android:name=".LoginActivity"
@@ -79,21 +79,26 @@
         <activity
             android:name=".EditEventActivity"
             android:label="EDIT EVENT HERE"
-            android:theme="@style/Theme.Sherlock.Light.DarkActionBar" >
+            android:theme="@style/Theme.Sherlock.Light.DarkActionBar.MyTheme" >
         </activity>
         <activity
             android:name=".DisplayDirectionsActivity"
             android:label="VIEW DIRECTIONS HERE"
             android:theme="@style/Theme.Sherlock.Light.DarkActionBar" >
         </activity>
+         <activity
+            android:name=".ListEventsUserIsInvitedToActivity"
+            android:label="EVENTS U ARE INVITED TO"
+            android:theme="@style/Theme.Sherlock.Light.DarkActionBar" >
+        </activity>
 
         <uses-library android:name="com.google.android.maps" />
 
         <!-- Your API key needs to be added over here -->
-        <!-- my debug key AIzaSyCyX3i0z_v7GJcvWIGJYn73S7uw-fR8vts -->
+        <!-- my debug key AIzaSyD1Bh7E2L1luUkIVR6QhfOHiL05B5TwYTg  -->
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyD1Bh7E2L1luUkIVR6QhfOHiL05B5TwYTg" />
+            android:value="AIzaSyCyX3i0z_v7GJcvWIGJYn73S7uw-fR8vts" />
     </application>
 
 </manifest>

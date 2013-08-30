@@ -12,6 +12,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
@@ -28,13 +29,13 @@ import com.example.trial_map.beans.User;
 
 public class ContactsManager extends Manager
 {
-	private static final String	SAVE_INVITED_CONTACTS		= PHP_SCRIPT_ADDRESS + "save_invited_contacts.php";
-	private static final String	GET_INVITED_CONTACTS		= PHP_SCRIPT_ADDRESS + "get_invited_contacts.php";
-	private static final String	DELETE_INVITED_CONTACTS	= PHP_SCRIPT_ADDRESS + "delete_invited_contacts.php";
-	private static final String	TAG_NAME								= "name";
-	private static final String	TAG_NUMBER							= "number";
-	private static final String	TAG_CONTACTS						= "contacts";
-	
+	private static final String	SAVE_INVITED_CONTACTS			= PHP_SCRIPT_ADDRESS + "save_invited_contacts.php";
+	private static final String	GET_INVITED_CONTACTS			= PHP_SCRIPT_ADDRESS + "get_invited_contacts.php";
+	private static final String	GET_ALL_INVITED_CONTACTS	= PHP_SCRIPT_ADDRESS + "get_all_invited_contacts.php";
+	private static final String	DELETE_INVITED_CONTACTS		= PHP_SCRIPT_ADDRESS + "delete_invited_contacts.php";
+	private static final String	TAG_NAME									= "name";
+	private static final String	TAG_NUMBER								= "number";
+	private static final String	TAG_CONTACTS							= "contacts";
 
 
 	/** returns an arraylist containing all contacts in Phone Book **/
@@ -91,6 +92,7 @@ public class ContactsManager extends Manager
 	}
 
 
+	/** returns the contacts invited to an event by the given user **/
 	public static ArrayList<Contact> getContactsInvitedToEvent(Event anEvent, User theUser)
 	{
 		Contact usersContact = theUser.getUsers_contact();
@@ -100,8 +102,7 @@ public class ContactsManager extends Manager
 		url_parameters.add(new BasicNameValuePair("inviter_number", usersContact.getPhone_number()));
 		url_parameters.add(new BasicNameValuePair("event_id", "" + anEvent.getEvent_id()));
 		JSONObject jsonObject = NetworkManager.makeHttpPostRequest(GET_INVITED_CONTACTS, url_parameters);
-		if (jsonObject != null)
-		{
+		
 			try
 			{
 				// Checking for SUCCESS TAG
@@ -131,7 +132,50 @@ public class ContactsManager extends Manager
 			{
 				Log.e("JSON Error", e.getMessage());
 			}
-		}
+		
+		return contactsList;
+	}
+
+
+	/** returns all contacts invited to an event by anyone **/
+	public static ArrayList<Contact> getAllContactsInvitedToAnEvent(Event anEvent)
+	{
+		ArrayList<Contact> contactsList = new ArrayList<Contact>();
+		List<NameValuePair> url_parameters = new ArrayList<NameValuePair>();
+		url_parameters.add(new BasicNameValuePair("event_id", "" + anEvent.getEvent_id()));
+		JSONObject jsonObject = NetworkManager.makeHttpPostRequest(GET_ALL_INVITED_CONTACTS, url_parameters);
+		
+			try
+			{
+				// Checking for SUCCESS TAG
+				int success = jsonObject.getInt(TAG_SUCCESS);
+				MESSAGE = jsonObject.getString(TAG_MESSAGE);
+				if (success == 1)
+				{
+					// Getting Array of contacts
+					JSONArray contacts_array = jsonObject.getJSONArray(TAG_CONTACTS);
+					// looping through All Contacts returned and storing each separately
+					for (int i = 0; i < contacts_array.length(); i++)
+					{
+						JSONObject contact = contacts_array.getJSONObject(i);
+						String name = contact.getString(TAG_NAME);
+						String number = contact.getString(TAG_NUMBER);
+						Contact aContact = new Contact(name, number);
+						contactsList.add(aContact);
+					}
+				}
+			}
+			catch (NullPointerException e)
+			{
+				MESSAGE = NO_CONNECTION_MESSAGE;
+				Log.e("JSON Error", e.getMessage());
+			}
+			
+			catch (JSONException e)
+			{
+				Log.e("JSON Error", e.getMessage());
+			}
+	
 		return contactsList;
 	}
 
@@ -154,27 +198,29 @@ public class ContactsManager extends Manager
 			url_parameters.add(new BasicNameValuePair("invitee_name", aContact.getName()));
 			url_parameters.add(new BasicNameValuePair("event_id", "" + anEvent.getEvent_id()));
 			JSONObject jsonObject = NetworkManager.makeHttpPostRequest(SAVE_INVITED_CONTACTS, url_parameters);
-			if (jsonObject != null)
-			{
 
-				try
+			try
+			{
+				// Checking for SUCCESS TAG
+				int success = jsonObject.getInt(TAG_SUCCESS);
+				MESSAGE = jsonObject.getString(TAG_MESSAGE);
+				if (success == 0)
 				{
-					// Checking for SUCCESS TAG
-					int success = jsonObject.getInt(TAG_SUCCESS);
-					MESSAGE = jsonObject.getString(TAG_MESSAGE);
-					if (success == 0)
-					{
-						return FAILURE;
-					}
-				}
-				catch (JSONException e)
-				{
-					MESSAGE = NO_CONNECTION_MESSAGE;
-					Log.e("JSON Error", e.getMessage());
 					return FAILURE;
 				}
 			}
-			
+			catch (NullPointerException e)
+			{
+				MESSAGE = NO_CONNECTION_MESSAGE;
+				Log.e("JSON Error", e.getMessage());
+			}
+			catch (JSONException e)
+			{
+				MESSAGE = NO_CONNECTION_MESSAGE;
+				Log.e("JSON Error", e.getMessage());
+				return FAILURE;
+			}
+
 		}
 
 		return SUCCESS;
@@ -199,27 +245,61 @@ public class ContactsManager extends Manager
 			url_parameters.add(new BasicNameValuePair("invitee_name", aContact.getName()));
 			url_parameters.add(new BasicNameValuePair("event_id", "" + anEvent.getEvent_id()));
 			JSONObject jsonObject = NetworkManager.makeHttpPostRequest(DELETE_INVITED_CONTACTS, url_parameters);
-			if (jsonObject != null)
-			{
 
-				try
+			try
+			{
+				// Checking for SUCCESS TAG
+				int success = jsonObject.getInt(TAG_SUCCESS);
+				MESSAGE = jsonObject.getString(TAG_MESSAGE);
+				if (success == 0)
 				{
-					// Checking for SUCCESS TAG
-					int success = jsonObject.getInt(TAG_SUCCESS);
-					MESSAGE = jsonObject.getString(TAG_MESSAGE);
-					if (success == 0)
-					{
-						return FAILURE;
-					}
-				}
-				catch (JSONException e)
-				{
-					MESSAGE = NO_CONNECTION_MESSAGE;
-					Log.e("JSON Error", e.getMessage());
 					return FAILURE;
 				}
 			}
+			catch (NullPointerException e)
+			{
+				MESSAGE = NO_CONNECTION_MESSAGE;
+				Log.e("JSON Error", e.getMessage());
+			}
+			catch (JSONException e)
+			{
+				MESSAGE = NO_CONNECTION_MESSAGE;
+				Log.e("JSON Error", e.getMessage());
+				return FAILURE;
+			}
 		}
 		return SUCCESS;
+	}
+
+
+	public static void saveUsersContactLocaly(Contact usersContact, Activity anActivity)
+	{
+		if (usersContact==null||anActivity==null)
+		{
+			throw new IllegalArgumentException(ILLEGAL_PARAMETER_TEXT);
+		}
+		// TODO Auto-generated method stub
+		SharedPreferences preferences = anActivity.getPreferences(Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = preferences.edit();
+		editor.putString("name", usersContact.getName());
+		editor.putString("number", usersContact.getPhone_number());
+		editor.commit();
+		Manager.MESSAGE="Contacts SuccessFully Saved.\nYou Can Now Try Again";
+	}
+
+
+	public static CharSequence[] getContactNames(ArrayList<Contact> contactsList)
+	{
+		Iterator<Contact> anIterator = contactsList.iterator();
+		CharSequence[] strings = new CharSequence[contactsList.size()];
+		int i = 0;
+		while (anIterator.hasNext())
+		{
+			Contact contact = (Contact) anIterator.next();
+			String name = contact.getName() + "\n" + contact.getPhone_number();
+			strings[i] = name;
+			i++;
+		}
+		return strings;
 	}
 }

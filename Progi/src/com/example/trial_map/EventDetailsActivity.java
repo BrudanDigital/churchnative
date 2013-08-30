@@ -1,23 +1,18 @@
 package com.example.trial_map;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -26,22 +21,25 @@ import android.widget.TextView;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.example.trial_map.asyncTasks.GetDirectionsTask;
 import com.example.trial_map.beans.Contact;
 import com.example.trial_map.beans.Event;
-import com.example.trial_map.beans.User;
 import com.example.trial_map.managers.ContactsManager;
 import com.example.trial_map.managers.EventManager;
 import com.example.trial_map.managers.Manager;
+import com.google.android.gms.maps.model.LatLng;
 
 public class EventDetailsActivity extends ActionBarActivity
 {
 	private static final int			EVENT_DETAILS_XML						= R.layout.event_details;
 	private static final int			INVITE_CONTACTS							= R.id.menu_inviteContacts;
 	private static final int			SEE_INVITED_CONTACTS				= R.id.menu_seeInvitedContacts;
+	private static final int			GET_DIRECTIONS							= R.id.menu_getDirections;
 	private static CharSequence		DIALOG_POSITIVE_BUTTON			= "Ok";
 	private static CharSequence		DIALOG_NEGATIVE_BUTTON_TXT	= "Cancel";
 	protected static final String	SELECT_MODE									= "SELECT";
 	protected static final String	EDIT_MODE										= "EDIT";
+
 	private static CharSequence		DIALOG_TITLE_TXT						= "Pick Contacts To Invite";
 
 	// widgets
@@ -57,10 +55,10 @@ public class EventDetailsActivity extends ActionBarActivity
 	private RadioButton						yesRadioButton;
 	private RadioButton						noRadioButton;
 	private Event									anEvent;
-	private TextView							totals_textView;
+	// private TextView totals_textView;
 	// arraylist to keep the selected contacts
 	ArrayList<Contact>						selectedContacts						= null;
-	User													aUser												= null;
+
 	private AlertDialog						dialog											= null;
 
 
@@ -75,7 +73,7 @@ public class EventDetailsActivity extends ActionBarActivity
 		// get objects of the widgets
 		location_TextView = (TextView) findViewById(R.id.details_locationValue);
 		name_TextView = (TextView) findViewById(R.id.details_title);
-		totals_textView = (TextView) findViewById(R.id.totals_title);
+		// totals_textView = (TextView) findViewById(R.id.totals_title);
 		type_TextView = (TextView) findViewById(R.id.details_typeValue);
 		time_TextView = (TextView) findViewById(R.id.details_timeValue);
 		duration_TextView = (TextView) findViewById(R.id.details_durationValue);
@@ -89,9 +87,9 @@ public class EventDetailsActivity extends ActionBarActivity
 		{
 			throw new IllegalStateException("Event Cant Be Null");
 		}
-		if (MainActivity.anEventOwner != null)
+		if (MainActivity.theUser != null)
 		{
-			aUser = MainActivity.anEventOwner;
+			aUser = MainActivity.theUser;
 		}
 
 		// display details of event
@@ -131,6 +129,10 @@ public class EventDetailsActivity extends ActionBarActivity
 				GetContactsInvitedToEventTask getContactsInvitedToEventTask = new GetContactsInvitedToEventTask();
 				getContactsInvitedToEventTask.execute();
 				return true;
+			case GET_DIRECTIONS:
+				LatLng destination = new LatLng(anEvent.getLatitude(), anEvent.getLongitude());
+				GetDirectionsTask getDirectionsTask = new GetDirectionsTask(this);
+				getDirectionsTask.execute(destination);
 		}
 		return super.onOptionsItemSelected(menu_item);
 	}
@@ -139,7 +141,7 @@ public class EventDetailsActivity extends ActionBarActivity
 	private void showSelectContactsDialog(final ArrayList<Contact> contactsList, final String MODE)
 	{
 
-		final CharSequence[] items = getContactNames(contactsList);
+		final CharSequence[] items = ContactsManager.getContactNames(contactsList);
 		selectedContacts = new ArrayList<Contact>();
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(DIALOG_TITLE_TXT);
@@ -170,7 +172,7 @@ public class EventDetailsActivity extends ActionBarActivity
 				{
 					@SuppressWarnings("unchecked")
 					@Override
-					public void onClick(DialogInterface dialog, int id)
+					public void onClick(DialogInterface dialogInterface, int id)
 					{
 						if (MODE.equalsIgnoreCase(SELECT_MODE))
 						{// if user clicks invite contacts
@@ -179,10 +181,11 @@ public class EventDetailsActivity extends ActionBarActivity
 								displayToast(EventDetailsActivity.this, "Pliz Pick Contacts To Invite", LONG_DURATION);
 								return;
 							}
-							if (we_already_have_user_number())
+							if (we_already_have_user_number() != null)
 							{
 								// if we already have the users contact then we proceed to save
 								// the invited contacts
+								aUser = we_already_have_user_number();
 								SaveInvitedContactsTask saveInvitedContactsTask = new SaveInvitedContactsTask();
 								saveInvitedContactsTask.execute(selectedContacts);
 							}
@@ -190,13 +193,18 @@ public class EventDetailsActivity extends ActionBarActivity
 							{// else we don't have the users contact
 								// get the users contact then save
 								showGetUserContactDialog();
-								SaveInvitedContactsTask saveInvitedContactsTask = new SaveInvitedContactsTask();
-								saveInvitedContactsTask.execute(selectedContacts);
+								if (we_already_have_user_number() != null)
+								{
+									aUser = we_already_have_user_number();
+									SaveInvitedContactsTask saveInvitedContactsTask = new SaveInvitedContactsTask();
+									saveInvitedContactsTask.execute(selectedContacts);
+								}
+
 							}
 						}
 						else if (MODE.equalsIgnoreCase(EDIT_MODE))
 						{// if user clicks see invited contacts
-							closeDialog(dialog);
+							dialogInterface.dismiss();
 						}
 
 					}
@@ -204,13 +212,13 @@ public class EventDetailsActivity extends ActionBarActivity
 				{
 					@SuppressWarnings("unchecked")
 					@Override
-					public void onClick(DialogInterface dialog, int id)
+					public void onClick(DialogInterface dialogInterface, int id)
 					{
 
 						if (MODE.equalsIgnoreCase(SELECT_MODE))
 						{// click cancel on invite contacts
 							// Your code when user clicked on Cancel
-							closeDialog(dialog);
+							dialogInterface.dismiss();
 						}
 						else if (MODE.equalsIgnoreCase(EDIT_MODE))
 						{// clicks un-invite on see invited contacts
@@ -219,18 +227,24 @@ public class EventDetailsActivity extends ActionBarActivity
 								displayToast(EventDetailsActivity.this, "Pliz Pick Contacts To Un-Invite", LONG_DURATION);
 								return;
 							}
-							UnInviteSelectedContactsTask unInviteSelectedContactsTask=new UnInviteSelectedContactsTask();
-							if (we_already_have_user_number())
+							UnInviteSelectedContactsTask unInviteSelectedContactsTask = new UnInviteSelectedContactsTask();
+							if (we_already_have_user_number() != null)
 							{
 								// if we already have the users contact then we proceed to save
 								// the invited contacts
+								aUser = we_already_have_user_number();
 								unInviteSelectedContactsTask.execute(selectedContacts);
 							}
 							else
 							{// else we don't have the users contact
 								// get the users contact then save
 								showGetUserContactDialog();
-								unInviteSelectedContactsTask.execute(selectedContacts);
+								if (we_already_have_user_number() != null)
+								{
+									aUser = we_already_have_user_number();
+									unInviteSelectedContactsTask.execute(selectedContacts);
+								}
+
 							}
 
 						}
@@ -241,106 +255,6 @@ public class EventDetailsActivity extends ActionBarActivity
 		dialog = builder.create();// AlertDialog dialog; create like
 															// this outside onClick
 		dialog.show();
-	}
-
-
-	private void closeDialog(DialogInterface dialog)
-	{
-		if (dialog != null)
-		{
-			dialog.cancel();
-			dialog.dismiss();
-			this.dialog.dismiss();
-			this.dialog.cancel();
-		}
-
-	}
-
-
-	protected boolean we_already_have_user_number()
-	{
-		SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
-		// SharedPreferences.Editor editor=preferences.edit();
-		String name = preferences.getString("name", null);
-		String number = preferences.getString("number", null);
-		if (name == null || number == null)
-		{
-			return false;
-		}
-		aUser = new User(new Contact(name, number));
-		return true;
-	}
-
-
-	private void showGetUserContactDialog()
-	{
-		// get prompts.xml view
-		LayoutInflater li = LayoutInflater.from(getBaseContext());
-		View promptsView = li.inflate(R.layout.get_user_contact_prompt, null);
-
-		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-
-		// set prompts.xml to alert dialog builder
-		alertDialogBuilder.setView(promptsView);
-
-		final EditText userPhoneNumber = (EditText) promptsView.findViewById(R.id.getUserContact_userPhoneNumber);
-		final EditText userName = (EditText) promptsView.findViewById(R.id.getUserContact_username);
-
-		// set dialog message
-		alertDialogBuilder.setCancelable(false).setPositiveButton("OK", new DialogInterface.OnClickListener()
-		{
-			public void onClick(DialogInterface dialog, int id)
-			{
-				// get user input and set it to result
-				// edit text
-				String user_name = userName.getText().toString();
-				String phone_number = userPhoneNumber.getText().toString();
-				Contact usersContact = new Contact(user_name, phone_number);
-				aUser = new User(usersContact);
-				saveUsersContactLocaly(usersContact);
-			}
-		}).setNegativeButton("Cancel", new DialogInterface.OnClickListener()
-		{
-			public void onClick(DialogInterface dialog, int id)
-			{
-				dialog.cancel();
-			}
-		});
-
-		// create alert dialog
-		AlertDialog alertDialog = alertDialogBuilder.create();
-
-		// show it
-		alertDialog.show();
-
-	}
-
-
-	protected void saveUsersContactLocaly(Contact usersContact)
-	{
-		// TODO Auto-generated method stub
-		SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = preferences.edit();
-		editor.putString("name", usersContact.getName());
-		editor.putString("number", usersContact.getPhone_number());
-		editor.commit();
-
-	}
-
-
-	private CharSequence[] getContactNames(ArrayList<Contact> contactsList)
-	{
-		Iterator<Contact> anIterator = contactsList.iterator();
-		CharSequence[] strings = new CharSequence[contactsList.size()];
-		int i = 0;
-		while (anIterator.hasNext())
-		{
-			Contact contact = (Contact) anIterator.next();
-			String name = contact.getName() + "\n" + contact.getPhone_number();
-			strings[i] = name;
-			i++;
-		}
-		return strings;
 	}
 
 
@@ -382,10 +296,12 @@ public class EventDetailsActivity extends ActionBarActivity
 	private void showEventDetails(Event anEvent)
 	{
 		location_TextView.setText(capitalizeFirstletter(anEvent.getEvent_location_in_words()));
-		int people_who_know_of_this_event = anEvent.getTotal_people_who_have_heard();
+		// int people_who_know_of_this_event =
+		// anEvent.getTotal_people_who_have_heard();
 		String name = anEvent.getName_of_event();
-		String total = "[" + people_who_know_of_this_event + " people Have Heard Of This Event]";
-		totals_textView.setText(total.toUpperCase());
+		// String total = "[" + people_who_know_of_this_event +
+		// " people Have Heard Of This Event]";
+		// totals_textView.setText(total.toUpperCase());
 		name_TextView.setText(name.toUpperCase());
 		type_TextView.setText(capitalizeFirstletter(anEvent.getType_of_event()));
 		time_TextView.setText(anEvent.getTime());
@@ -399,7 +315,7 @@ public class EventDetailsActivity extends ActionBarActivity
 	/** capitalizes the first letter of each word in given string **/
 	private String capitalizeFirstletter(String aString)
 	{
-		return ListEventsActivity.capitaliseFirstLetterOfEachWord(aString);
+		return Manager.capitaliseFirstLetterOfEachWord(aString);
 	}
 
 
@@ -455,14 +371,16 @@ public class EventDetailsActivity extends ActionBarActivity
 				throw new IllegalArgumentException("EVENT CANT BE NULL");
 			}
 
-			if (we_already_have_user_number())
+			if (we_already_have_user_number() != null)
 			{
+				aUser = we_already_have_user_number();
 				ArrayList<Contact> contactsList = ContactsManager.getContactsInvitedToEvent(anEvent, aUser);
 				return contactsList;
 			}
 			else
 			{
 				showGetUserContactDialog();
+				aUser = we_already_have_user_number();
 				ArrayList<Contact> contactsList = ContactsManager.getContactsInvitedToEvent(anEvent, aUser);
 				return contactsList;
 			}
@@ -530,6 +448,7 @@ public class EventDetailsActivity extends ActionBarActivity
 		}
 	}
 
+
 	private class UnInviteSelectedContactsTask extends AsyncTask<ArrayList<Contact>, Void, Integer>
 	{
 
@@ -570,8 +489,8 @@ public class EventDetailsActivity extends ActionBarActivity
 
 		}
 	}
-	
-	
+
+
 	private class GetHeardOfEventStatus extends AsyncTask<LinearLayout, Void, Boolean>
 	{
 

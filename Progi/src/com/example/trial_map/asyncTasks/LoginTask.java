@@ -10,6 +10,7 @@ import android.widget.Toast;
 import com.example.trial_map.beans.Contact;
 import com.example.trial_map.beans.EventOwner;
 import com.example.trial_map.managers.EventOwnerManager;
+import com.example.trial_map.managers.Manager;
 
 /**
  * This class checks to see if user exists in the database on web server and
@@ -17,11 +18,11 @@ import com.example.trial_map.managers.EventOwnerManager;
  **/
 public class LoginTask extends AsyncTask<String, Void, Integer>
 {
-	private static final String	ILLEGAL_PARAMETER_TEXT		= "Neither Intent Nor EventOwner Can Be Null";
+	private static final String	ILLEGAL_PARAMETER_TEXT		= "PRAMETERS CANT BE NULL";
 	private static final int		LONG_DURATION							= Toast.LENGTH_LONG;
 	private static final int		FAILURE										= 0;
 	private static final int		SUCEESS										= 1;
-	private final CharSequence	LOGIN_ERROR_MSG						= "Cannot Login:Email Or Password Combination Is Wrong";
+	//private final CharSequence	LOGIN_ERROR_MSG						= "Cannot Login:Email Or Password Combination Is Wrong";
 	private final CharSequence	LOGIN_PROGRESS_DIALOG_MSG	= "Logging In. Please wait...";
 	private ProgressDialog			pDialog;
 	Activity										anActivity;
@@ -71,7 +72,7 @@ public class LoginTask extends AsyncTask<String, Void, Integer>
 
 		if (result == FAILURE)
 		{// if wrong email or password then inform user
-			Toast.makeText(anActivity, LOGIN_ERROR_MSG, LONG_DURATION).show();
+			Toast.makeText(anActivity, Manager.MESSAGE, LONG_DURATION).show();
 			return;
 		}
 		// else return an okay result

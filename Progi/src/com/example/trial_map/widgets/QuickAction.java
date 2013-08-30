@@ -1,28 +1,22 @@
 package com.example.trial_map.widgets;
 
-import com.example.trial_map.R;
-import com.example.trial_map.beans.ActionItem;
-
 import android.content.Context;
-
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-
-import android.widget.ImageView;
-import android.widget.TextView;
-
 import android.view.Gravity;
 import android.view.LayoutInflater;
-
 import android.view.View;
 import android.view.View.OnClickListener;
-
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.example.trial_map.R;
+import com.example.trial_map.beans.ActionItem;
 
 public class QuickAction extends PopupWindows
 {
@@ -62,12 +56,15 @@ public class QuickAction extends PopupWindows
 			}
 		});
 
-		setRootViewId(R.layout.quickaction);
+		setRootViewId(R.layout.quick_action);
 
 		animStyle = ANIM_AUTO;
 		animateTrack = true;
 
 	}
+
+
+	
 
 
 	public void setRootViewId(int id)

@@ -170,6 +170,8 @@ public class NetworkManager extends Manager
 		}
 		catch (Exception e)
 		{
+			MESSAGE = "Exception while downloading url";
+			return null;
 			// Log.d("Exception while downloading url", e.toString());
 		}
 		finally
@@ -197,7 +199,6 @@ public class NetworkManager extends Manager
 	{
 		try
 		{
-
 			// request method is GET
 			DefaultHttpClient httpClient = new DefaultHttpClient();
 			HttpGet httpGet = new HttpGet(url);
@@ -229,13 +230,23 @@ public class NetworkManager extends Manager
 			{
 				sb.append(line);
 			}
-			input_stream.close();
 			json_string_data = sb.toString();
 			Log.e("Buffer Error", "[" + json_string_data + "]");
 		}
 		catch (Exception e)
 		{
 			Log.e("Buffer Error", e.getMessage());
+		}
+		finally
+		{
+			try
+			{
+				input_stream.close();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
 		}
 
 		// try parse the string to a JSON object
@@ -256,6 +267,7 @@ public class NetworkManager extends Manager
 
 
 	/** function that checks if Internet is available on the device **/
+
 	public static boolean isInternetAvailable(Context aContext)
 	{
 		ConnectivityManager connectivityManager = (ConnectivityManager) aContext.getSystemService(Context.CONNECTIVITY_SERVICE);

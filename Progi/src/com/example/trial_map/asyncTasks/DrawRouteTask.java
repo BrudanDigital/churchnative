@@ -12,8 +12,9 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
+import com.example.trial_map.managers.JSONManager;
+import com.example.trial_map.managers.Manager;
 import com.example.trial_map.managers.NetworkManager;
-import com.example.trial_map.util.JSONParser;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -60,16 +61,15 @@ public class DrawRouteTask extends AsyncTask<String, String, List<List<HashMap<S
 		{
 			// Fetching the data from web service
 			data = NetworkManager.downloadJSONdata(url[0]);
-			System.out.println(data);
 			// get JsonObject from data
 			jObject = new JSONObject(data);
 			// Starts parsing the object to get route
-			routes = JSONParser.DirectionsParser(jObject);
+			routes = JSONManager.DirectionsParser(jObject);
 
 		}
 		catch (Exception e)
 		{
-
+			return null;
 		}
 		return routes;
 	}
@@ -88,7 +88,7 @@ public class DrawRouteTask extends AsyncTask<String, String, List<List<HashMap<S
 		}
 		// no route has been found[most likely network issues]
 		pDialog.dismiss();
-		Toast.makeText(anActivity, "Failed To Get Directions!![check your internet connections]", Toast.LENGTH_LONG).show();
+		Toast.makeText(anActivity, Manager.MESSAGE, Toast.LENGTH_LONG).show();
 
 	}
 

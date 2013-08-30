@@ -18,5 +18,11 @@
         android:id="@+id/menu_addEvent"
         android:showAsAction="always"
         android:title="Add Event"/>
+    
+    <item
+        android:id="@+id/menu_seeEventsToWhichUareInvited"
+        android:showAsAction="never"
+        android:icon="@drawable/see_who_is_invited"
+        android:title="See Events You Are Invited To"/>
 
 </menu>

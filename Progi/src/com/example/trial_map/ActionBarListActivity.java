@@ -10,17 +10,18 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.app.SherlockListActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.example.trial_map.beans.Contact;
 import com.example.trial_map.beans.User;
+import com.example.trial_map.managers.ContactsManager;
 
 /**This is a SuperClass for most activities that share these common methods**/
 /**This class cannot be instantiated but can be extended**/
 /** it adds the sherlock action bar to activities **/
-public abstract class ActionBarActivity extends SherlockActivity
+public abstract class ActionBarListActivity extends SherlockListActivity
 {
 	protected static final int	BACK									= R.id.menu_back;
 	protected static boolean		isInForeGround				= false;
@@ -28,7 +29,8 @@ public abstract class ActionBarActivity extends SherlockActivity
 	public static final int			LONG_DURATION					= Toast.LENGTH_LONG;
 	protected static String			PROGRESS_DIALOG_TEXT	= "Getting Details Input...";
 	protected ProgressDialog		pDialog;
-	User aUser;
+	User												aUser;
+
 
 	/** called when app is resuming **/
 	protected void onResume()
@@ -62,7 +64,7 @@ public abstract class ActionBarActivity extends SherlockActivity
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
 		// show action bar
-		getSupportActionBar().setDisplayShowHomeEnabled(true);
+		getSupportActionBar().setDisplayShowHomeEnabled(false);
 		// add menu options to the UI
 		MenuInflater menuInflater = getSupportMenuInflater();
 		menuInflater.inflate(R.layout.menu_item_back, menu);
@@ -91,7 +93,7 @@ public abstract class ActionBarActivity extends SherlockActivity
 	protected void showProgressDialog()
 	{
 		// create progress dialog and display it to user
-		pDialog = new ProgressDialog(this);
+		pDialog = new ProgressDialog(ActionBarListActivity.this);
 		pDialog.setMessage(PROGRESS_DIALOG_TEXT);
 		pDialog.setIndeterminate(false);
 		pDialog.setCancelable(true);
@@ -105,26 +107,27 @@ public abstract class ActionBarActivity extends SherlockActivity
 		if (pDialog != null)
 		{
 			pDialog.dismiss();
-			pDialog=null;
+			pDialog = null;
 		}
 	}
 
-	protected User we_already_have_user_number()
+
+	protected boolean we_already_have_user_number(User aUser)
 	{
-		if (MainActivity.theUser!=null)
+		if (MainActivity.theUser != null)
 		{
-			return MainActivity.theUser;
-		
+			aUser = MainActivity.theUser;
+			return true;
 		}
 		SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
-		// SharedPreferences.Editor editor=preferences.edit();
 		String name = preferences.getString("name", null);
 		String number = preferences.getString("number", null);
 		if (name == null || number == null)
 		{
-			return null;
+			return false;
 		}
-		return new User(new Contact(name, number));
+		aUser = new User(new Contact(name, number));
+		return true;
 	}
 
 
@@ -132,7 +135,6 @@ public abstract class ActionBarActivity extends SherlockActivity
 	{
 		// get prompts.xml view
 		LayoutInflater li = LayoutInflater.from(getBaseContext());
-	
 		View promptsView = li.inflate(R.layout.get_user_contact_prompt, null);
 
 		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
@@ -144,7 +146,7 @@ public abstract class ActionBarActivity extends SherlockActivity
 		final EditText userName = (EditText) promptsView.findViewById(R.id.getUserContact_username);
 
 		// set dialog message
-		alertDialogBuilder.setCancelable(true).setPositiveButton("OK", new DialogInterface.OnClickListener()
+		alertDialogBuilder.setCancelable(false).setPositiveButton("OK", new DialogInterface.OnClickListener()
 		{
 			public void onClick(DialogInterface dialog, int id)
 			{
@@ -153,7 +155,8 @@ public abstract class ActionBarActivity extends SherlockActivity
 				String user_name = userName.getText().toString();
 				String phone_number = userPhoneNumber.getText().toString();
 				Contact usersContact = new Contact(user_name, phone_number);
-				saveUsersContactLocaly(usersContact);
+				aUser = new User(usersContact);
+				ContactsManager.saveUsersContactLocaly(usersContact,ActionBarListActivity.this);
 			}
 		}).setNegativeButton("Cancel", new DialogInterface.OnClickListener()
 		{
@@ -172,15 +175,4 @@ public abstract class ActionBarActivity extends SherlockActivity
 	}
 
 
-	protected void saveUsersContactLocaly(Contact usersContact)
-	{
-		// TODO Auto-generated method stub
-		SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = preferences.edit();
-		editor.putString("name", usersContact.getName());
-		editor.putString("number", usersContact.getPhone_number());
-		editor.commit();
-
 	}
-
-}

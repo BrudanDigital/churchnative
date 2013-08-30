@@ -1,6 +1,8 @@
 package com.example.trial_map.managers;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.http.NameValuePair;
@@ -11,8 +13,12 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.location.Location;
+import android.util.Log;
 
+import com.example.trial_map.adapters.DateComparator;
+import com.example.trial_map.beans.Contact;
 import com.example.trial_map.beans.Event;
+import com.example.trial_map.beans.User;
 import com.example.trial_map.util.Validator;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -22,32 +28,35 @@ public class EventManager extends Manager
 	/** a context object **/
 	Context											aContext;
 
-	
-
 	/** JSON Node names **/
-	private static final String	TAG_EVENTS										= "events";
-	private static final String	TAG_DESCRIPTION								= "description";
-	private static final String	TAG_LATITUDE									= "latitude";
-	private static final String	TAG_TIME											= "time";
-	private static final String	TAG_LONGITUDE									= "longitude";
-	private static final String	TAG_DATE											= "date";
-	private static final String	TAG_NAME											= "name";
-	private static final String	TAG_DURATION									= "duration";
-	private static final String	TAG_LOCATION									= "location";
-	private static final String	TAG_TOTAL											= "total";
-	private static final String	TAG_HEARD_OF_STATUS						= "heard_of_event";
+	private static final String	TAG_EVENTS															= "events";
+	private static final String	TAG_DESCRIPTION													= "description";
+	private static final String	TAG_LATITUDE														= "latitude";
+	private static final String	TAG_TIME																= "time";
+	private static final String	TAG_LONGITUDE														= "longitude";
+	private static final String	TAG_DATE																= "date";
+	private static final String	TAG_NAME																= "name";
+	private static final String	TAG_DURATION														= "duration";
+	private static final String	TAG_LOCATION														= "location";
+	private static final String	TAG_TOTAL																= "total";
+	private static final String	TAG_HEARD_OF_STATUS											= "heard_of_event";
 	// url to php script at website
-	private static final String	CREATE_EVENT_URL							= PHP_SCRIPT_ADDRESS + "create_event.php";
-	private static final String	GET_EVENTS_URL								= PHP_SCRIPT_ADDRESS + "get_events.php";
-	private static final String	DELETE_EVENT_URL							= PHP_SCRIPT_ADDRESS + "delete_event.php";
-	private static final String	UPDATE_EVENT_URL							= PHP_SCRIPT_ADDRESS + "update_event.php";
-	private static final String	SAVE_HEARD_OF_STATUS_URL			= PHP_SCRIPT_ADDRESS + "save_heard_of_event_status.php";
-	public static final String	INVALID_DATE_TEXT							= "THE SUBMITTED DATE HAS ALREADY PASSED!!";
-	// integer FLAGS
-	public static final int			DATE_ERROR										= 4;
-	public static final int			EMPTY_FIELD_ERROR							= 5;
+	private static final String	CREATE_EVENT_URL												= PHP_SCRIPT_ADDRESS + "create_event.php";
+	private static final String	GET_EVENTS_URL													= PHP_SCRIPT_ADDRESS + "get_events.php";
+	private static final String	DELETE_EVENT_URL												= PHP_SCRIPT_ADDRESS + "delete_event.php";
+	private static final String	UPDATE_EVENT_URL												= PHP_SCRIPT_ADDRESS + "update_event.php";
+	private static final String	SAVE_HEARD_OF_STATUS_URL								= PHP_SCRIPT_ADDRESS + "save_heard_of_event_status.php";
 
-	
+	// integer FLAGS
+	public static final int			DATE_ERROR															= 4;
+	public static final int			EMPTY_FIELD_ERROR												= 5;
+
+	private static final String	GET_EVENTS_TO_WHICH_USER_IS_INVITED_URL	= PHP_SCRIPT_ADDRESS + "get_events_to_which_user_is_inivited.php";
+
+	private static final String	TAG_USER_ID															= "user_id";
+
+	private static final String	TAG_EVENT_ID														= "event_id";
+
 
 	/** saves an event on the server side **/
 	public static int SaveEvent(Event anEvent)
@@ -78,7 +87,7 @@ public class EventManager extends Manager
 		params.add(new BasicNameValuePair("type", type_of_event));
 		params.add(new BasicNameValuePair("heard_of_event", "" + heard_of_event));
 		// storing events
-		JSONObject json = NetworkManager.makeHttpPostRequest(CREATE_EVENT_URL,  params);
+		JSONObject json = NetworkManager.makeHttpPostRequest(CREATE_EVENT_URL, params);
 		if (json != null)
 		{
 
@@ -112,11 +121,12 @@ public class EventManager extends Manager
 	{
 		try
 		{
-			
+
 			JSONObject jsonObject = NetworkManager.makeHttpGetRequest(GET_EVENTS_URL);
 
 			// Checking for SUCCESS TAG
 			int success = jsonObject.getInt(TAG_SUCCESS);
+			MESSAGE = jsonObject.getString(TAG_MESSAGE);
 
 			if (success == 1)
 			{
@@ -128,7 +138,7 @@ public class EventManager extends Manager
 				for (int i = 0; i < events_array.length(); i++)
 				{
 					JSONObject events = events_array.getJSONObject(i);
-					
+
 					// Storing each json item in variable
 					double latitude = events.getDouble(TAG_LATITUDE);
 
@@ -150,20 +160,19 @@ public class EventManager extends Manager
 					{// by default just add every event to the arraylist
 						addToArrayList(all_events_10km_radius, events);
 					}
-					MESSAGE = jsonObject.getString(TAG_MESSAGE);
+
 				}
 				return all_events_10km_radius;
 			}
 			else
-			{// success is 0 and no results
-				// Log.e("SUCESS", "No Tag Found");
+			{
 				return null;
 			}
 
 		}
 		catch (Exception e)
 		{
-			
+			MESSAGE = NO_CONNECTION_MESSAGE;
 			return null;
 		}
 
@@ -191,11 +200,11 @@ public class EventManager extends Manager
 			String event_location_in_words = events.getString(TAG_LOCATION);
 
 			boolean heard_of_event = events.getBoolean(TAG_HEARD_OF_STATUS);
-			//Log.e("HEARD OF EVENT", ""+event_location_in_words);
+
 			int total_people_who_have_heard = events.getInt(TAG_TOTAL);
-			
-			int user_id = events.getInt("user_id");
-			int event_id = events.getInt("event_id");
+
+			int user_id = events.getInt(TAG_USER_ID);
+			int event_id = events.getInt(TAG_EVENT_ID);
 			String type_of_event = events.getString("type");
 			Event anEvent = new Event(latitude, longitude, time, date, description, name, duration, event_location_in_words, user_id, event_id, type_of_event, heard_of_event, total_people_who_have_heard);
 			all_events_10km_radius.add(anEvent);
@@ -329,6 +338,7 @@ public class EventManager extends Manager
 	/** checks if an event is valid and can be saved **/
 	public static int EventIsValid(Event anEvent)
 	{
+		MESSAGE = "PLEASE FILL IN ALL THE REQUIRED FIELDS BEFORE SUBMITTING!!";
 		// check if the location in words is valid
 		String event_location_in_words = anEvent.getEvent_location_in_words();
 		if (Validator.isNullOrEmpty(event_location_in_words))
@@ -379,6 +389,7 @@ public class EventManager extends Manager
 		}
 		if (!Validator.isDateOkay(date))
 		{
+			MESSAGE = "THE SUBMITTED DATE HAS ALREADY PASSED!!";
 			return DATE_ERROR;
 		}
 
@@ -416,6 +427,7 @@ public class EventManager extends Manager
 		{
 			return EMPTY_FIELD_ERROR;
 		}
+		MESSAGE = "Event Is Valid";
 		return SUCCESS;
 	}
 
@@ -451,5 +463,101 @@ public class EventManager extends Manager
 	}
 
 
+	public static ArrayList<Event> getEventsToWhichUserIsInvited(User aUser)
+	{
+		if (aUser == null)
+		{
+			throw new IllegalArgumentException(ILLEGAL_PARAMETER_TEXT);
+		}
+		Contact usersContact = aUser.getUsers_contact();
+		String name = usersContact.getName();
+		String phone = usersContact.getPhone_number();
+		ArrayList<Event> eventsList = new ArrayList<Event>();
+		List<NameValuePair> url_parameters = new ArrayList<NameValuePair>();
+		url_parameters.add(new BasicNameValuePair("invitee_name", name));
+		url_parameters.add(new BasicNameValuePair("invitee_number", phone));
+		JSONObject jsonObject = NetworkManager.makeHttpPostRequest(GET_EVENTS_TO_WHICH_USER_IS_INVITED_URL, url_parameters);
+		try
+		{
+			// Checking for SUCCESS TAG
+			int success = jsonObject.getInt(TAG_SUCCESS);
+			MESSAGE = jsonObject.getString(TAG_MESSAGE);
+			if (success == 1)
+			{
+				// Getting Array of contacts
+				JSONArray events_array = jsonObject.getJSONArray(TAG_EVENTS);
+				// looping through All Events returned and storing each separately
+				for (int i = 0; i < events_array.length(); i++)
+				{
+					JSONObject events = events_array.getJSONObject(i);
+					addToArrayList(eventsList, events);
+				}
+			}
+		}
+		catch (NullPointerException e)
+		{
+			MESSAGE = NO_CONNECTION_MESSAGE;
+		}
+		catch (JSONException e)
+		{
+			Log.e("JSON Error", e.getMessage());
+		}
 
+		return eventsList;
+
+	}
+
+
+	/** returns an array of the events sorted by date created **/
+	public static ArrayList<Event> sortByDateOfEvent(ArrayList<Event> events_ArrayList)
+	{
+		if (events_ArrayList == null)
+		{
+			throw new IllegalArgumentException(ILLEGAL_PARAMETER_TEXT);
+		}
+		Collections.sort(events_ArrayList, new DateComparator());
+		ArrayList<Event> sortedArrayList = events_ArrayList;
+		return sortedArrayList;
+	}
+
+
+	public static ArrayList<String> getEventNamesSortedByDate(ArrayList<Event> events_ArrayList)
+	{
+		if (events_ArrayList == null)
+		{
+			throw new IllegalArgumentException(ILLEGAL_PARAMETER_TEXT);
+		}
+		ArrayList<String> sortedArrayList = new ArrayList<String>();
+		Iterator<Event> iterator = events_ArrayList.iterator();
+		while (iterator.hasNext())
+		{
+			Event event = iterator.next();
+			String data = event.getName_of_event() + " [" + capitaliseFirstLetterOfEachWord(event.getType_of_event()) + "]\nOn: " + event.getDate();
+			data = capitaliseFirstLetterOfEachWord(data);
+			sortedArrayList.add(data);
+		}
+		return sortedArrayList;
+	}
+
+
+	/** returns an array of events with the given type of event **/
+	public static ArrayList<Event> sortByType(ArrayList<Event> events_ArrayList, String type_of_event)
+	{
+
+		if (events_ArrayList == null)
+		{
+			throw new IllegalArgumentException(ILLEGAL_PARAMETER_TEXT);
+		}
+		ArrayList<Event> sortedEventsArrayList = new ArrayList<Event>();
+		Iterator<Event> iterator = events_ArrayList.iterator();
+		while (iterator.hasNext())
+		{
+			Event event = iterator.next();
+			if (event.getType_of_event().equalsIgnoreCase(type_of_event))
+			{
+				sortedEventsArrayList.add(event);
+			}
+		}
+		return sortedEventsArrayList;
+	}
 }

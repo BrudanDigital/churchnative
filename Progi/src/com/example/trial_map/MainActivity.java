@@ -10,6 +10,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.location.Criteria;
 import android.location.Location;
@@ -18,7 +19,9 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
-
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -26,12 +29,16 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.example.trial_map.asyncTasks.DrawRouteTask;
+import com.example.trial_map.beans.ActionItem;
 import com.example.trial_map.beans.Contact;
 import com.example.trial_map.beans.Event;
 import com.example.trial_map.beans.EventOwner;
+import com.example.trial_map.beans.User;
+import com.example.trial_map.managers.ContactsManager;
 import com.example.trial_map.managers.EventManager;
 import com.example.trial_map.managers.Manager;
 import com.example.trial_map.managers.NetworkManager;
+import com.example.trial_map.widgets.QuickAction;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -43,7 +50,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-
 //FIXME app should allow users to rate events heard of this y/n
 
 /**
@@ -53,50 +59,63 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MainActivity extends SherlockFragmentActivity implements LocationListener
 {
 	// important constants from xml file
-	private Resources									res																= null;
-	public static String							WEBSITE_URL												= null;
-	public static String							GOOGLE_DIRECTIONS_URL							= "https://maps.googleapis.com/maps/api/directions/";
-	public static String							GOOGLE_PLACES_URL									= "https://maps.googleapis.com/maps/api/place/";
+	private Resources									res																									= null;
+	public static String							WEBSITE_URL																					= null;
+	public static String							GOOGLE_DIRECTIONS_URL																= "https://maps.googleapis.com/maps/api/directions/";
+	public static String							GOOGLE_PLACES_URL																		= "https://maps.googleapis.com/maps/api/place/";
 	// constants
-	private static final int					NEW_EVENT_ACTIVITY_RESULT_CODE		= 100;
-	private static final int					DETAILS_ACTIVITY_RESULT_CODE			= 200;
-	private static final int					LIST_EVENTS_ACTIVITY_RESULT_CODE	= 300;
-	private static final int					LOGIN_ACTIVITY_RESULT_CODE				= 400;
-	private static final int					GOOGLE_MAP_DEFAULT_ZOOM_LEVEL			= 13;
-	private static final int					HOME_SCREEN												= R.layout.main_activity;
-	private static final int					SHORT_DURATION										= Toast.LENGTH_SHORT;
-	private static final int					LONG_DURATION											= Toast.LENGTH_LONG;
-	private static final String				LOGIN_BUTTON_TEXT									= "Login";
-	private static final String				LOG_OUT_BUTTON_TEXT								= "Log Out";
-	private static final String				LOG_OUT_SUCCESS_TEXT							= "You Have Been Logged Out";
-	private static final String				LOG_IN_SUCCESS_TEXT								= "Logged In as:";
-	private static final String				EVENT_CREATED_TEXT								= "Event Created Successfully";
-	private static final String				ILLEGAL_PARAMETER_TEXT						= "Parameters cannot be null";
-	private static final CharSequence	FAILED_TO_GET_EVENTS_TEXT					= "Failed To Retrieve Any Events";
-	private static final String				GOOGLE_MARKER_SNIPPET_TEXT				= "On:";
-	private static final CharSequence	ALERT_DIALOG_TITLE								= "Ops!! Sorry.";
-	private static final CharSequence	ALERT_DIALOG_MSG									= "This Application Requires An Internet Connection";
-	private static final CharSequence	ALERT_BUTTON_TEXT									= "Okay";
-	private static final long					VIBRATION_DURATION								= 2000;
-	private static final int					LOGIN															= R.id.menu_login;
-	private static final int					LIST_EVENTS												= R.id.menu_listEvents;
-	private static final int					ADD_AN_EVENT											= R.id.menu_addEvent;
-	public static double							user_latitude											= 0;
-	public static double							user_longitude										= 0;
-	public static ArrayList<Event>		sortedArrayList										= null;
-	public static String							type_of_event											= null;
-	public static boolean							isInForeGround										= false;
+	private static final int					NEW_EVENT_ACTIVITY_RESULT_CODE											= 100;
+	private static final int					DETAILS_ACTIVITY_RESULT_CODE												= 200;
+	private static final int					LIST_EVENTS_ACTIVITY_RESULT_CODE										= 300;
+	private static final int					LOGIN_ACTIVITY_RESULT_CODE													= 400;
+	private static final int					LIST_EVENTS_USER_IS_INVITED_TO_ACTIVITY_RESULT_CODE	= 500;
+	private static final int					GOOGLE_MAP_DEFAULT_ZOOM_LEVEL												= 13;
+	private static final int					HOME_SCREEN																					= R.layout.main_activity;
+	private static final int					SHORT_DURATION																			= Toast.LENGTH_SHORT;
+	private static final int					LONG_DURATION																				= Toast.LENGTH_LONG;
+	private static final String				LOGIN_BUTTON_TEXT																		= "Login";
+	private static final String				LOG_OUT_BUTTON_TEXT																	= "Log Out";
+	private static final String				LOG_OUT_SUCCESS_TEXT																= "You Have Been Logged Out";
+	private static final String				LOG_IN_SUCCESS_TEXT																	= "Logged In as:";
+	private static final String				EVENT_CREATED_TEXT																	= "Event Created Successfully";
+	private static final String				ILLEGAL_PARAMETER_TEXT															= "Parameters cannot be null";
+	private static final CharSequence	FAILED_TO_GET_EVENTS_TEXT														= "Failed To Retrieve Any Events";
+	private static final String				GOOGLE_MARKER_SNIPPET_TEXT													= "On:";
+	private static final CharSequence	ALERT_DIALOG_TITLE																	= "Ops!! Sorry!!";
+	private static final CharSequence	ALERT_DIALOG_MSG																		= "This Application Requires An Internet Connection";
+	private static final CharSequence	ALERT_BUTTON_TEXT																		= "Okay";
+	private static final long					VIBRATION_DURATION																	= 2000;
+	private static final int					LOGIN																								= R.id.menu_login;
+	private static final int					LIST_EVENTS																					= R.id.menu_listEvents;
+	private static final int					SEE_EVENTS_U_ARE_INVITED_TO													= R.id.menu_seeEventsToWhichUareInvited;
+	private static final int					ADD_AN_EVENT																				= R.id.menu_addEvent;
+	private static final String				ACTION_DRAW_ROUTE_TITLE															= "Draw Route On Map";
+	private static final int					DRAW_ROUTE_ICON																			= R.drawable.get_directions;
+	private static final String				ACTION_DETAILS_TITLE																= "Details";
+	private static final int					EVENT_DETAILS_ICON																	= R.drawable.event_details;
+	private static final String				ACTION_GET_DIRECTIONS_TITLE													= "Get Directions";
+	private static final int					GET_DIRECTIONS_ICON																	= R.drawable.get_directions;
+
+	public static double							user_latitude																				= 0;
+	public static double							user_longitude																			= 0;
+	public static ArrayList<Event>		sortedArrayList																			= null;
+	public static String							type_of_event																				= null;
+	public static boolean							isInForeGround																			= false;
 
 	// variables
-	private boolean										first_time												= true;
-	private ArrayList<Event>					eventsArrayList										= null;
-	private HashMap<String, Event>		eventMarkerMap										= new HashMap<String, Event>();
+	private boolean										first_time																					= true;
+	private ArrayList<Event>					eventsArrayList																			= null;
+	public static ArrayList<Event>		transientArrayList																	= null;
+	private HashMap<String, Event>		eventMarkerMap																			= new HashMap<String, Event>();
 	private GoogleMap									googleMap;
 	private Location									location;
-	public static EventOwner					anEventOwner											= null;
-	private Menu											menu															= null;
+	public static User								theUser																							= null;
+	private Menu											menu																								= null;
 	private Vibrator									myVib;
-	static LatLng											dest															= null;
+	private ActionItem								action_drawRoute;
+	private ActionItem								action_details;
+	private QuickAction								mQuickAction;
+	public static LatLng							dest																								= null;
 
 
 	@Override
@@ -113,6 +132,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 				initializeStaticVariables();
 				DrawMapTask drawMapTask = new DrawMapTask();
 				drawMapTask.execute();
+				initializeQuickActionBar(this);
 			}
 			else
 			{
@@ -138,12 +158,15 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 	}
 
 
-	/**DO_NOT_DELETE this reads variables from strings xml file and initializes them so that other classes can use them **/
+	/**
+	 * DO_NOT_DELETE this reads variables from strings xml file and initializes
+	 * them so that other classes can use them
+	 **/
 	private void initializeStaticVariables()
 	{
 		res = getResources();
 		WEBSITE_URL = res.getString(R.string.website_url);
-		Manager.PHP_SCRIPT_ADDRESS=WEBSITE_URL;
+		Manager.PHP_SCRIPT_ADDRESS = WEBSITE_URL;
 	}
 
 
@@ -242,7 +265,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 		{
 			case LOGIN:
 				String title = menu_item.getTitle().toString();
-				if (title.equalsIgnoreCase(LOGIN_BUTTON_TEXT) && anEventOwner == null)
+				if (title.equalsIgnoreCase(LOGIN_BUTTON_TEXT))
 				{// user wants to login
 					goToLoginScreen();
 				}
@@ -252,11 +275,25 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 				}
 				return true;
 			case LIST_EVENTS:
-				StartListingEventsTask startListingEventsTask = new StartListingEventsTask();
+				StartListingAllEventsTask startListingEventsTask = new StartListingAllEventsTask();
 				startListingEventsTask.execute();
 				return true;
 			case ADD_AN_EVENT:
 				goToNewEventScreen();
+				return true;
+			case SEE_EVENTS_U_ARE_INVITED_TO:
+				if (getUserContact(theUser) != null)
+				{
+					theUser = getUserContact(theUser);
+					GetEventsUserIsInvitedToEventsTask getEventsUserIsInvitedToEventsTask = new GetEventsUserIsInvitedToEventsTask();
+					getEventsUserIsInvitedToEventsTask.execute(theUser);
+				}
+				else
+				{
+					showGetUserContactDialog();
+					displayToast(this, Manager.MESSAGE, LONG_DURATION);
+
+				}
 				return true;
 
 		}
@@ -265,14 +302,22 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 	}
 
 
+	private void gotoListEventsToWhichUserIsInvited()
+	{
+		Intent listEventsScreen = new Intent(MainActivity.this, ListEventsUserIsInvitedToActivity.class);
+		startActivityForResult(listEventsScreen, LIST_EVENTS_USER_IS_INVITED_TO_ACTIVITY_RESULT_CODE);
+	}
+
+
 	/**
+	 * 
 	 * 
 	 * this logs the user out
 	 */
 	private void logOut(MenuItem menu_item, Menu menu)
 	{
 		// user wants to logout
-		anEventOwner = null;
+		theUser = null;
 		// make button say 'Login'
 		menu_item.setTitle(LOGIN_BUTTON_TEXT);
 		// display message
@@ -288,7 +333,6 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 	 */
 	private void goToLoginScreen()
 	{
-
 		Intent loginScreen = new Intent(MainActivity.this, LoginActivity.class);
 		startActivityForResult(loginScreen, LOGIN_ACTIVITY_RESULT_CODE);
 	}
@@ -300,14 +344,14 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 	private void goToNewEventScreen()
 	{
 
-		if (anEventOwner == null)
+		if (theUser == null)
 		{// if he is not logged in [probably will never reach here but just to be
 			// safe]
 			return;
 		}
 		Intent newEventScreen = new Intent(MainActivity.this, NewEventActivity.class);
 		Bundle aBundle = new Bundle();
-		aBundle.putInt("user_id", anEventOwner.getUser_id());
+		aBundle.putInt("user_id", ((EventOwner) theUser).getUser_id());
 		newEventScreen.putExtras(aBundle);
 		startActivityForResult(newEventScreen, NEW_EVENT_ACTIVITY_RESULT_CODE);
 	}
@@ -337,7 +381,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 				{
 					if (dest == null)
 					{
-						throw new IllegalArgumentException("destination cant be null");
+						throw new IllegalArgumentException(ILLEGAL_PARAMETER_TEXT);
 					}
 					LatLng origin = new LatLng(user_latitude, user_longitude);
 					// Getting URL to the Google Directions API
@@ -363,7 +407,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 					// make the button say 'Log Out'
 					login.setTitle(LOG_OUT_BUTTON_TEXT);
 					// inform user
-					String success_text = LOG_IN_SUCCESS_TEXT + " " + anEventOwner.getEmail();
+					String success_text = LOG_IN_SUCCESS_TEXT + " " + ((EventOwner) theUser).getEmail();
 					displayToast(MainActivity.this, success_text, Toast.LENGTH_LONG);
 				}
 			default:
@@ -391,10 +435,10 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 		String company_name = aBundle.getString("company_name");
 		String description = aBundle.getString("description");
 		String location = aBundle.getString("location");
-		String number=aBundle.getString("number");
-		String name=aBundle.getString("name");
-		Contact usersContact=new Contact(name, number);
-		anEventOwner = new EventOwner(user_id, email, password, company_name, location, description,usersContact);
+		String number = aBundle.getString("number");
+		String name = aBundle.getString("name");
+		Contact usersContact = new Contact(name, number);
+		theUser = new EventOwner(user_id, email, password, company_name, location, description, usersContact);
 
 	}
 
@@ -432,11 +476,94 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 	/**
 	 * this class starts the list events activity in the background
 	 */
-	private class StartListingEventsTask extends AsyncTask<String, Integer, Integer>
+	private class StartListingAllEventsTask extends AsyncTask<String, Integer, Boolean>
 	{
-		private final Integer				FAILURE								= 0;
-		private final Integer				SUCCESS								= 1;
-		private final CharSequence	PROGRESS_DIALOG_TEXT	= "Loading.Please Wait...";
+		private final CharSequence	PROGRESS_DIALOG_TEXT	= "Getting Events.Please Wait...";
+		private ProgressDialog			pDialog;
+		private Intent							listEventsScreen;
+
+
+		@Override
+		protected void onPreExecute()
+		{
+			// create progress dialog and display it to user
+			pDialog = new ProgressDialog(MainActivity.this);
+			pDialog.setMessage(PROGRESS_DIALOG_TEXT);
+			pDialog.setIndeterminate(false);
+			pDialog.setCancelable(true);
+			pDialog.show();
+		}
+
+
+		@Override
+		protected Boolean doInBackground(String... args)
+		{
+
+			// first check if there are any events
+			transientArrayList = EventManager.getEventsIn10KmRadius(new LatLng(user_latitude, user_longitude));
+			listEventsScreen = new Intent(MainActivity.this, ListEventsActivity.class);
+			if (theUser != null)
+			{
+				sendUserId(theUser, listEventsScreen);
+			}
+			try
+			{
+				if (transientArrayList.size() <= 0)
+				{
+					return false;
+				}
+			}
+			catch (NullPointerException e)
+			{
+				return false;
+			}
+
+			return true;
+
+		}
+
+
+		private void sendUserId(User aUser, Intent intent)
+		{
+			try
+			{
+				EventOwner anEventOwner=(EventOwner)aUser;
+				int user_id = anEventOwner.getUser_id();
+				Bundle extras = new Bundle();
+				extras.putInt("user_id", user_id);
+				intent.putExtras(extras);
+			}
+			catch (Exception e)
+			{
+				
+			}
+			
+		}
+
+
+		@Override
+		protected void onPostExecute(Boolean bool)
+		{
+			super.onPostExecute(bool);
+			pDialog.dismiss();
+			if (bool)
+			{
+				startActivityForResult(listEventsScreen, LIST_EVENTS_ACTIVITY_RESULT_CODE);
+			}
+			else
+			{
+				displayToast(MainActivity.this, Manager.MESSAGE, LONG_DURATION);
+			}
+		}
+	}
+
+
+	/**
+	 * this class starts the list events activity in the background
+	 */
+	private class GetEventsUserIsInvitedToEventsTask extends AsyncTask<User, Integer, Boolean>
+	{
+		private final CharSequence	PROGRESS_DIALOG_TEXT	= "Getting Events.Please Wait...";
 		private ProgressDialog			pDialog;
 
 
@@ -453,53 +580,163 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 
 
 		@Override
-		protected Integer doInBackground(String... args)
+		protected Boolean doInBackground(User... users)
 		{
-			try
+			User aUser = users[0];
+			if (aUser == null)
 			{
-				// first check if there are any events
-				if (EventManager.getEventsIn10KmRadius(new LatLng(user_latitude, user_longitude)) != null)
-				{
-					Intent listEventsScreen = new Intent(MainActivity.this, ListEventsActivity.class);
-					if (anEventOwner != null)
-					{
-						sendUserId(anEventOwner, listEventsScreen);
-					}
-					pDialog.dismiss();
-					startActivityForResult(listEventsScreen, LIST_EVENTS_ACTIVITY_RESULT_CODE);
-					return SUCCESS;
-				}
-
+				throw new IllegalArgumentException(ILLEGAL_PARAMETER_TEXT);
 			}
 
-			catch (Exception e)
+			transientArrayList = EventManager.getEventsToWhichUserIsInvited(aUser);
+			if (transientArrayList.size() <= 0)
 			{
+				return false;
 			}
-			// if none then inform user
-			return FAILURE;
+			return true;
 
-		}
-
-
-		private void sendUserId(EventOwner anEventOwner, Intent intent)
-		{
-			int user_id = anEventOwner.getUser_id();
-			Bundle extras = new Bundle();
-			extras.putInt("user_id", user_id);
-			intent.putExtras(extras);
 		}
 
 
 		@Override
-		protected void onPostExecute(Integer result)
+		protected void onPostExecute(Boolean result)
 		{
 			super.onPostExecute(result);
-			if (result == FAILURE)
+			pDialog.dismiss();
+			if (result)
 			{
-				pDialog.dismiss();
-				displayToast(MainActivity.this, (String) FAILED_TO_GET_EVENTS_TEXT, LONG_DURATION);
+				gotoListEventsToWhichUserIsInvited();
+				return;
 			}
+			displayToast(getApplicationContext(), Manager.MESSAGE, LONG_DURATION);
 		}
+
+	}
+
+
+	private void initializeQuickActionBar(Context aContext)
+	{
+		// Delete action item
+		action_drawRoute = new ActionItem();
+		// set text for delete action item
+		action_drawRoute.setTitle(ACTION_DRAW_ROUTE_TITLE);
+		// set icon for delete action item
+		action_drawRoute.setIcon(getResources().getDrawable(DRAW_ROUTE_ICON));
+		// Add details action item
+		action_details = new ActionItem();
+		// set text for details action item
+		action_details.setTitle(ACTION_DETAILS_TITLE);
+		// set icon for details action item
+		action_details.setIcon(getResources().getDrawable(EVENT_DETAILS_ICON));
+
+		// Get Route action
+		ActionItem action_directions = new ActionItem();
+		// set text for action item
+		action_directions.setTitle(ACTION_GET_DIRECTIONS_TITLE);
+		// set icon for action item
+		action_directions.setIcon(getResources().getDrawable(GET_DIRECTIONS_ICON));
+
+		mQuickAction = new QuickAction(aContext);
+
+		mQuickAction.addActionItem(action_details);
+		mQuickAction.addActionItem(action_drawRoute);
+		mQuickAction.addActionItem(action_directions);
+
+		// setup the action item click listener
+		mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener()
+		{
+			@Override
+			public void onItemClick(int pos)
+			{
+				if (pos == 0)// if details is clicked
+				{
+
+				}
+				else if (pos == 1)// if delete event is clicked
+				{
+					if (true)
+					{
+						// show alert dialog
+						// showTheDoYouReallyWantToDeleteThisDialog();
+					}
+
+				}
+				else if (pos == 2)// if edit event is clicked
+				{
+					if (true)
+					{
+
+					}
+
+				}
+				else if (pos == 3)// if get directions is clicked
+				{
+				}
+			}
+		});
+	}
+
+
+	protected User getUserContact(User aUser)
+	{
+		if (aUser != null)
+		{
+			return aUser;
+		}
+		SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
+		// SharedPreferences.Editor editor=preferences.edit();
+		String name = preferences.getString("name", null);
+		String number = preferences.getString("number", null);
+		if (name == null || number == null)
+		{
+			return null;
+		}
+		aUser = new User(new Contact(name, number));
+		return aUser;
+	}
+
+
+	protected void showGetUserContactDialog()
+	{
+		// get prompts.xml view
+		LayoutInflater li = LayoutInflater.from(getBaseContext());
+		View promptsView = li.inflate(R.layout.get_user_contact_prompt, null);
+
+		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+
+		// set prompts.xml to alert dialog builder
+		alertDialogBuilder.setView(promptsView);
+
+		final EditText userPhoneNumber = (EditText) promptsView.findViewById(R.id.getUserContact_userPhoneNumber);
+		final EditText userName = (EditText) promptsView.findViewById(R.id.getUserContact_username);
+
+		// set dialog message
+		alertDialogBuilder.setCancelable(false).setPositiveButton("OK", new DialogInterface.OnClickListener()
+		{
+			public void onClick(DialogInterface dialog, int id)
+			{
+				// get user input and set it to result
+				// edit text
+				String user_name = userName.getText().toString();
+				String phone_number = userPhoneNumber.getText().toString();
+				Contact usersContact = new Contact(user_name, phone_number);
+				// theUser = new User(usersContact);
+				ContactsManager.saveUsersContactLocaly(usersContact, MainActivity.this);
+			}
+		}).setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+		{
+			public void onClick(DialogInterface dialog, int id)
+			{
+				dialog.cancel();
+			}
+		});
+
+		// create alert dialog
+		AlertDialog alertDialog = alertDialogBuilder.create();
+
+		// show it
+		alertDialog.show();
+
 	}
 
 
@@ -524,7 +761,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 			// Showing status
 			if (status != ConnectionResult.SUCCESS)
 			{ // Google Play Services are not available
-				
+
 				int requestCode = 10;
 				Dialog dialog = GooglePlayServicesUtil.getErrorDialog(status, MainActivity.this, requestCode);
 				dialog.show();
@@ -532,15 +769,14 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 			}
 			else
 			{ // Google Play Services are available
-				
+
 				// create progress dialog and display it to user
 				pDialog = new ProgressDialog(MainActivity.this);
 				pDialog.setMessage(PROGRESS_DIALOG_TEXT);
 				pDialog.setIndeterminate(false);
 				pDialog.setCancelable(false);
 				pDialog.show();
-				
-				
+
 				// Getting reference to the SupportMapFragment of activity_main.xml
 				SupportMapFragment fm = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 				// Getting GoogleMap object from the fragment
@@ -674,7 +910,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 						public void onInfoWindowClick(Marker marker)
 						{
 
-							// Code To display some more info about marker
+							// Code To Handle a click on the info window
 							if (eventsArrayList != null)
 							{// if the events array list is not empty
 								// get the event linked to marker
@@ -710,13 +946,13 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 							String name = anEvent.getName_of_event();
 
 							String duration = anEvent.getDuration();
-							
+
 							String location_in_words = anEvent.getEvent_location_in_words();
 							int user_id = anEvent.getUser_id();
 							int event_id = anEvent.getEvent_id();
 							String type = anEvent.getType_of_event();
-							Boolean heard_of_event=anEvent.getHeard_of_this_event_status();
-							int total_people_who_have_heard=anEvent.getTotal_people_who_have_heard();
+							Boolean heard_of_event = anEvent.getHeard_of_this_event_status();
+							int total_people_who_have_heard = anEvent.getTotal_people_who_have_heard();
 							Bundle extras = new Bundle();
 							extras.putDouble("latitude", latitude);
 							extras.putDouble("longitude", longitude);
@@ -730,7 +966,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 							extras.putInt("event_id", event_id);
 							extras.putString("type", type);
 							extras.putBoolean("heard_of_event", heard_of_event);
-							extras.putInt("total_people_who_have_heard",total_people_who_have_heard);
+							extras.putInt("total_people_who_have_heard", total_people_who_have_heard);
 							intent.putExtras(extras);
 						}
 

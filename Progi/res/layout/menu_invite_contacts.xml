@@ -12,13 +12,23 @@
     <item
         android:id="@+id/menu_inviteContacts"
         android:title="Invite Friends To This Event"
+        android:icon="@drawable/invite_contacts"
         android:showAsAction="never"
         />
     <item
         android:id="@+id/menu_seeInvitedContacts"
         android:title="See Invited Friends"
+      	android:icon="@drawable/see_who_is_invited"
         android:showAsAction="never"
         />
+    
+    <item
+        android:id="@+id/menu_getDirections"
+        android:title="Get Directions"
+      	android:icon="@drawable/get_directions"
+        android:showAsAction="never"
+        />
+    
     
 
 </menu>

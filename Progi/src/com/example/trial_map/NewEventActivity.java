@@ -1,9 +1,5 @@
 package com.example.trial_map;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -15,38 +11,36 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.example.trial_map.adapters.PlacesAutoCompleteAdapter;
 import com.example.trial_map.asyncTasks.SaverTask;
 import com.example.trial_map.beans.Event;
 import com.example.trial_map.managers.EventManager;
-import com.example.trial_map.managers.NetworkManager;
+import com.example.trial_map.managers.LocationManager;
+import com.example.trial_map.managers.Manager;
 import com.google.android.gms.maps.model.LatLng;
 
 /** this activity helps user to create a new event on the server side **/
 public class NewEventActivity extends ActionBarActivity implements OnItemClickListener
 {
-	private static final int					NEW_EVENT_XML						= R.layout.new_event;
-	private static final String				GEOCODE_ADDRESS					= "https://maps.googleapis.com/maps/api/geocode/json";
-	private static final String				TAG_RESULTS							= "results";
-	private static final String				TAG_STATUS							= "status";
-	private static final String				NO_LOCATION_FOUND_TEXT	= "Failed To Find Location Of Event.Event Was Not Created";
-	private final String							INVALID_USER_INPUT_TEXT	= "PLEASE FILL IN ALL THE REQUIRED FIELDS BEFORE SUBMITTING!!";
+	private static final int			NEW_EVENT_XML								= R.layout.new_event;
+	
+	
 
 	// widgets
-	private AutoCompleteTextView			location_auto_complete;
-	private EditText									description;
-	private TimePicker								timePicker;
-	private DatePicker								datePicker;
-	private Button										button_saveEvent;
+	private AutoCompleteTextView	location_auto_complete;
+	private EditText							description;
+	private TimePicker						timePicker;
+	private DatePicker						datePicker;
+	private Button								button_saveEvent;
 
-	private EditText									name_of_event;
-	private Spinner										duration_of_event;
-	private Spinner										type_of_event;
-	private int												user_id;
-	private int total_people_who_have_heard=0;
-	
+	private EditText							name_of_event;
+	private Spinner								duration_of_event;
+	private Spinner								type_of_event;
+	private int										user_id;
+	private int										total_people_who_have_heard	= 0;
+
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -102,60 +96,7 @@ public class NewEventActivity extends ActionBarActivity implements OnItemClickLi
 	}
 
 
-	/** returns the latitude and longitude of location chosen by user **/
-	private LatLng getLatLngOfLocationInputByUser(String location_in_words)
-	{
-		// replace all commas in the input with a + sign
-		location_in_words = location_in_words.replaceAll(",", "+");
-		// replace all spaces in the input with a %20 sign
-		location_in_words = location_in_words.replaceAll(" ", "%20");
-		// finally generate address parameter
-		String address = "address=" + location_in_words;
-		// set required sensor parameter
-		String sensor = "sensor=true";
-		// set parameters into 1 string
-		String paramaters = sensor + "&" + address;
-		// generate url
-		String url = GEOCODE_ADDRESS + "?" + paramaters;
-
-		new NetworkManager();
-		// make the request to google
-		JSONObject jsonObject = NetworkManager.makeHttpGetRequest(url);
-
-		try
-		{// to get latitude and longitude
-			double latitude;
-			double longitude;
-			String status = jsonObject.getString(TAG_STATUS);
-			if (status.equalsIgnoreCase("ok"))
-			{
-				// Getting Array of results
-				JSONArray results = jsonObject.getJSONArray(TAG_RESULTS);
-				// get results object from result array
-				JSONObject result_components = results.getJSONObject(0);
-				// get geometry object from json results
-				JSONObject geometery = result_components.getJSONObject("geometry");
-				// get location object from json geometry
-				JSONObject location = geometery.getJSONObject("location");
-				// finally read the latitude and longitude values from object
-				latitude = location.getDouble("lat");
-				longitude = location.getDouble("lng");
-				// return new latlng object
-				return new LatLng(latitude, longitude);
-			}
-			else
-			{// there are no results from google places
-				return null;
-			}
-
-		}
-		catch (JSONException e)
-		{
-		}
-		return null;
-	}
-
-
+	
 	/** enables or disables gui widgets **/
 	private void EnableWidgets(boolean bool)
 	{
@@ -187,7 +128,7 @@ public class NewEventActivity extends ActionBarActivity implements OnItemClickLi
 			// get location of event
 			String location_in_words = location_auto_complete.getText().toString();
 			// get latitude and longitude of event
-			LatLng location = getLatLngOfLocationInputByUser(location_in_words);
+			LatLng location = LocationManager.getLatLngOfLocationInputByUser(location_in_words);
 			// if no latitude and longitude can be found for given location
 			if (location == null)
 			{
@@ -224,7 +165,7 @@ public class NewEventActivity extends ActionBarActivity implements OnItemClickLi
 			String type = type_of_event.getSelectedItem().toString();
 
 			// store all info in an event object
-			Event anEvent = new Event(location.latitude, location.longitude, time, date, desc, event_name, event_duration, location_in_words, user_id, -1, type,true,total_people_who_have_heard);
+			Event anEvent = new Event(location.latitude, location.longitude, time, date, desc, event_name, event_duration, location_in_words, user_id, -1, type, true, total_people_who_have_heard);
 
 			return anEvent;
 		}
@@ -237,7 +178,7 @@ public class NewEventActivity extends ActionBarActivity implements OnItemClickLi
 			// no event is returned becoz no location for the event could be found
 			if (anEvent == null)
 			{
-				displayToast(NewEventActivity.this, NO_LOCATION_FOUND_TEXT, Toast.LENGTH_LONG);
+				displayToast(NewEventActivity.this, Manager.MESSAGE, LONG_DURATION);
 				return;
 			}
 			if (EventManager.EventIsValid(anEvent) == EventManager.SUCCESS)
@@ -249,11 +190,13 @@ public class NewEventActivity extends ActionBarActivity implements OnItemClickLi
 			else if (EventManager.EventIsValid(anEvent) == EventManager.DATE_ERROR)
 			{
 				// event not valid.user input is wrong inform user
-				displayToast(NewEventActivity.this, EventManager.INVALID_DATE_TEXT, Toast.LENGTH_LONG);
+				displayToast(NewEventActivity.this, Manager.MESSAGE, LONG_DURATION);
+				return;
 			}
 			else
 			{// event not valid.user input is wrong inform user
-				displayToast(NewEventActivity.this, INVALID_USER_INPUT_TEXT, Toast.LENGTH_LONG);
+				displayToast(NewEventActivity.this, Manager.MESSAGE, LONG_DURATION);
+				return;
 			}
 
 		}

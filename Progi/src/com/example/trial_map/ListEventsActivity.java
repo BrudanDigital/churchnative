@@ -1,10 +1,6 @@
 package com.example.trial_map;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-
-import org.json.JSONObject;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -14,7 +10,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-
 import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -25,12 +20,10 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.SubMenu;
 import com.example.trial_map.adapters.CustomArrayAdapter;
-import com.example.trial_map.adapters.DateComparator;
+import com.example.trial_map.asyncTasks.GetDirectionsTask;
 import com.example.trial_map.beans.ActionItem;
 import com.example.trial_map.beans.Event;
 import com.example.trial_map.managers.EventManager;
-import com.example.trial_map.managers.NetworkManager;
-import com.example.trial_map.util.JSONParser;
 import com.example.trial_map.widgets.QuickAction;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -51,9 +44,11 @@ public class ListEventsActivity extends SherlockListActivity
 	private static final String					DIALOG_NEGATIVE_BTN_TXT					= "No";
 	private static final String					ACTION_DELETE_TITLE							= "Delete";
 	private static final String					ACTION_EDIT_TITLE								= "Edit";
-	private static final String					ACTION_GET_DIRECTIONS_TITLE			= "Get Diretions";
+	private static final String					ACTION_GET_DIRECTIONS_TITLE			= "Get Directions";
+	private static final String					ACTION_DRAW_ROUTE_TITLE					= "Draw Route";
 	private static final String					ACTION_DETAILS_TITLE						= "Details";
 	private static final int						GET_DIRECTIONS_ICON							= R.drawable.get_directions;
+	private static final int						DRAW_ROUTE_ICON									= R.drawable.draw_route;
 	private static final int						EDIT_EVENT_ICON									= R.drawable.edit_event;
 	private static final int						EDIT_EVENT_DISABLED_ICON				= R.drawable.edit_event_disabled;
 	private static final int						EVENT_DETAILS_ICON							= R.drawable.event_details;
@@ -63,18 +58,18 @@ public class ListEventsActivity extends SherlockListActivity
 	protected static final int					LONG_DURATION										= Toast.LENGTH_LONG;
 	private static final int						DISPLAY_DIRECTIONS_RESULT_CODE	= 400;
 	private static final int						SUBMENU_GROUP_ID								= 1;
-	private static LatLng								user_location										= new LatLng(MainActivity.user_latitude, MainActivity.user_longitude);
-	private ArrayList<Event>						events_ArrayList								= EventManager.getEventsIn10KmRadius(user_location);
+	private ArrayList<Event>						events_ArrayList								= MainActivity.transientArrayList;
 	private View												view														= null;
 	private int													index_of_selected_event					= -1;
 	private QuickAction									mQuickAction										= null;
 	private GetEventDetailsTask					getEventDetailsTask;
 	private EditEventDetailsTask				editEventDetailsTask;
 	private int													USER_ID;
-	private ActionItem									action_edit;
-	private ActionItem									action_directions;
-	private ActionItem									action_delete;
-	private ActionItem									action_details;
+	private ActionItem									action_editEvent;
+	private ActionItem									action_getDirections;
+	private ActionItem									action_deleteEvent;
+	private ActionItem									action_getDetails;
+	private ActionItem									action_drawRoute;
 	public static ArrayList<String>			directionsArrayList							= null;
 
 	String[]														type_array											= { "meeting", "party", "social", "religious", "programming", "cinema", "drink up", "music festival", "strike" };
@@ -143,18 +138,18 @@ public class ListEventsActivity extends SherlockListActivity
 	{
 
 		// Delete action item
-		action_delete = new ActionItem();
+		action_deleteEvent = new ActionItem();
 		// set text for delete action item
-		action_delete.setTitle(ACTION_DELETE_TITLE);
-		action_delete.setEnabled(false);
-		action_delete.setIcon(getResources().getDrawable(DELETE_EVENT_DISABLED_ICON));
+		action_deleteEvent.setTitle(ACTION_DELETE_TITLE);
+		action_deleteEvent.setEnabled(false);
+		action_deleteEvent.setIcon(getResources().getDrawable(DELETE_EVENT_DISABLED_ICON));
 
 		// Edit action item
-		action_edit = new ActionItem();
+		action_editEvent = new ActionItem();
 		// set text for edit action item
-		action_edit.setTitle(ACTION_EDIT_TITLE);
-		action_edit.setEnabled(false);
-		action_edit.setIcon(getResources().getDrawable(EDIT_EVENT_DISABLED_ICON));
+		action_editEvent.setTitle(ACTION_EDIT_TITLE);
+		action_editEvent.setEnabled(false);
+		action_editEvent.setIcon(getResources().getDrawable(EDIT_EVENT_DISABLED_ICON));
 
 		initializeQuickActionBar();
 	}
@@ -166,25 +161,34 @@ public class ListEventsActivity extends SherlockListActivity
 	private void initializeQuickActionBar()
 	{
 		// Add details action item
-		action_details = new ActionItem();
+		action_getDetails = new ActionItem();
 		// set text for details action item
-		action_details.setTitle(ACTION_DETAILS_TITLE);
+		action_getDetails.setTitle(ACTION_DETAILS_TITLE);
 		// set icon for details action item
-		action_details.setIcon(getResources().getDrawable(EVENT_DETAILS_ICON));
+		action_getDetails.setIcon(getResources().getDrawable(EVENT_DETAILS_ICON));
 
 		// Get Route action
-		action_directions = new ActionItem();
+		action_getDirections = new ActionItem();
 		// set text for action item
-		action_directions.setTitle(ACTION_GET_DIRECTIONS_TITLE);
+		action_getDirections.setTitle(ACTION_GET_DIRECTIONS_TITLE);
 		// set icon for action item
-		action_directions.setIcon(getResources().getDrawable(GET_DIRECTIONS_ICON));
+		action_getDirections.setIcon(getResources().getDrawable(GET_DIRECTIONS_ICON));
+
+		// draw Route action
+		action_drawRoute = new ActionItem();
+		// set text for action item
+		action_drawRoute.setTitle(ACTION_DRAW_ROUTE_TITLE);
+		// set icon for action item
+		action_drawRoute.setIcon(getResources().getDrawable(DRAW_ROUTE_ICON));
 
 		mQuickAction = new QuickAction(this);
 
-		mQuickAction.addActionItem(action_details);
-		mQuickAction.addActionItem(action_delete);
-		mQuickAction.addActionItem(action_edit);
-		mQuickAction.addActionItem(action_directions);
+		mQuickAction.addActionItem(action_getDetails);
+		mQuickAction.addActionItem(action_deleteEvent);
+		mQuickAction.addActionItem(action_editEvent);
+		mQuickAction.addActionItem(action_drawRoute);
+		mQuickAction.addActionItem(action_getDirections);
+		
 
 		// setup the action item click listener
 		mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener()
@@ -196,40 +200,44 @@ public class ListEventsActivity extends SherlockListActivity
 				{
 					return;
 				}
-				if (pos == 0)// if details is clicked
+				LatLng dest = new LatLng(getSelectedEvent(index_of_selected_event).getLatitude(), getSelectedEvent(index_of_selected_event).getLongitude());
+				switch (pos)
 				{
-
-					getEventDetailsTask = new GetEventDetailsTask();
-					getEventDetailsTask.execute();
+					
+					case 0:// if details is clicked
+						getEventDetailsTask = new GetEventDetailsTask();
+						getEventDetailsTask.execute();
+						break;
+					case 1:// if delete event is clicked
+						if (heCreatedTheEventInQuestion())
+						{
+							// show alert dialog
+							showTheDoYouReallyWantToDeleteThisDialog();
+						}
+						break;
+					case 2:// if edit event is clicked
+						if (heCreatedTheEventInQuestion())
+						{
+							// go to the edit activity
+							editEventDetailsTask = new EditEventDetailsTask();
+							editEventDetailsTask.execute();
+						}
+						break;
+					case 3:// if draw is clicked
+						// start display directions activity
+						MainActivity.dest = dest;
+						setResult(RESULT_OK);
+						finish();
+						break;
+					case 4:// if get directions is clicked
+						// start display directions activity
+						GetDirectionsTask getDirectionsTask = new GetDirectionsTask(ListEventsActivity.this);
+						getDirectionsTask.execute(dest);
+						break;
+					default:
+						break;
 				}
-				else if (pos == 1)// if delete event is clicked
-				{
-					if (heCreatedTheEventInQuestion())
-					{
-						// show alert dialog
-						showTheDoYouReallyWantToDeleteThisDialog();
-					}
-
-				}
-				else if (pos == 2)// if edit event is clicked
-				{
-					if (heCreatedTheEventInQuestion())
-					{
-						// go to the edit activity
-						editEventDetailsTask = new EditEventDetailsTask();
-						editEventDetailsTask.execute();
-					}
-
-				}
-				else if (pos == 3)// if get directions is clicked
-				{ // start display directions activity
-					LatLng origin = new LatLng(MainActivity.user_latitude, MainActivity.user_longitude);
-					LatLng dest = new LatLng(getSelectedEvent(index_of_selected_event).getLatitude(), getSelectedEvent(index_of_selected_event).getLongitude());
-					MainActivity.dest = dest;
-					GetDirectionsTask getDirectionsTask = new GetDirectionsTask();
-					LatLng[] latLngs = { origin, dest };
-					getDirectionsTask.execute(latLngs);
-				}
+				
 			}
 		});
 	}
@@ -241,18 +249,18 @@ public class ListEventsActivity extends SherlockListActivity
 	private void enableQuickActionItems()
 	{
 		// Delete action item
-		action_delete = new ActionItem();
+		action_deleteEvent = new ActionItem();
 		// set text for delete action item
-		action_delete.setTitle(ACTION_DELETE_TITLE);
+		action_deleteEvent.setTitle(ACTION_DELETE_TITLE);
 		// set icon for delete action item
-		action_delete.setIcon(getResources().getDrawable(DELETE_EVENT_ICON));
+		action_deleteEvent.setIcon(getResources().getDrawable(DELETE_EVENT_ICON));
 
 		// Edit action item
-		action_edit = new ActionItem();
+		action_editEvent = new ActionItem();
 		// set text for edit action item
-		action_edit.setTitle(ACTION_EDIT_TITLE);
+		action_editEvent.setTitle(ACTION_EDIT_TITLE);
 		// set icon for edit action item
-		action_edit.setIcon(getResources().getDrawable(EDIT_EVENT_ICON));
+		action_editEvent.setIcon(getResources().getDrawable(EDIT_EVENT_ICON));
 
 		initializeQuickActionBar();
 	}
@@ -381,6 +389,29 @@ public class ListEventsActivity extends SherlockListActivity
 
 
 	/**
+	 * @return an array list containing names of all events returns event
+	 *         descriptions in string array
+	 */
+	public ArrayList<String> getEventsAsStringArray()
+	{
+
+		if (this.events_ArrayList == null)
+		{
+			throw new IllegalStateException("events_ArrayList cant be null");
+		}
+		if (MainActivity.type_of_event != null)
+		{
+			ArrayList<Event> sortedArrayList = EventManager.sortByType(events_ArrayList, MainActivity.type_of_event);
+			MainActivity.sortedArrayList = sortedArrayList;
+			return EventManager.getEventNamesSortedByDate(sortedArrayList);
+		}
+		ArrayList<Event> sortedArrayList = EventManager.sortByDateOfEvent(events_ArrayList);
+		return EventManager.getEventNamesSortedByDate(sortedArrayList);
+
+	}
+
+
+	/**
 	 * @param intent
 	 *          the intent to be used to send the event
 	 * @param anEvent
@@ -406,8 +437,8 @@ public class ListEventsActivity extends SherlockListActivity
 		user_id = anEvent.getUser_id();
 		int event_id = anEvent.getEvent_id();
 		String type = anEvent.getType_of_event();
-		Boolean heard_of_event=anEvent.getHeard_of_this_event_status();
-		int total_people_who_have_heard=anEvent.getTotal_people_who_have_heard();
+		Boolean heard_of_event = anEvent.getHeard_of_this_event_status();
+		int total_people_who_have_heard = anEvent.getTotal_people_who_have_heard();
 		// create bundle to store all the object state
 		Bundle extras = new Bundle();
 		// add state to bundle
@@ -423,76 +454,9 @@ public class ListEventsActivity extends SherlockListActivity
 		extras.putInt("event_id", event_id);
 		extras.putString("type", type);
 		extras.putBoolean("heard_of_event", heard_of_event);
-		extras.putInt("total_people_who_have_heard",total_people_who_have_heard);
+		extras.putInt("total_people_who_have_heard", total_people_who_have_heard);
 		// add bundle to intent
 		intent.putExtras(extras);
-	}
-
-
-	/**
-	 * @return an array list containing names of all events returns event
-	 *         descriptions in string array
-	 */
-	public ArrayList<String> getEventsAsStringArray()
-	{
-		
-		if (this.events_ArrayList == null)
-		{
-			throw new IllegalStateException("events_ArrayList cant be null");
-		}
-		if (MainActivity.type_of_event != null)
-		{
-			return sortByType(MainActivity.type_of_event);
-		}
-		return sortByDateOfEvent();
-
-	}
-
-
-	/** returns an array of the events sorted by date created **/
-	private ArrayList<String> sortByDateOfEvent()
-	{
-		if (events_ArrayList == null)
-		{
-			return null;
-		}
-		Collections.sort(events_ArrayList, new DateComparator());
-		ArrayList<String> sortedArrayList = new ArrayList<String>();
-		Iterator<Event> iterator = events_ArrayList.iterator();
-		while (iterator.hasNext())
-		{
-			Event event = iterator.next();
-			String data = capitaliseFirstLetterOfEachWord(event.getName_of_event()) + "\nOn:" + event.getDate();
-			sortedArrayList.add(data);
-		}
-		// MainActivity.sort_by_date = true;
-		return sortedArrayList;
-	}
-
-
-	/** returns an array of events with the given type of event **/
-	public ArrayList<String> sortByType(String type_of_event)
-	{
-
-		if (events_ArrayList == null)
-		{
-			return null;
-		}
-		ArrayList<String> sortedArrayList = new ArrayList<String>();
-		ArrayList<Event> sortedEventsArrayList = new ArrayList<Event>();
-		Iterator<Event> iterator = events_ArrayList.iterator();
-		while (iterator.hasNext())
-		{
-			Event event = iterator.next();
-			if (event.getType_of_event().equalsIgnoreCase(type_of_event))
-			{
-				String data = capitaliseFirstLetterOfEachWord(event.getName_of_event()) + "\nOn:" + event.getDate();
-				sortedArrayList.add(data);
-				sortedEventsArrayList.add(event);
-			}
-		}
-		MainActivity.sortedArrayList = sortedEventsArrayList;
-		return sortedArrayList;
 	}
 
 
@@ -701,94 +665,6 @@ public class ListEventsActivity extends SherlockListActivity
 			pDialog.dismiss();
 			startActivityForResult(intent, EDIT_EVENT_RESULT_CODE);
 			return null;
-		}
-	}
-
-
-	/** capitalizes the first letter of each word in a given string **/
-	public static String capitaliseFirstLetterOfEachWord(String aString)
-	{
-		if (aString == null)
-		{
-			throw new IllegalArgumentException("Parameter Cant be Null");
-		}
-
-		boolean prevWasWhiteSp = true;
-		char[] chars = aString.toCharArray();
-		for (int i = 0; i < chars.length; i++)
-		{
-			if (Character.isLetter(chars[i]))
-			{
-				if (prevWasWhiteSp)
-				{
-					chars[i] = Character.toUpperCase(chars[i]);
-				}
-				prevWasWhiteSp = false;
-			}
-			else
-			{
-				prevWasWhiteSp = Character.isWhitespace(chars[i]);
-			}
-		}
-		return new String(chars);
-	}
-
-
-	/**
-	 * async task that uses network to get directions in words to destination
-	 * 
-	 */
-	private class GetDirectionsTask extends AsyncTask<LatLng, String, ArrayList<String>>
-	{
-		private final String		PROGRESS_DIALOG_TEXT	= "Getting Directions...";
-		private ProgressDialog	pDialog;
-
-
-		@Override
-		protected void onPreExecute()
-		{
-			// create progress dialog and display it to user
-			pDialog = new ProgressDialog(ListEventsActivity.this);
-			pDialog.setMessage(PROGRESS_DIALOG_TEXT);
-			pDialog.setIndeterminate(false);
-			pDialog.setCancelable(true);
-			pDialog.show();
-		}
-
-
-		@Override
-		protected ArrayList<String> doInBackground(LatLng... latLngs)
-		{
-			try
-			{
-				LatLng dest = latLngs[0];
-				LatLng origin = latLngs[1];
-				// get url to google
-				String url = NetworkManager.getDirectionsUrl(origin, dest);
-				// download the directions as json
-				String json = NetworkManager.downloadJSONdata(url);
-				// get the json data as an object
-				JSONObject jsonObject = new JSONObject(json);
-				// get the directions
-				ArrayList<String> directions = JSONParser.DrivingDirectionsParser(jsonObject);
-				return directions;
-			}
-			catch (Exception e)
-			{
-
-			}
-			return null;
-		}
-
-
-		@Override
-		protected void onPostExecute(ArrayList<String> directions)
-		{
-			pDialog.dismiss();
-			directionsArrayList = directions;
-			Intent intent = new Intent(ListEventsActivity.this, DisplayDirectionsActivity.class);
-			startActivityForResult(intent, DISPLAY_DIRECTIONS_RESULT_CODE);
-
 		}
 	}
 

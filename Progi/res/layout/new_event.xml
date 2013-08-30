@@ -2,7 +2,8 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/scrollView1"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    >
 
     <LinearLayout
         android:id="@+id/main_layout"
@@ -17,6 +18,8 @@
             android:layout_height="wrap_content"
             android:labelFor="@+id/autoComplete_location"
             android:text="@string/location_of_event"
+            android:gravity="center"
+            style="?textLarge"
             android:textColor="@color/white" />
 
         <View
@@ -43,7 +46,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:labelFor="@+id/editText_name"
+            android:gravity="center"
             android:text="@string/name_of_event"
+            style="?textLarge"
             android:textColor="@color/white" />
 
         <View
@@ -67,11 +72,13 @@
 
         <TextView
             android:id="@+id/textView_description"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:layout_weight="1"
             android:labelFor="@+id/editText_description"
             android:text="@string/description_of_event"
+            style="?textLarge"
             android:textColor="@color/white" />
 
         <View
@@ -86,7 +93,8 @@
             android:gravity="top|left"
             android:lines="8"
             android:imeOptions="actionNext"
-            android:inputType="textMultiLine|textShortMessage"
+            android:inputType="text|textMultiLine"
+            android:singleLine="false"
             android:scrollHorizontally="true"
             android:textSize="18sp" />
 
@@ -100,6 +108,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:labelFor="@+id/eventType_spinner"
+            android:gravity="center"
+            style="?textLarge"
             android:text="@string/type_of_event"
             android:textColor="@color/white" />
 
@@ -124,9 +134,11 @@
             android:id="@+id/textView_time"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:layout_weight="1"
             android:labelFor="@+id/timePicker"
             android:text="@string/start_time"
+            style="?textLarge"
             android:textColor="@color/white" />
 
         <View
@@ -149,8 +161,10 @@
             android:id="@+id/textView_duration"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:labelFor="@+id/spinner"
             android:text="@string/duration"
+            style="?textLarge"
             android:textColor="@color/white" />
 
         <View
@@ -176,8 +190,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:gravity="center"
             android:labelFor="@+id/datePicker"
             android:text="@string/date"
+            style="?textLarge"
             android:textColor="@color/white" />
 
         <View
