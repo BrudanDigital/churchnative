@@ -11,7 +11,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
+
 import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -501,7 +501,7 @@ public class ListEventsUserIsInvitedToActivity extends ActionBarListActivity
 			displayToast(getApplicationContext(), Manager.MESSAGE, LONG_DURATION);
 			if (contactsList.size() <= 0)
 			{
-				Log.e("SIZE", "NO CONTACTS");
+				//Log.e("SIZE", "NO CONTACTS");
 				return;
 			}
 			// display dialog showing who is invited

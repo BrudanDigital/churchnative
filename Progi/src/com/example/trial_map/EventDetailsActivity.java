@@ -8,7 +8,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
+
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -395,7 +395,6 @@ public class EventDetailsActivity extends ActionBarActivity
 			displayToast(getApplicationContext(), Manager.MESSAGE, LONG_DURATION);
 			if (contactsList.size() <= 0)
 			{
-				Log.e("SIZE", "NO CONTACTS");
 				return;
 			}
 			DIALOG_TITLE_TXT = "Pick Contacts To UnInvite";

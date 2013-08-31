@@ -22,7 +22,7 @@ import com.example.trial_map.beans.Event;
 
 import android.provider.ContactsContract.PhoneLookup;
 import android.telephony.TelephonyManager;
-import android.util.Log;
+
 
 import com.example.trial_map.beans.Contact;
 import com.example.trial_map.beans.User;
@@ -126,11 +126,11 @@ public class ContactsManager extends Manager
 			catch (NullPointerException e)
 			{
 				MESSAGE = NO_CONNECTION_MESSAGE;
-				Log.e("JSON Error", e.getMessage());
+				//Log.e("JSON Error", e.getMessage());
 			}
 			catch (JSONException e)
 			{
-				Log.e("JSON Error", e.getMessage());
+				//Log.e("JSON Error", e.getMessage());
 			}
 		
 		return contactsList;
@@ -168,12 +168,12 @@ public class ContactsManager extends Manager
 			catch (NullPointerException e)
 			{
 				MESSAGE = NO_CONNECTION_MESSAGE;
-				Log.e("JSON Error", e.getMessage());
+				//Log.e("JSON Error", e.getMessage());
 			}
 			
 			catch (JSONException e)
 			{
-				Log.e("JSON Error", e.getMessage());
+				//Log.e("JSON Error", e.getMessage());
 			}
 	
 		return contactsList;
@@ -212,12 +212,12 @@ public class ContactsManager extends Manager
 			catch (NullPointerException e)
 			{
 				MESSAGE = NO_CONNECTION_MESSAGE;
-				Log.e("JSON Error", e.getMessage());
+				//Log.e("JSON Error", e.getMessage());
 			}
 			catch (JSONException e)
 			{
 				MESSAGE = NO_CONNECTION_MESSAGE;
-				Log.e("JSON Error", e.getMessage());
+				//Log.e("JSON Error", e.getMessage());
 				return FAILURE;
 			}
 
@@ -259,12 +259,12 @@ public class ContactsManager extends Manager
 			catch (NullPointerException e)
 			{
 				MESSAGE = NO_CONNECTION_MESSAGE;
-				Log.e("JSON Error", e.getMessage());
+				//Log.e("JSON Error", e.getMessage());
 			}
 			catch (JSONException e)
 			{
 				MESSAGE = NO_CONNECTION_MESSAGE;
-				Log.e("JSON Error", e.getMessage());
+				//Log.e("JSON Error", e.getMessage());
 				return FAILURE;
 			}
 		}

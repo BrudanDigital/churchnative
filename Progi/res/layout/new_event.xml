@@ -2,8 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/scrollView1"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
+    android:layout_height="match_parent" >
 
     <LinearLayout
         android:id="@+id/main_layout"
@@ -14,12 +13,12 @@
 
         <TextView
             android:id="@+id/textView_location"
+            style="?textLarge"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:labelFor="@+id/autoComplete_location"
             android:text="@string/location_of_event"
-            android:gravity="center"
-            style="?textLarge"
             android:textColor="@color/white" />
 
         <View
@@ -43,12 +42,12 @@
 
         <TextView
             android:id="@+id/textView_name"
+            style="?textLarge"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:labelFor="@+id/editText_name"
             android:gravity="center"
+            android:labelFor="@+id/editText_name"
             android:text="@string/name_of_event"
-            style="?textLarge"
             android:textColor="@color/white" />
 
         <View
@@ -72,13 +71,13 @@
 
         <TextView
             android:id="@+id/textView_description"
+            style="?textLarge"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:layout_weight="1"
+            android:gravity="center"
             android:labelFor="@+id/editText_description"
             android:text="@string/description_of_event"
-            style="?textLarge"
             android:textColor="@color/white" />
 
         <View
@@ -91,11 +90,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="top|left"
-            android:lines="8"
             android:imeOptions="actionNext"
             android:inputType="text|textMultiLine"
-            android:singleLine="false"
+            android:lines="8"
             android:scrollHorizontally="true"
+            android:singleLine="false"
             android:textSize="18sp" />
 
         <View
@@ -105,11 +104,11 @@
 
         <TextView
             android:id="@+id/textView_eventType"
+            style="?textLarge"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:labelFor="@+id/eventType_spinner"
             android:gravity="center"
-            style="?textLarge"
+            android:labelFor="@+id/eventType_spinner"
             android:text="@string/type_of_event"
             android:textColor="@color/white" />
 
@@ -132,13 +131,13 @@
 
         <TextView
             android:id="@+id/textView_time"
+            style="?textLarge"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:layout_weight="1"
+            android:gravity="center"
             android:labelFor="@+id/timePicker"
             android:text="@string/start_time"
-            style="?textLarge"
             android:textColor="@color/white" />
 
         <View
@@ -159,12 +158,12 @@
 
         <TextView
             android:id="@+id/textView_duration"
+            style="?textLarge"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:labelFor="@+id/spinner"
             android:text="@string/duration"
-            style="?textLarge"
             android:textColor="@color/white" />
 
         <View
@@ -187,13 +186,13 @@
 
         <TextView
             android:id="@+id/textView_date"
+            style="?textLarge"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
             android:labelFor="@+id/datePicker"
             android:text="@string/date"
-            style="?textLarge"
             android:textColor="@color/white" />
 
         <View

@@ -58,64 +58,64 @@ import com.google.android.gms.maps.model.MarkerOptions;
  */
 public class MainActivity extends SherlockFragmentActivity implements LocationListener
 {
-	// important constants from xml file
-	private Resources									res																									= null;
-	public static String							WEBSITE_URL																					= null;
-	public static String							GOOGLE_DIRECTIONS_URL																= "https://maps.googleapis.com/maps/api/directions/";
-	public static String							GOOGLE_PLACES_URL																		= "https://maps.googleapis.com/maps/api/place/";
+	// important variables from xml file
+	private Resources								res																									= null;
+	public static String						WEBSITE_URL																					= null;
+	public static String						GOOGLE_DIRECTIONS_URL																= "https://maps.googleapis.com/maps/api/directions/";
+	public static String						GOOGLE_PLACES_URL																		= "https://maps.googleapis.com/maps/api/place/";
 	// constants
-	private static final int					NEW_EVENT_ACTIVITY_RESULT_CODE											= 100;
-	private static final int					DETAILS_ACTIVITY_RESULT_CODE												= 200;
-	private static final int					LIST_EVENTS_ACTIVITY_RESULT_CODE										= 300;
-	private static final int					LOGIN_ACTIVITY_RESULT_CODE													= 400;
-	private static final int					LIST_EVENTS_USER_IS_INVITED_TO_ACTIVITY_RESULT_CODE	= 500;
-	private static final int					GOOGLE_MAP_DEFAULT_ZOOM_LEVEL												= 13;
-	private static final int					HOME_SCREEN																					= R.layout.main_activity;
-	private static final int					SHORT_DURATION																			= Toast.LENGTH_SHORT;
-	private static final int					LONG_DURATION																				= Toast.LENGTH_LONG;
-	private static final String				LOGIN_BUTTON_TEXT																		= "Login";
-	private static final String				LOG_OUT_BUTTON_TEXT																	= "Log Out";
-	private static final String				LOG_OUT_SUCCESS_TEXT																= "You Have Been Logged Out";
-	private static final String				LOG_IN_SUCCESS_TEXT																	= "Logged In as:";
-	private static final String				EVENT_CREATED_TEXT																	= "Event Created Successfully";
-	private static final String				ILLEGAL_PARAMETER_TEXT															= "Parameters cannot be null";
-	private static final CharSequence	FAILED_TO_GET_EVENTS_TEXT														= "Failed To Retrieve Any Events";
-	private static final String				GOOGLE_MARKER_SNIPPET_TEXT													= "On:";
-	private static final CharSequence	ALERT_DIALOG_TITLE																	= "Ops!! Sorry!!";
-	private static final CharSequence	ALERT_DIALOG_MSG																		= "This Application Requires An Internet Connection";
-	private static final CharSequence	ALERT_BUTTON_TEXT																		= "Okay";
-	private static final long					VIBRATION_DURATION																	= 2000;
-	private static final int					LOGIN																								= R.id.menu_login;
-	private static final int					LIST_EVENTS																					= R.id.menu_listEvents;
-	private static final int					SEE_EVENTS_U_ARE_INVITED_TO													= R.id.menu_seeEventsToWhichUareInvited;
-	private static final int					ADD_AN_EVENT																				= R.id.menu_addEvent;
-	private static final String				ACTION_DRAW_ROUTE_TITLE															= "Draw Route On Map";
-	private static final int					DRAW_ROUTE_ICON																			= R.drawable.get_directions;
-	private static final String				ACTION_DETAILS_TITLE																= "Details";
-	private static final int					EVENT_DETAILS_ICON																	= R.drawable.event_details;
-	private static final String				ACTION_GET_DIRECTIONS_TITLE													= "Get Directions";
-	private static final int					GET_DIRECTIONS_ICON																	= R.drawable.get_directions;
+	private static final int				NEW_EVENT_ACTIVITY_RESULT_CODE											= 100;
+	private static final int				DETAILS_ACTIVITY_RESULT_CODE												= 200;
+	private static final int				LIST_EVENTS_ACTIVITY_RESULT_CODE										= 300;
+	private static final int				LOGIN_ACTIVITY_RESULT_CODE													= 400;
+	private static final int				LIST_EVENTS_USER_IS_INVITED_TO_ACTIVITY_RESULT_CODE	= 500;
+	private static final int				GOOGLE_MAP_DEFAULT_ZOOM_LEVEL												= 13;
+	private static final int				HOME_SCREEN																					= R.layout.main_activity;
+	private static final int				SHORT_DURATION																			= Toast.LENGTH_SHORT;
+	private static final int				LONG_DURATION																				= Toast.LENGTH_LONG;
+	private static final String			LOGIN_BUTTON_TEXT																		= "Login";
+	private static final String			LOG_OUT_BUTTON_TEXT																	= "Log Out";
+	private static final String			LOG_OUT_SUCCESS_TEXT																= "You Have Been Logged Out";
+	private static final String			LOG_IN_SUCCESS_TEXT																	= "Logged In as:";
+	private static final String			EVENT_CREATED_TEXT																	= "Event Created Successfully";
+	private static final String			ILLEGAL_PARAMETER_TEXT															= "Parameters cannot be null";
+	private static final String			FAILED_TO_GET_EVENTS_TEXT														= "Failed To Retrieve Any Events";
+	private static final String			ACTION_DRAW_ROUTE_TITLE															= "Draw Route On Map";
+	private static final String			NO_INTERNET_DIALOG_TITLE														= "Ops!! Sorry!!";
+	private static final String			NO_INTERNET_DIALOG_MSG															= "This Application Requires An Internet Connection";
+	private static final String			NO_INTERNET_DILOG_BUTTON_TEXT												= "Okay";
+	private static final String			ACTION_DETAILS_TITLE																= "Details";
+	private static final String			ACTION_GET_DIRECTIONS_TITLE													= "Get Directions";
+	private static final long				VIBRATION_DURATION																	= 2000;
+	private static final int				LOGIN																								= R.id.menu_login;
+	private static final int				LIST_EVENTS																					= R.id.menu_listEvents;
+	private static final int				SEE_EVENTS_U_ARE_INVITED_TO													= R.id.menu_seeEventsToWhichUareInvited;
+	private static final int				ADD_AN_EVENT																				= R.id.menu_addEvent;
+	
+	private static final int				DRAW_ROUTE_ICON																			= R.drawable.get_directions;
+	private static final int				EVENT_DETAILS_ICON																	= R.drawable.event_details;
+	private static final int				GET_DIRECTIONS_ICON																	= R.drawable.get_directions;
 
-	public static double							user_latitude																				= 0;
-	public static double							user_longitude																			= 0;
-	public static ArrayList<Event>		sortedArrayList																			= null;
-	public static String							type_of_event																				= null;
-	public static boolean							isInForeGround																			= false;
+	public static double						user_latitude																				= 0;
+	public static double						user_longitude																			= 0;
+	public static ArrayList<Event>	sortedArrayList																			= null;
+	public static String						type_of_event																				= null;
+	public static boolean						isInForeGround																			= false;
 
 	// variables
-	private boolean										first_time																					= true;
-	private ArrayList<Event>					eventsArrayList																			= null;
-	public static ArrayList<Event>		transientArrayList																	= null;
-	private HashMap<String, Event>		eventMarkerMap																			= new HashMap<String, Event>();
-	private GoogleMap									googleMap;
-	private Location									location;
-	public static User								theUser																							= null;
-	private Menu											menu																								= null;
-	private Vibrator									myVib;
-	private ActionItem								action_drawRoute;
-	private ActionItem								action_details;
-	private QuickAction								mQuickAction;
-	public static LatLng							dest																								= null;
+	private boolean									first_time																					= true;
+	private ArrayList<Event>				eventsArrayList																			= null;
+	public static ArrayList<Event>	transientArrayList																	= null;
+	private HashMap<String, Event>	eventMarkerMap																			= new HashMap<String, Event>();
+	private GoogleMap								googleMap;
+	private Location								location;
+	public static User							theUser																							= null;
+	private Menu										menu																								= null;
+	private Vibrator								myVib;
+	private ActionItem							action_drawRoute;
+	private ActionItem							action_details;
+	private QuickAction							mQuickAction;
+	public static LatLng						dest																								= null;
 
 
 	@Override
@@ -139,12 +139,9 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 				showNoInternetFoundAlertDialog();
 			}
 		}
-		catch (NullPointerException e)
-		{
-			restartActivity();
-		}
 		catch (Exception e)
 		{
+			restartActivity();
 		}
 
 	}
@@ -451,10 +448,10 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
 
 		// set title
-		alertDialogBuilder.setTitle(ALERT_DIALOG_TITLE);
+		alertDialogBuilder.setTitle(NO_INTERNET_DIALOG_TITLE);
 
 		// set dialog message
-		alertDialogBuilder.setMessage(ALERT_DIALOG_MSG).setCancelable(false).setPositiveButton(ALERT_BUTTON_TEXT, new DialogInterface.OnClickListener()
+		alertDialogBuilder.setMessage(NO_INTERNET_DIALOG_MSG).setCancelable(false).setPositiveButton(NO_INTERNET_DILOG_BUTTON_TEXT, new DialogInterface.OnClickListener()
 		{
 			@Override
 			public void onClick(DialogInterface dialog, int id)
@@ -527,7 +524,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 		{
 			try
 			{
-				EventOwner anEventOwner=(EventOwner)aUser;
+				EventOwner anEventOwner = (EventOwner) aUser;
 				int user_id = anEventOwner.getUser_id();
 				Bundle extras = new Bundle();
 				extras.putInt("user_id", user_id);
@@ -535,9 +532,9 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 			}
 			catch (Exception e)
 			{
-				
+
 			}
-			
+
 		}
 
 
@@ -882,15 +879,15 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 
 						// get event data
 						String type = anEvent.getType_of_event();
-						LatLng location = anEvent.getLocation_of_event();
-						String title = anEvent.getName_of_event().toUpperCase();
-						String snippet = GOOGLE_MARKER_SNIPPET_TEXT + anEvent.getDate();
+						final LatLng MARKER_LOCATION = anEvent.getLocation_of_event();
+						final String MARKER_TITLE = anEvent.getName_of_event().toUpperCase();
+						final String MARKER_SNIPPET_TEXT = "On:" + anEvent.getDate() + "\nType:" + type;
 
 						// set marker options
 						MarkerOptions myMarkerOptions = new MarkerOptions();
-						myMarkerOptions.position(location);
-						myMarkerOptions.title(title);
-						myMarkerOptions.snippet(snippet);
+						myMarkerOptions.position(MARKER_LOCATION);
+						myMarkerOptions.title(MARKER_TITLE);
+						myMarkerOptions.snippet(MARKER_SNIPPET_TEXT);
 						int resource_id = getIconBasedOnTypeOfEvent(type);
 						myMarkerOptions.icon(BitmapDescriptorFactory.fromResource(resource_id));
 

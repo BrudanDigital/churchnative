@@ -13,7 +13,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.location.Location;
-import android.util.Log;
+
 
 import com.example.trial_map.adapters.DateComparator;
 import com.example.trial_map.beans.Contact;
@@ -500,7 +500,7 @@ public class EventManager extends Manager
 		}
 		catch (JSONException e)
 		{
-			Log.e("JSON Error", e.getMessage());
+			//Log.e("JSON Error", e.getMessage());
 		}
 
 		return eventsList;

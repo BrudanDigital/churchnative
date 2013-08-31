@@ -23,7 +23,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.util.Log;
+
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -86,11 +86,11 @@ public class NetworkManager extends Manager
 			}
 			input_stream.close();
 			json_string_data = sb.toString();
-			Log.e("json", "[" + json_string_data + "]");
+			//Log.e("json", "[" + json_string_data + "]");
 		}
 		catch (Exception e)
 		{
-			Log.e("Buffer Error", "[" + json_string_data + "]");
+			//Log.e("Buffer Error", "[" + json_string_data + "]");
 		}
 
 		// try parse the string to a JSON object
@@ -100,7 +100,7 @@ public class NetworkManager extends Manager
 		}
 		catch (JSONException e)
 		{
-			Log.e("JSON Parser", "[" + json_string_data + "]");
+			//Log.e("JSON Parser", "[" + json_string_data + "]");
 
 		}
 
@@ -231,11 +231,11 @@ public class NetworkManager extends Manager
 				sb.append(line);
 			}
 			json_string_data = sb.toString();
-			Log.e("Buffer Error", "[" + json_string_data + "]");
+			//Log.e("Buffer Error", "[" + json_string_data + "]");
 		}
 		catch (Exception e)
 		{
-			Log.e("Buffer Error", e.getMessage());
+			//Log.e("Buffer Error", e.getMessage());
 		}
 		finally
 		{
@@ -256,7 +256,7 @@ public class NetworkManager extends Manager
 		}
 		catch (JSONException e)
 		{
-			Log.e("JSON Parser", e.getMessage());
+			//Log.e("JSON Parser", e.getMessage());
 
 		}
 

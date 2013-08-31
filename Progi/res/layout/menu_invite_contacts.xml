@@ -6,29 +6,24 @@
     <item
         android:id="@+id/menu_back"
         android:icon="@drawable/back"
-        android:showAsAction="always"
-        />
-    
+        android:showAsAction="always"/>
+
     <item
         android:id="@+id/menu_inviteContacts"
-        android:title="Invite Friends To This Event"
         android:icon="@drawable/invite_contacts"
         android:showAsAction="never"
-        />
+        android:title="Invite Friends To This Event"/>
+
     <item
         android:id="@+id/menu_seeInvitedContacts"
-        android:title="See Invited Friends"
-      	android:icon="@drawable/see_who_is_invited"
+        android:icon="@drawable/see_who_is_invited"
         android:showAsAction="never"
-        />
-    
+        android:title="See Invited Friends"/>
+
     <item
         android:id="@+id/menu_getDirections"
-        android:title="Get Directions"
-      	android:icon="@drawable/get_directions"
+        android:icon="@drawable/get_directions"
         android:showAsAction="never"
-        />
-    
-    
+        android:title="Get Directions"/>
 
 </menu>
