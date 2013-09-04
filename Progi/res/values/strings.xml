@@ -7,6 +7,11 @@
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
     <color name="orange">#ff5500</color>
+    <color name="light_green">#b2f7b2</color>
+    <color name="cool_red">#fc6666</color>
+    <color name="cool_orange">#ffa366</color>
+    <color name="dark_pink">#cc0066</color>
+    <color name="light_brown">#ab9a61</color>
 
     <string name="contentdesc4pic1">Content</string>
     <string name="duration_prompt">Choose A Duration</string>
@@ -52,7 +57,7 @@
     <string name="login">LOGIN</string>
     <string name="save_event">SAVE EVENT</string>
     <string name="yes">Yes</string>
-    <string name="no">No</string>   
+    <string name="no">No</string>
     <string name="splash_screen">Splash Screen</string>
     <string name="location_of_event">LOCATION OF EVENT</string>
     <string name="description_of_event">DESCRIPTION OF EVENT \n[Whats Is This All About]</string>
@@ -66,4 +71,5 @@
     <string name="your_phonenumber">Your PhoneNumber</string>
     <string name="your_name">Your Name</string>
     <string name="event_type">EVENT TYPE</string>
+
 </resources>

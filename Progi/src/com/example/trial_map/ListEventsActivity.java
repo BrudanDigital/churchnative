@@ -188,7 +188,6 @@ public class ListEventsActivity extends SherlockListActivity
 		mQuickAction.addActionItem(action_editEvent);
 		mQuickAction.addActionItem(action_drawRoute);
 		mQuickAction.addActionItem(action_getDirections);
-		
 
 		// setup the action item click listener
 		mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener()
@@ -203,7 +202,7 @@ public class ListEventsActivity extends SherlockListActivity
 				LatLng dest = new LatLng(getSelectedEvent(index_of_selected_event).getLatitude(), getSelectedEvent(index_of_selected_event).getLongitude());
 				switch (pos)
 				{
-					
+
 					case 0:// if details is clicked
 						getEventDetailsTask = new GetEventDetailsTask();
 						getEventDetailsTask.execute();
@@ -237,7 +236,7 @@ public class ListEventsActivity extends SherlockListActivity
 					default:
 						break;
 				}
-				
+
 			}
 		});
 	}
@@ -312,7 +311,7 @@ public class ListEventsActivity extends SherlockListActivity
 		}
 		// make view global
 		view = v;
-		v.setBackgroundColor(getResources().getColor(R.color.orange));
+		v.setBackgroundColor(getResources().getColor(R.color.dark_pink));
 
 	}
 
@@ -331,7 +330,10 @@ public class ListEventsActivity extends SherlockListActivity
 		{
 			if (resultCode == RESULT_OK)
 			{
-				displayToast(getApplicationContext(), "SAVED", SHORT_DURATION);
+				// start display directions activity
+				setResult(RESULT_OK);
+				finish();
+				// displayToast(getApplicationContext(), "SAVED", SHORT_DURATION);
 			}
 		}
 		if (requestCode == EDIT_EVENT_RESULT_CODE)

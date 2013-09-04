@@ -5,24 +5,23 @@
 
     <item
         android:id="@+id/menu_listEvents"
-        android:title="List Events"
         android:showAsAction="always"
-        />
-	
-    
+        android:title="List Events"/>
+
     <item
         android:id="@+id/menu_login"
         android:showAsAction="always"
         android:title="Login"/>
+
     <item
         android:id="@+id/menu_addEvent"
         android:showAsAction="never"
         android:title="Add Event"/>
-    
+
     <item
         android:id="@+id/menu_seeEventsToWhichUareInvited"
-        android:showAsAction="always"
         android:icon="@drawable/see_who_is_invited"
+        android:showAsAction="always"
         android:title="See Events You Are Invited To"/>
 
 </menu>

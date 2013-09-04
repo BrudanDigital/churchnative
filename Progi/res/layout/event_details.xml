@@ -55,6 +55,7 @@
                 style="?textRegular"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_centerVertical="true"
                 android:layout_marginLeft="34dp"
                 android:layout_toRightOf="@+id/details_descriptionLabel"
                 android:gravity="top|left"
@@ -71,7 +72,8 @@
             android:id="@+id/details_relativeLayout2"
             style="?whiteBackground"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:onClick="getDirectionsQuickActions" >
 
             <TextView
                 android:id="@+id/details_locationLabel"
@@ -139,7 +141,8 @@
             android:id="@+id/details_relativeLayout4"
             style="?whiteBackground"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content" 
+            android:onClick="setNotificationQuickActions">
 
             <TextView
                 android:id="@+id/details_dateLabel"
@@ -174,7 +177,8 @@
             android:id="@+id/details_relativeLayout5"
             style="?whiteBackground"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:onClick="setNotificationQuickActions" >
 
             <TextView
                 android:id="@+id/details_timeLabel"
@@ -238,48 +242,6 @@
             android:layout_width="match_parent"
             android:layout_height="2dip"
             android:background="@android:color/transparent" />
-
-        <TextView
-            android:id="@+id/details_ratingsLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:text="@string/rate_this_event"
-            android:textColor="@color/white" />
-
-        <LinearLayout
-            android:id="@+id/heard_of_event_linearLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" >
-
-            <RadioGroup
-                android:id="@+id/radioGroup"
-                android:layout_width="319dp"
-                android:layout_height="107dp"
-                tools:ignore="UselessParent" >
-
-                <RadioButton
-                    android:id="@+id/radioButton_yes"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/yes"
-                    android:textColor="@color/white" />
-
-                <RadioButton
-                    android:id="@+id/radioButton_no"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/no"
-                    android:textColor="@color/white" />
-
-                <Button
-                    android:id="@+id/submit_button"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/submit" />
-            </RadioGroup>
-        </LinearLayout>
     </LinearLayout>
 
 </ScrollView>

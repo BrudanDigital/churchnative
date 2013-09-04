@@ -91,7 +91,7 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 	private static final int				LIST_EVENTS																					= R.id.menu_listEvents;
 	private static final int				SEE_EVENTS_U_ARE_INVITED_TO													= R.id.menu_seeEventsToWhichUareInvited;
 	private static final int				ADD_AN_EVENT																				= R.id.menu_addEvent;
-	
+
 	private static final int				DRAW_ROUTE_ICON																			= R.drawable.get_directions;
 	private static final int				EVENT_DETAILS_ICON																	= R.drawable.event_details;
 	private static final int				GET_DIRECTIONS_ICON																	= R.drawable.get_directions;
@@ -371,6 +371,20 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 				break;
 			// return from EventDetailsActivity
 			case DETAILS_ACTIVITY_RESULT_CODE:
+				if (resultCode == RESULT_OK)
+				{
+					if (dest == null)
+					{
+						throw new IllegalArgumentException(ILLEGAL_PARAMETER_TEXT);
+					}
+					LatLng origin = new LatLng(user_latitude, user_longitude);
+					// Getting URL to the Google Directions API
+					String url = NetworkManager.getDirectionsUrl(origin, dest);
+					// start background thread
+					DrawRouteTask drawRouteTask = new DrawRouteTask(this, googleMap);
+					// draw the route
+					drawRouteTask.execute(url);
+				}
 				break;
 			// return from ListEventsActivity
 			case LIST_EVENTS_ACTIVITY_RESULT_CODE:
@@ -880,8 +894,8 @@ public class MainActivity extends SherlockFragmentActivity implements LocationLi
 						// get event data
 						String type = anEvent.getType_of_event();
 						final LatLng MARKER_LOCATION = anEvent.getLocation_of_event();
-						final String MARKER_TITLE = anEvent.getName_of_event().toUpperCase();
-						final String MARKER_SNIPPET_TEXT = "On:" + anEvent.getDate() + "\nType:" + type;
+						final String MARKER_TITLE = anEvent.getName_of_event().toUpperCase() + " [" + type + "]";
+						final String MARKER_SNIPPET_TEXT = "On:" + anEvent.getDate();
 
 						// set marker options
 						MarkerOptions myMarkerOptions = new MarkerOptions();

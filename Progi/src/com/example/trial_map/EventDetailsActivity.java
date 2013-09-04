@@ -8,39 +8,40 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-
-import android.view.Gravity;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.example.trial_map.asyncTasks.GetDirectionsTask;
+import com.example.trial_map.beans.ActionItem;
 import com.example.trial_map.beans.Contact;
 import com.example.trial_map.beans.Event;
 import com.example.trial_map.managers.ContactsManager;
-import com.example.trial_map.managers.EventManager;
 import com.example.trial_map.managers.Manager;
+import com.example.trial_map.managers.MyAlarmManager;
+import com.example.trial_map.widgets.QuickAction;
 import com.google.android.gms.maps.model.LatLng;
 
 public class EventDetailsActivity extends ActionBarActivity
 {
-	private static final int			EVENT_DETAILS_XML						= R.layout.event_details;
-	private static final int			INVITE_CONTACTS							= R.id.menu_inviteContacts;
-	private static final int			SEE_INVITED_CONTACTS				= R.id.menu_seeInvitedContacts;
-	private static final int			GET_DIRECTIONS							= R.id.menu_getDirections;
-	private static CharSequence		DIALOG_POSITIVE_BUTTON			= "Ok";
-	private static CharSequence		DIALOG_NEGATIVE_BUTTON_TXT	= "Cancel";
-	protected static final String	SELECT_MODE									= "SELECT";
-	protected static final String	EDIT_MODE										= "EDIT";
+	private static final int			EVENT_DETAILS_XML							= R.layout.event_details;
+	private static final int			INVITE_CONTACTS								= R.id.menu_inviteContacts;
+	private static final int			SEE_INVITED_CONTACTS					= R.id.menu_seeInvitedContacts;
+	private static final int			GET_DIRECTIONS								= R.id.menu_getDirections;
+	private static CharSequence		DIALOG_POSITIVE_BUTTON				= "Ok";
+	private static CharSequence		DIALOG_NEGATIVE_BUTTON_TXT		= "Cancel";
+	protected static final String	SELECT_MODE										= "SELECT";
+	protected static final String	EDIT_MODE											= "EDIT";
+	private static final String		ACTION_GET_DIRECTIONS_TITLE		= "Get Directions";
+	private static final int			GET_DIRECTIONS_ICON						= R.drawable.get_directions;
+	private static final String		ACTION_DRAW_ROUTE_TITLE				= "Draw Route On Map";
+	private static final int			DRAW_ROUTE_ICON								= R.drawable.draw_route;
+	private static final String		ACTION_SET_NOTIFICATION_TITLE	= "Set A Notification For This Event";
+	private static final int			SET_NOTIFICATION_ICON					= R.drawable.clock;
 
-	private static CharSequence		DIALOG_TITLE_TXT						= "Pick Contacts To Invite";
+	private static CharSequence		DIALOG_TITLE_TXT							= "Pick Contacts To Invite";
 
 	// widgets
 	private TextView							location_TextView;
@@ -50,16 +51,16 @@ public class EventDetailsActivity extends ActionBarActivity
 	private TextView							date_TextView;
 	private TextView							description_TextView;
 	private TextView							type_TextView;
-	private LinearLayout					layout;
-	private RadioGroup						aRadioGroup;
-	private RadioButton						yesRadioButton;
-	private RadioButton						noRadioButton;
 	private Event									anEvent;
 	// private TextView totals_textView;
 	// arraylist to keep the selected contacts
-	ArrayList<Contact>						selectedContacts						= null;
-
-	private AlertDialog						dialog											= null;
+	private ArrayList<Contact>		selectedContacts							= null;
+	private AlertDialog						dialog												= null;
+	private ActionItem						action_getDirections;
+	private ActionItem						action_drawRoute;
+	private QuickAction						mQuickAction;
+	private View									view													= null;
+	private ActionItem						action_setNotification;
 
 
 	@Override
@@ -79,7 +80,6 @@ public class EventDetailsActivity extends ActionBarActivity
 		duration_TextView = (TextView) findViewById(R.id.details_durationValue);
 		date_TextView = (TextView) findViewById(R.id.details_dateValue);
 		description_TextView = (TextView) findViewById(R.id.details_descriptionValue);
-		layout = (LinearLayout) findViewById(R.id.heard_of_event_linearLayout);
 
 		// get event picked by user
 		anEvent = getEvent(getIntent());
@@ -94,7 +94,8 @@ public class EventDetailsActivity extends ActionBarActivity
 
 		// display details of event
 		showEventDetails(anEvent);
-		displayLinearLayoutContent(layout);
+		// displayLinearLayoutContent(layout);
+		// initializeDirectionsQuickActionBar();
 
 	}
 
@@ -135,6 +136,58 @@ public class EventDetailsActivity extends ActionBarActivity
 				getDirectionsTask.execute(destination);
 		}
 		return super.onOptionsItemSelected(menu_item);
+	}
+
+
+	public void getDirectionsQuickActions(View aView)
+	{
+		// pseudo code
+		// try to return the old views background color to its original color[black]
+		// if it is not
+		// make the current views color different to show its highlighted
+		// initialize the quick action bar
+		// show the quick action bar
+
+		makeBackGroundOriginalColor();
+		// make view global
+		view = aView;
+		aView.setBackgroundColor(getResources().getColor(R.color.light_brown));
+
+		initializeDirectionsQuickActionBar();
+
+		mQuickAction.show(aView);
+		mQuickAction.setAnimStyle(QuickAction.ANIM_GROW_FROM_CENTER);
+	}
+
+
+	public void setNotificationQuickActions(View aView)
+	{
+		// pseudo code
+		// try to return the old views background color to its original color[black]
+		// if it is not
+		// make the current views color different to show its highlighted
+		// initialize quick action bar
+		// show the quick action bar
+
+		makeBackGroundOriginalColor();
+		// make view global
+		view = aView;
+		aView.setBackgroundColor(getResources().getColor(R.color.light_brown));
+
+		initializeNotificationQuickActionBar();
+
+		mQuickAction.show(aView);
+		mQuickAction.setAnimStyle(QuickAction.ANIM_GROW_FROM_CENTER);
+	}
+
+
+	private void makeBackGroundOriginalColor()
+	{
+		if (view != null)
+		{
+			// return original view colour to black
+			view.setBackgroundColor(Color.TRANSPARENT);
+		}
 	}
 
 
@@ -258,11 +311,95 @@ public class EventDetailsActivity extends ActionBarActivity
 	}
 
 
-	private void displayLinearLayoutContent(LinearLayout layout)
+	/**
+	 * initializes the quick action bar and its items
+	 */
+	private void initializeDirectionsQuickActionBar()
 	{
-		layout.removeAllViews();
-		GetHeardOfEventStatus getHeardOfEventStatus = new GetHeardOfEventStatus();
-		getHeardOfEventStatus.execute(layout);
+
+		// Get Route action
+		action_getDirections = new ActionItem();
+		// set text for action item
+		action_getDirections.setTitle(ACTION_GET_DIRECTIONS_TITLE);
+		// set icon for action item
+		action_getDirections.setIcon(getResources().getDrawable(GET_DIRECTIONS_ICON));
+
+		// draw Route action
+		action_drawRoute = new ActionItem();
+		// set text for action item
+		action_drawRoute.setTitle(ACTION_DRAW_ROUTE_TITLE);
+		// set icon for action item
+		action_drawRoute.setIcon(getResources().getDrawable(DRAW_ROUTE_ICON));
+
+		mQuickAction = new QuickAction(this);
+
+		mQuickAction.addActionItem(action_getDirections);
+		mQuickAction.addActionItem(action_drawRoute);
+
+		// setup the action item click listener
+		mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener()
+		{
+			@Override
+			public void onItemClick(int pos)
+			{
+
+				LatLng dest = new LatLng(anEvent.getLatitude(), anEvent.getLongitude());
+				switch (pos)
+				{
+					case 0:// if get directions is clicked
+						// start display directions activity
+						GetDirectionsTask getDirectionsTask = new GetDirectionsTask(EventDetailsActivity.this);
+						getDirectionsTask.execute(dest);
+						break;
+					case 1:// if draw is clicked
+						// start display directions activity
+						MainActivity.dest = dest;
+						setResult(RESULT_OK);
+						finish();
+						break;
+
+					default:
+						break;
+				}
+
+			}
+		});
+	}
+
+
+	private void initializeNotificationQuickActionBar()
+	{
+
+		// Get Route action
+		action_setNotification = new ActionItem();
+		// set text for action item
+		action_setNotification.setTitle(ACTION_SET_NOTIFICATION_TITLE);
+		// set icon for action item
+		action_setNotification.setIcon(getResources().getDrawable(SET_NOTIFICATION_ICON));
+
+		mQuickAction = new QuickAction(this);
+
+		mQuickAction.addActionItem(action_setNotification);
+
+		// setup the action item click listener
+		mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener()
+		{
+			@Override
+			public void onItemClick(int pos)
+			{
+
+				switch (pos)
+				{
+					case 0:// if set notification
+						MyAlarmManager.setAlarm(anEvent, getApplicationContext());
+						break;
+
+					default:
+						break;
+				}
+
+			}
+		});
 	}
 
 
@@ -489,121 +626,4 @@ public class EventDetailsActivity extends ActionBarActivity
 		}
 	}
 
-
-	private class GetHeardOfEventStatus extends AsyncTask<LinearLayout, Void, Boolean>
-	{
-
-		@Override
-		protected Boolean doInBackground(LinearLayout... layouts)
-		{
-			LinearLayout layout = layouts[0];
-			layout.removeAllViews();
-			if (anEvent.getHeard_of_this_event_status())
-			{
-				return true;
-			}
-			return false;
-		}
-
-
-		@Override
-		protected void onPostExecute(Boolean result)
-		{
-			super.onPostExecute(result);
-			// displayToast(EventDetailsActivity.this, "result=" + result,
-			// LONG_DURATION);
-			if (!result)
-			{
-				displayRadioButtons(layout);
-				return;
-			}
-			displayAlreadyVotedMessage(layout);
-		}
-
-
-		private void displayRadioButtons(LinearLayout layout)
-		{
-			aRadioGroup = new RadioGroup(getApplicationContext());
-			yesRadioButton = new RadioButton(getApplicationContext());
-			noRadioButton = new RadioButton(getApplicationContext());
-			Button aButton = new Button(getApplicationContext());
-
-			aButton.setText("SUBMIT");
-			aButton.setHeight(10);
-			aButton.setOnClickListener(new OnClickListener()
-			{
-
-				@Override
-				public void onClick(View arg0)
-				{
-					SaveHeardOfEventStatusTask saveHeardOfEventStatusTask = new SaveHeardOfEventStatusTask();
-					saveHeardOfEventStatusTask.execute();
-					anEvent.setHeard_of_this_event_status(true);
-				}
-			});
-			yesRadioButton.setText("YES");
-			yesRadioButton.setChecked(true);
-			noRadioButton.setText("NO");
-
-			aRadioGroup.addView(yesRadioButton);
-			aRadioGroup.addView(noRadioButton);
-
-			layout.addView(aRadioGroup);
-			layout.addView(aButton);
-
-		}
-
-
-		public void displayAlreadyVotedMessage(LinearLayout layout)
-		{
-			TextView aTextView = new TextView(getApplicationContext());
-			aTextView.setText("You Know About This Event");
-			aTextView.setTextColor(Color.YELLOW);
-			aTextView.setGravity(Gravity.CENTER);
-			layout.addView(aTextView);
-
-		}
-	}
-
-
-	private class SaveHeardOfEventStatusTask extends AsyncTask<Void, Void, Boolean>
-	{
-
-		@Override
-		protected void onPreExecute()
-		{
-			PROGRESS_DIALOG_TEXT = "Saving...";
-			showProgressDialog();
-		}
-
-
-		@Override
-		protected Boolean doInBackground(Void... params)
-		{
-			if (noRadioButton.isChecked())
-			{
-				return true;
-			}
-			if (EventManager.saveHeardOfStatus(anEvent.getEvent_id()))
-			{
-				return true;
-			}
-			return false;
-		}
-
-
-		@Override
-		protected void onPostExecute(Boolean result)
-		{
-			super.onPostExecute(result);
-			closeProgressDialog();
-			if (result)
-			{
-				setResult(RESULT_OK);
-				finish();
-				return;
-			}
-			displayToast(getApplicationContext(), "Failed to Save Status", LONG_DURATION);
-		}
-	}
 }
